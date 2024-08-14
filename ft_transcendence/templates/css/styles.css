@@ -1,0 +1,65 @@
+body {
+	overflow: hidden;
+	background-color: rgb(26, 44, 161);
+}
+
+.buttons {
+	display: flex;
+	position: absolute;
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
+	left: 39.63%;
+	width: 20.00%;
+	height: 9.33%;
+	z-index: 9;
+	color: rgb(0, 0, 0);
+	overflow: hidden;
+	background-color: rgb(225, 207, 41);
+	border: solid rgb(16, 240, 68) 3px;
+	border-radius: 16px;
+	box-shadow: 29px 29px 29px rgba(0, 0, 0, 0.3);
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 2.41vw;
+	padding: 0px;
+	margin: 0px;
+	user-select: none;
+}
+
+#Playbutton1P {
+	top: 35.43%;
+}
+
+#Playbutton2P {
+	top: 47.46%;
+}
+
+#div4 {
+	top: 58.74%;
+}
+
+#PlaybuttonMP {
+	top: 58.74%;
+}
+
+#ta6 {
+	display: block;
+	position: absolute;
+	top: 10.12%;
+	left: 33.04%;
+	width: 33.19%;
+	height: 16.92%;
+	z-index: 9;
+	color: rgb(0, 0, 0);
+	overflow: hidden;
+	background-color: rgb(212, 26, 26);
+	border: solid rgb(0, 0, 0) 4px;
+	border-radius: 22px;
+	box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.3);
+	font-family: "Trebuchet MS", sans-serif;
+	font-size: 2.41vw;
+	font-weight: bold;
+	padding: 8px;
+	margin: 0px;
+}
+
