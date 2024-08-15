@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 class CheckUserAuthorizationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         if not request.user.is_authenticated:
-            if request.path not in ['/login/', '/register/', '/inactive/']:
+            if request.path not in ['/login/', '/register/', '/inactive/', '/admin/']:
                 return redirect('/login/')
         elif not request.user.is_active:
             logout(request)

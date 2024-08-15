@@ -52,7 +52,10 @@ class MyUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to='avatars/', default='default/default.png')
-    # last
+    elo = models.IntegerField(default=400)
+    wins =  models.IntegerField(default=0)
+    loses = models.IntegerField(default=0)
+    total = models.IntegerField(default=0)
     objects = MyUserManager()
 
 
@@ -77,3 +80,13 @@ class MyUser(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+    
+
+class Match(models.Model):
+    player1 = models.CharField(max_length=40)
+    player2 = models.CharField(max_length=40)
+    score1 = models.IntegerField()
+    score2 = models.IntegerField()
+    rank_change1 = models.IntegerField()
+    rank_change2 = models.IntegerField()
+    time_stamp = models.DateTimeField(auto_now=True)

@@ -5,7 +5,7 @@
 <ul>
 
 {% for i in users %}
-    <li><img src="{{i.avatar.url}}" width="15" height="15"> <a href="{{forloop.counter0}}">{{i.login}}</a></li>
+    <li><img src="{{i.avatar.url}}" width="15" height="15"> <a href="{{i.id}}">{{i.login}}</a></li>
 {% endfor %}
 
 </ul>

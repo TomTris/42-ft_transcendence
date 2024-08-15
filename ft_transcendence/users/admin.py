@@ -6,7 +6,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
 from .models import MyUser
-
+from .models import Match
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
@@ -55,14 +55,14 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = MyUser
-        fields = ["login", "email", "password", "date_of_birth", "avatar", "is_active", "is_admin"]
+        fields = ["login", "email", "password", "date_of_birth", "avatar", "is_active", "is_admin", "total", "loses", "wins", "elo"]
 
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ["login", "email", "date_of_birth", "is_admin", "avatar"]
+    list_display = ["login", "email", "date_of_birth", "is_admin", "avatar", "total", "loses", "wins", "elo"]
     list_filter = ["login"]
     fieldsets = [
         (None, {"fields": ["login", "email", "password", "avatar"]}),
@@ -82,5 +82,12 @@ class UserAdmin(BaseUserAdmin):
     ordering = ["login"]
     filter_horizontal = []
 
+
+class MatchAdmin(admin.ModelAdmin):
+    list_display = ["player1", "player2", "score1", "score2", "rank_change1", "rank_change2"] 
+    search_fields = ["player1", "player2", "score1", "score2", "rank_change1", "rank_change2"] 
+    list_filter = ["player1"] 
+
 admin.site.register(MyUser, UserAdmin)
+admin.site.register(Match, MatchAdmin)
 admin.site.unregister(Group)
