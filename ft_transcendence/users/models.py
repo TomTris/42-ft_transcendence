@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+import time
 
 
 class MyUserManager(BaseUserManager):
@@ -51,7 +52,9 @@ class MyUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to='avatars/', default='default/default.png')
+    # last
     objects = MyUserManager()
+
 
     USERNAME_FIELD = "login"
     REQUIRED_FIELDS = ["email", "date_of_birth"]

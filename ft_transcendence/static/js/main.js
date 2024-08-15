@@ -1,6 +1,6 @@
 $(document).ready(function() {
 	// when document loaded:
-
+	console.log('asd');
 	$("#Playbutton1P").on("click",function() {
 
 	});

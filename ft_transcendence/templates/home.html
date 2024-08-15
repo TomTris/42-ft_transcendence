@@ -1,6 +1,7 @@
-{% extends "index.html" %}
-
+{% extends "base.html" %}
 
 {% block content %}
 <h1>Home</h1>
+<img src="{{request.user.avatar.url}}">
+<p>Avatar URL: {{ request.user.avatar.url }}</p>
 {% endblock  %}
