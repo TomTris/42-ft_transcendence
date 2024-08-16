@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - psql-volume:/var/lib/postgresql/data
+    networks:
+      - inception_network
+
+  django:
+    build: .
+    container_name: my_django
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    networks:
+      - inception_network
+
+networks:
+  inception_network:
+    driver: bridge
+    name: inception_network
+
+volumes:
+  psql-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/data/psql
