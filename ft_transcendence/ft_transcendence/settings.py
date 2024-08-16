@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pages',
     'users',
+    'game',
 ]
 
 ASGI_APPLICATION = 'ft_transcendence.asgi.application'
