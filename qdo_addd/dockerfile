@@ -1,0 +1,30 @@
+FROM python:3.9
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --upgrade pip
+RUN pip install psycopg2
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Set environment variable to disable output buffering
+ENV PYTHONUNBUFFERED=1
+
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /app/entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
+# Expose port 8000
+EXPOSE 8000
+
+# Use the entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
