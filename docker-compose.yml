@@ -16,14 +16,14 @@ services:
       - inception_network
 
   django:
-    build: .
+    build: ./ft_transcendence
     container_name: my_django
     depends_on:
       - postgres
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./ft_transcendence:/app
     networks:
       - inception_network
 
