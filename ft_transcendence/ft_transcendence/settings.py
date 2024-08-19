@@ -88,22 +88,22 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydatabase',  # Match POSTGRES_DB in docker-compose.yml
-        'USER': 'myuser',      # Match POSTGRES_USER in docker-compose.yml
-        'PASSWORD': 'mypassword',  # Match POSTGRES_PASSWORD in docker-compose.yml
-        'HOST': 'postgres',    # This should match the service name in docker-compose.yml
-        'PORT': '5432',        # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mydatabase',  # Match POSTGRES_DB in docker-compose.yml
+#         'USER': 'myuser',      # Match POSTGRES_USER in docker-compose.yml
+#         'PASSWORD': 'mypassword',  # Match POSTGRES_PASSWORD in docker-compose.yml
+#         'HOST': 'postgres',    # This should match the service name in docker-compose.yml
+#         'PORT': '5432',        # Default PostgreSQL port
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -155,6 +155,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = "users.MyUser"
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 10

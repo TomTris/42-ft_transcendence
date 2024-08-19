@@ -1,9 +1,10 @@
 from django.db import models
-from users.models import MyUser
+from django.conf import settings
+import time
 
 class GameSession(models.Model):
-    player1 = models.OneToOneField(MyUser, related_name='game_player1', null=True, on_delete=models.SET_NULL)
-    player2 = models.OneToOneField(MyUser, related_name='game_player2', null=True, on_delete=models.SET_NULL)
+    player1 = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='game_player1', null=True, on_delete=models.SET_NULL)
+    player2 = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='game_player2', null=True, on_delete=models.SET_NULL)
     score1 = models.IntegerField(default=0)
     score2 = models.IntegerField(default=0)
     rank_change1 = models.IntegerField(default=0)
@@ -11,6 +12,15 @@ class GameSession(models.Model):
     game_state = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    game_state = {
+        'pos1':300,
+        'pos2':300,
+        'posx':400,
+        'posy':400,
+        'disc1':0,
+        'disc2':0,
+        'game_start':time.time()
+    }
 
     def is_full(self):
         return self.player1 and self.player2
@@ -23,9 +33,10 @@ class GameSession(models.Model):
         else:
             raise ValueError("Game session is already full")
         self.save()
-        if self.is_full():
-            self.is_active = True
-            self.save()
+
+    def disconnect(self, user):
+        pass
+
 
     def save(self, *args, **kwargs):
         if self.is_full() and not self.is_active:

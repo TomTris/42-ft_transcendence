@@ -4,93 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
-    <style>
-        /* Add some basic styling for the game */
-        #game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        .cell:hover {
-            background-color: #e0e0e0;
-        }
-    </style>
+
+
 </head>
 <body>
     <div id="game-container">
-        <h1>Game Session</h1>
-        <div id="game-board">
-            <!-- Game board cells will be inserted here by JavaScript -->
-        </div>
+        <h1>Game Session: {{ session_id }}</h1>
+        <p>Player 1: <span id="player1">{{ player1 }}</span></p>
+        <p>Player 2: <span id="player2">{{ player2 }}</span></
     </div>
 
     <script>
-        const sessionId = '{{ session_id }}';  // Pass the session ID from Django view
-        const socket = new WebSocket(`ws://localhost:8000/ws/game/${sessionId}/`);
-
-        // Function to create the game board
-        function createBoard() {
-            const board = document.getElementById('game-board');
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = i;
-                cell.addEventListener('click', () => makeMove(i));
-                board.appendChild(cell);
-            }
-        }
-
-        // Handle incoming WebSocket messages
-        socket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            if (data.game_state) {
-                updateBoard(data.game_state);
-            } else if (data.error) {
-                alert('Error: ' + data.error);
-            }
+        // JavaScript to connect to WebSocket and update player list
+        const sessionId = "{{ session_id }}";
+        const socket = new WebSocket(`ws://${window.location.host}/ws/game/${sessionId}/`);
+        socket.onopen = function(event) {
+            console.log('WebSocket is connected.');
+        
+            // Send messages every 50 milliseconds
+            const intervalId = setInterval(function() {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'ask_for_data',
+                    }));
+                }
+            }, 50);
+        
+            setTimeout(function() {
+                clearInterval(intervalId);
+            }, 5000);
         };
-
-        // Send a move to the server
-        function makeMove(index) {
-            socket.send(JSON.stringify({ 'move': index }));
-        }
-
-        // Update the game board based on the game state
-        function updateBoard(gameState) {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach((cell, i) => {
-                cell.textContent = gameState[i] || '';
-            });
-        }
-
-        // Initialize the game board
-        createBoard();
-
-        // Handle WebSocket connection errors
-        socket.onclose = function(e) {
-            console.error('Socket closed unexpectedly');
-        };
-
-        // Optionally, handle WebSocket errors
-        socket.onerror = function(e) {
-            console.error('Socket error:', e);
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            document.getElementById('player1').textContent = data.player1;
+            document.getElementById('player2').textContent = data.player2;
         };
     </script>
 </body>

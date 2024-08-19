@@ -7,46 +7,37 @@
 </head>
 <body>
     <h1>Welcome to the Game</h1>
-    <button id="start-or-join-game-btn">Start or Join Game</button>
+    
+    <button id="join-game">Join Game</button>
 
-    <script>
-        document.getElementById('start-or-join-game-btn').addEventListener('click', function() {
-            let sessionId = localStorage.getItem('session_id') || '';
-
-            fetch('/game/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({ 'session_id': sessionId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.session_id) {
-                    localStorage.setItem('session_id', data.session_id);
-                    window.location.href = `/${data.session_id}/`; // Redirect to the game view
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+<script>
+    document.getElementById('join-game').onclick = function() {
+        fetch('/game/join-game-session/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
             }
-            return cookieValue;
-        }
+            return response.json();
+        })
+        .then(data => {
+            if (data.session_id) {
+                // Redirect to the new game page with the session ID
+                window.location.href = `/game/${data.session_id}/`;
+            } else {
+                console.error('Failed to join game session:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    };
+</script>
+
     </script>
 </body>
 </html>
