@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydatabase
-    ports:
-      - "5432:5432"
     volumes:
       - psql-volume:/var/lib/postgresql/data
     networks:
@@ -32,9 +30,6 @@ services:
       - django
     ports:
       - "443:443"
-    # volumes:
-    #   - ./nginx/conf.d:/etc/nginx/conf.d
-    #   - ./nginx/ssl:/etc/nginx/ssl
     networks:
       - inception_network
 networks:

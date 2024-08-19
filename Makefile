@@ -33,6 +33,9 @@ clean:
 # rm -rf ./srcs/web
 # mkdir ./srcs/web
 
+re1:
+	make clean; make
+
 clean_volumes:
 	@docker volume rm $$(docker volume ls -q);
 
