@@ -20,13 +20,23 @@ services:
     container_name: my_django
     depends_on:
       - postgres
-    ports:
-      - "8000:8000"
     volumes:
       - ./ft_transcendence:/app
     networks:
       - inception_network
 
+  nginx:
+    build: ./nginx
+    container_name: my_nginx
+    depends_on:
+      - django
+    ports:
+      - "443:443"
+    # volumes:
+    #   - ./nginx/conf.d:/etc/nginx/conf.d
+    #   - ./nginx/ssl:/etc/nginx/ssl
+    networks:
+      - inception_network
 networks:
   inception_network:
     driver: bridge
