@@ -10,13 +10,13 @@ import json
 @require_POST
 def join_game_session(request):
     user = request.user
-    
     game_session = GameSession.objects.filter(
         Q(player1=user) | Q(player2=user),
         is_active=True
     ).first()
     if game_session is None:
         game_session = GameSession.objects.filter(is_active=True).first()
+       
         if game_session is None:
             game_session = GameSession.objects.create()
         try:
@@ -32,4 +32,8 @@ def game_view(request):
     return render(request, "game.html")
 
 def playing_view(request, session_id):
+    game_session = GameSession.objects.filter(id=session_id).first()
+    user = request.user
+    if game_session is None or user not in [game_session.player1, game_session.player2] or not game_session.is_active:
+        return render(request, "user_doesnt_exist.html")
     return render(request, "playing.html", {'session_id':session_id})

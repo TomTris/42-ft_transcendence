@@ -10,6 +10,7 @@
 <body>
     <div id="game-container">
         <h1>Game Session: {{ session_id }}</h1>
+        <p><div id='status'>{{status}}</div></p>
         <p>Player 1: <span id="player1">{{ player1 }}</span></p>
         <p>Player 2: <span id="player2">{{ player2 }}</span></
     </div>
@@ -36,6 +37,7 @@
         };
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
+            document.getElementById('status').textContent = data.status;
             document.getElementById('player1').textContent = data.player1;
             document.getElementById('player2').textContent = data.player2;
         };

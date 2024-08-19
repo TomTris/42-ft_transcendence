@@ -7,20 +7,12 @@ class GameSession(models.Model):
     player2 = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='game_player2', null=True, on_delete=models.SET_NULL)
     score1 = models.IntegerField(default=0)
     score2 = models.IntegerField(default=0)
+    # disc1 = models.B
     rank_change1 = models.IntegerField(default=0)
     rank_change2 = models.IntegerField(default=0)
     game_state = models.JSONField(default=dict)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    game_state = {
-        'pos1':300,
-        'pos2':300,
-        'posx':400,
-        'posy':400,
-        'disc1':0,
-        'disc2':0,
-        'game_start':time.time()
-    }
 
     def is_full(self):
         return self.player1 and self.player2
@@ -36,6 +28,8 @@ class GameSession(models.Model):
 
     def disconnect(self, user):
         pass
+
+
 
 
     def save(self, *args, **kwargs):
