@@ -4,21 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
-
+    <style>
+        #game-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>    
 
 </head>
 <body>
     <div id="game-container">
         <h1>Game Session: {{ session_id }}</h1>
-        <p><div id='status'>{{status}}</div></p>
+        <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
         <p>Player 1: <span id="player1">{{ player1 }}</span></p>
-        <p>Player 2: <span id="player2">{{ player2 }}</span></
+        <p>Player 2: <span id="player2">{{ player2 }}</span></p>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
     </div>
 
     <script>
         // JavaScript to connect to WebSocket and update player list
         const sessionId = "{{ session_id }}";
         const socket = new WebSocket(`ws://${window.location.host}/ws/game/${sessionId}/`);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
         socket.onopen = function(event) {
             console.log('WebSocket is connected.');
         
@@ -29,17 +44,31 @@
                         action: 'ask_for_data',
                     }));
                 }
-            }, 50);
+            }, 40);
         
             setTimeout(function() {
                 clearInterval(intervalId);
-            }, 5000);
+            }, 5000000);
         };
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
             document.getElementById('status').textContent = data.status;
             document.getElementById('player1').textContent = data.player1;
             document.getElementById('player2').textContent = data.player2;
+            document.getElementById('time').textContent = data.time
+            updateGameCanvas(data);
+        };
+
+        function updateGameCanvas(data) {
+            ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
+            console.log(data.posx, data.posy, data.vecx, data.vecy)
+            // Draw the paddles and ball
+            ctx.fillStyle = 'black';
+            ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
+            ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
+            ctx.beginPath();
+            ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
+            ctx.fill();
         };
     </script>
 </body>

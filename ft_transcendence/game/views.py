@@ -19,6 +19,7 @@ def join_game_session(request):
        
         if game_session is None:
             game_session = GameSession.objects.create()
+            game_session.init_game_state()
         try:
             game_session.add_player(user)
         except ValueError:
