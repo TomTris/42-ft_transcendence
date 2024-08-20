@@ -15,7 +15,7 @@ def join_game_session(request):
         is_active=True
     ).first()
     if game_session is None:
-        game_session = GameSession.objects.filter(is_active=True).first()
+        game_session = GameSession.objects.filter(player2=None, is_active=True).first()
        
         if game_session is None:
             game_session = GameSession.objects.create()

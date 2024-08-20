@@ -9,12 +9,14 @@ from .models import width, height, pwidth, pheight, radius, distance
 
 class GameConsumer(WebsocketConsumer):
     def connect(self):
+        
         self.session_id = self.scope['url_route']['kwargs']['session_id']
         self.group_name = f'game_{self.session_id}'
         self.game_session = GameSession.objects.filter(id=self.session_id).first()
         if self.game_session is None:
             self.close()
             return
+        game_state = self.game_session.get_game_state()
         self.user = self.scope['user']
         if self.user in [self.game_session.player1, self.game_session.player2]:
             self.accept()
@@ -22,13 +24,14 @@ class GameConsumer(WebsocketConsumer):
                 self.group_name,
                 self.channel_name
             )
+            
             if self.user == self.game_session.player1:
-                self.game_session.game_state['disc1'] = 0
+                game_state['disc1'] = 0
             else:
-                self.game_session.game_state['disc2'] = 0
-            if self.game_session.game_state['disc1'] == 0 and self.game_session.game_state['disc2'] == 0:
-                self.game_session.game_state['start'] = time.time() + 4
-            self.game_session.save()
+                game_state['disc2'] = 0
+            if game_state['disc1'] == 0 and game_state['disc2'] == 0:
+                game_state['start'] = (time.time() + 4)
+            self.game_session.set_game_state(game_state)
         else:
             self.close()
 
@@ -37,16 +40,18 @@ class GameConsumer(WebsocketConsumer):
         if self.game_session is None:
             return
 
+        game_state = self.game_session.get_game_state()
         if self.user == self.game_session.player1:
             if self.game_session.player2 is None:
                 self.game_session.delete()
                 return
-            self.game_session.game_state['disc1'] = 1
+            game_state['disc1'] = 1
         else:
-            self.game_session.game_state['disc2'] = 1
-        self.game_session.game_state['start'] = time.time() + 21
-        self.game_session.save()
-        if self.game_session.game_state['disc1'] == 1 and self.game_session.game_state['disc2'] == 1:
+            game_state['disc2'] = 1
+        game_state['start'] = time.time() + 21
+
+        self.game_session.set_game_state(game_state)
+        if game_state['disc1'] == 1 and game_state['disc2'] == 1:
             self.game_session.delete()
             return
         
@@ -58,10 +63,11 @@ class GameConsumer(WebsocketConsumer):
         if self.game_session is None:
             return
         data = json.loads(text_data)
+        game_state = self.game_session.get_game_state()
         self.game_session.update_playing()
-        if self.game_session.game_state['centered'] == 0:
+        if game_state['centered'] == 0:
             self.game_session.position_center_random_move()
-        elif self.game_session.game_state['playing']:
+        elif game_state['playing']:
             self.game_session.make_move()
         self.send_data_to_group()
     
@@ -75,13 +81,14 @@ class GameConsumer(WebsocketConsumer):
     
 
     def get_status(self):
+        game_state = self.game_session.get_game_state()
         if self.game_session.player2 is None or self.game_session.player1 is None:
             status = "Waiting for other player"
-        elif self.game_session.game_state['disc1'] == 1:
+        elif game_state['disc1'] == 1:
             status = "Waiting for player1"
-        elif self.game_session.game_state['disc2'] == 1:
+        elif game_state['disc2'] == 1:
             status = "Waiting for player2"
-        elif self.game_session.game_state['start'] - time.time() >= 0.0:
+        elif game_state['start'] - time.time() >= 0.0:
             status = "Count down"
         else:
             status = "Playing"
@@ -89,25 +96,27 @@ class GameConsumer(WebsocketConsumer):
     
     
     def get_time(self):
-        return int(self.game_session.game_state['start'] - time.time())
+        game_state = self.game_session.get_game_state()
+        return int(game_state['start'] - time.time())
 
     
     def send_data_to_group(self):
+        game_state = self.game_session.get_game_state()
         message = {
                 'status':self.get_status(),
                 'player1':self.get_player(1),
                 'player2':self.get_player(2),
-                'pos1':self.game_session.game_state['pos1'],
-                'pos2':self.game_session.game_state['pos2'],
-                'posx':self.game_session.game_state['posx'],
-                'posy':self.game_session.game_state['posy'],
+                'pos1':game_state['pos1'],
+                'pos2':game_state['pos2'],
+                'posx':game_state['posx'],
+                'posy':game_state['posy'],
                 'pheight': pheight,
                 'pwidth': pwidth,
                 'radius': radius,
                 'width': width,
                 'height': height,
-                'vecy': self.game_session.game_state['vecy'],
-                'vecx': self.game_session.game_state['vecx'],
+                'vecy': game_state['vecy'],
+                'vecx': game_state['vecx'],
                 'distance': distance, 
                 'time':self.get_time(),
         }
