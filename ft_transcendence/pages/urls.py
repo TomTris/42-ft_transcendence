@@ -10,6 +10,9 @@ urlpatterns = [
     path('users/', views.users_view),
     path('users/<int:id>', views.user_view),
     path('best/', views.best_view),
+    
+    #for test modsecurity
+    path('vulnerable/', views.vulnerable_view),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
