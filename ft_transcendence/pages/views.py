@@ -44,3 +44,14 @@ def user_view(request, id):
     else:
         winrate = "%.2f" % (user.wins / user.total)
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
+
+
+#for test modsecurity
+from django.http import HttpResponse
+from django.db import connection
+def vulnerable_view(request):
+    query_param = request.GET.get('id', '')
+    cursor = connection.cursor()
+    cursor.execute(f"SELECT * FROM users_myuser")
+    results = cursor.fetchall()
+    return HttpResponse(f"Results: {results}")

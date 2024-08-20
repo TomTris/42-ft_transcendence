@@ -1,0 +1,7 @@
+FROM redis:7.2.5
+
+# Expose port 8000
+EXPOSE 6379
+
+# Use the entrypoint script
+CMD ["redis-server"]

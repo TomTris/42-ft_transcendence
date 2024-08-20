@@ -13,6 +13,12 @@ services:
     networks:
       - inception_network
 
+  redis:
+    build: ./redis
+    container_name: my_redis
+    networks:
+      - inception_network
+
   django:
     build: ./ft_transcendence
     container_name: my_django
@@ -32,6 +38,8 @@ services:
       - "443:443"
     networks:
       - inception_network
+
+
 networks:
   inception_network:
     driver: bridge
