@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 0 auto;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="home" class="page active">
+        <h1>Pong Game</h1>
+        <button onclick="navigateTo('game')">Start Game</button>
+    </div>
+    
+    <div id="game" class="page">
+        <canvas id="pongCanvas" width="1600" height="800"></canvas>
+        <button onclick="navigateTo('home')">Back to Menu</button>
+    </div>
+    
+    <script src="navigation.js"></script>
+    
+    <script>
+        const routes = {
+            'home': document.getElementById('home'),
+            'game': document.getElementById('game')
+        };
+        
+        function navigateTo(page) {
+            for (let key in routes) {
+                routes[key].classList.remove('active');
+            }
+            routes[page].classList.add('active');
+            if (page === 'game') {
+                startGame();
+            } else {
+                stopGame();
+            }
+        }
+        
+        let intervalId;
+        
+        function startGame() {
+            intervalId = setInterval(gameLoop, 1000 / 60);
+        }
+        
+        function stopGame() {
+            clearInterval(intervalId);
+        }
+
+        const canvas = document.getElementById('pongCanvas');
+        const context = canvas.getContext('2d');
+        
+        const paddleWidth = 10, paddleHeight = 100, ballSize = 10;
+        let playerY = (canvas.height - paddleHeight) / 2;
+        let computerY = (canvas.height - paddleHeight) / 2;
+        let ballX = canvas.width / 2, ballY = canvas.height / 2;
+        let ballSpeedX = 5, ballSpeedY = 5;
+
+        const playerSpeed = 8;
+        let playerMoveUp = false, playerMoveDown = false;
+
+        let playerScore = 0;
+        let computerScore = 0;
+        
+        document.addEventListener('keydown', function(event) {
+            switch (event.key) {
+                case 'q':
+                    playerMoveUp = true;
+                    break;
+                case 'a':
+                    playerMoveDown = true;
+                    break;
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            switch (event.key) {
+                case 'q':
+                    playerMoveUp = false;
+                    break;
+                case 'a':
+                    playerMoveDown = false;
+                    break;
+            }
+        });
+
+        function movePlayer() {
+            if (playerMoveUp && playerY > 0) {
+                playerY -= playerSpeed;
+            }
+            if (playerMoveDown && playerY < canvas.height - paddleHeight) {
+                playerY += playerSpeed;
+            }
+        }
+
+        function moveComputerPaddle() {
+            let centerY = computerY + paddleHeight / 2;
+            if (centerY < ballY - 35) {
+                computerY += 6;
+            } else if (centerY > ballY + 35) {
+                computerY -= 6;
+            }
+        }
+
+        function updateGame() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with player paddle
+            if (ballX - ballSize < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball collision with computer paddle
+            if (ballX + ballSize > canvas.width - paddleWidth && ballY > computerY && ballY < computerY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball goes off the screen (Computer scores)
+            if (ballX - ballSize < 0) {
+                computerScore++;
+                resetBall();
+            }
+
+            // Ball goes off the screen (Player scores)
+            if (ballX + ballSize > canvas.width) {
+                playerScore++;
+                resetBall();
+            }
+
+            movePlayer();
+            moveComputerPaddle();
+        }
+
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+        }
+
+        function drawGame() {
+            drawRect(0, 0, canvas.width, canvas.height, 'black');
+            drawDashedLine();
+            drawRect(0, playerY, paddleWidth, paddleHeight, 'white');
+            drawRect(canvas.width - paddleWidth, computerY, paddleWidth, paddleHeight, 'white');
+            drawBall(ballX, ballY, ballSize, 'white');
+            drawScore();
+        }
+
+        function drawRect(x, y, width, height, color) {
+            context.fillStyle = color;
+            context.fillRect(x, y, width, height);
+        }
+        
+        function drawBall(x, y, size, color) {
+            context.fillStyle = color;
+            context.beginPath();
+            context.arc(x, y, size, 0, Math.PI * 2, true);
+            context.closePath();
+            context.fill();
+        }
+
+        function drawDashedLine() {
+            context.strokeStyle = 'white';
+            context.setLineDash([10, 15]); // Gestrichelte Linie
+            context.beginPath();
+            context.moveTo(canvas.width / 2, 0);
+            context.lineTo(canvas.width / 2, canvas.height);
+            context.stroke();
+            context.setLineDash([]); // Striche zurücksetzen
+        }
+
+        function drawScore() {
+            context.fillStyle = 'white';
+            context.font = '48px Arial';
+            context.fillText(playerScore, canvas.width / 4, 50); // Spieler Punktestand
+            context.fillText(computerScore, 3 * canvas.width / 4, 50); // Computer Punktestand
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+        }
+    </script>
+
+</body>
+</html>
