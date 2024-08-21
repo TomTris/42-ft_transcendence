@@ -3,6 +3,7 @@ from channels.generic.websocket import WebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 from .models import GameSession
 from channels.layers import get_channel_layer
+import threading
 from asgiref.sync import async_to_sync
 import time
 from .models import width, height, pwidth, pheight, radius, distance
@@ -34,6 +35,27 @@ class GameConsumer(WebsocketConsumer):
             self.game_session.set_game_state(game_state)
         else:
             self.close()
+            return
+        self.update_game_session()
+        self.periodic_task = threading.Thread(target=self.send_data, daemon=True)
+        self.periodic_task.start()
+
+
+    def update_game_session(self):
+        message = {
+            "value":"fun"
+        }
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'session_update',  # Must match the method name in this consumer
+                'message': message
+            }
+        )
+
+    def session_update(self, event):
+        self.game_session = GameSession.objects.filter(id=self.session_id).first()
+
 
     def disconnect(self, close_code):
         
@@ -56,21 +78,38 @@ class GameConsumer(WebsocketConsumer):
             return
         
         self.send_data_to_group()
+
+
+    def send_data(self):
+        while(1):
+            game_state = self.game_session.get_game_state()
+            self.game_session.update_playing()
+            if game_state['centered'] == 0:
+                self.game_session.position_center_random_move()
+            elif game_state['playing']:
+                self.game_session.make_move()
+            self.send_data_to_group()
+            time.sleep(0.02)
     
 
     def receive(self, text_data):
-        self.game_session = GameSession.objects.filter(id=self.session_id).first()
-        if self.game_session is None:
-            return
         data = json.loads(text_data)
+        if data['key'] in ['ArrowUp', 'w']:
+            self.move_up(self.user == self.game_session.player1)
+        elif data['key'] in ['ArrowDown', 's']:
+            pass
+
+    def move_up(self, player):
         game_state = self.game_session.get_game_state()
-        self.game_session.update_playing()
-        if game_state['centered'] == 0:
-            self.game_session.position_center_random_move()
-        elif game_state['playing']:
-            self.game_session.make_move()
-        self.send_data_to_group()
-    
+        if player == 0:
+            player = 'pos1'
+        else:
+            player = 'pos2'
+        if game_state[player] > 5 and game_state['playing']:
+            game_state[player] -= 5
+            self.game_session.set_game_state(game_state)
+
+
 
     def get_player(self, ind):
         if ind == 1:

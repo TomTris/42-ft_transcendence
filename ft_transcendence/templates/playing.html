@@ -34,22 +34,7 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        socket.onopen = function(event) {
-            console.log('WebSocket is connected.');
-        
-            // Send messages every 50 milliseconds
-            const intervalId = setInterval(function() {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({
-                        action: 'ask_for_data',
-                    }));
-                }
-            }, 30);
-        
-            setTimeout(function() {
-                clearInterval(intervalId);
-            }, 5000000);
-        };
+
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
             document.getElementById('status').textContent = data.status;
@@ -70,6 +55,16 @@
             ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
             ctx.fill();
         };
+
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            const message = {
+                type: 'keydown',
+                key: key
+            };
+            socket.send(JSON.stringify(message));
+        });
+
     </script>
 </body>
 </html>
