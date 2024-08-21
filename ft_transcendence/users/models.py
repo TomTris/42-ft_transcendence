@@ -81,12 +81,3 @@ class MyUser(AbstractBaseUser):
         # Simplest possible answer: All admins are staff
         return self.is_admin
     
-
-class Match(models.Model):
-    player1 = models.CharField(max_length=40)
-    player2 = models.CharField(max_length=40)
-    score1 = models.IntegerField()
-    score2 = models.IntegerField()
-    rank_change1 = models.IntegerField()
-    rank_change2 = models.IntegerField()
-    time_stamp = models.DateTimeField(auto_now=True)

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from users.models import MyUser
-from users.models import Match
 from django.db.models import Q
+from game.models import GameSession
 
 def home_view(request):
     return render(request, "home.html")
@@ -18,23 +18,24 @@ def users_view(request):
 
 def user_view(request, id):
     id -= 1
+    print(id)
     users = MyUser.objects.all()
     if id >= len(users) or id < 0:
         return render(request, "user_doesnt_exist.html")
     user = users[id]
-    matches = Match.objects.filter(Q(player1=user.login) | Q(player2=user.login))
+    matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user))
     matches_with_ids = []
     for match in matches:
-        if match.player1 == user.login:
+        if match.player1 == user:
             match_data = {
                 'match': match,
                 'player1': user,
-                'player2': users.get(login=match.player2),
+                'player2': match.player2,
             }
         else:
             match_data = {
                 'match': match,
-                'player1': users.get(login=match.player1),
+                'player1': match.player1,
                 'player2': user,
             }
             

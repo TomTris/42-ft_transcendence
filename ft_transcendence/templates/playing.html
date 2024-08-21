@@ -61,6 +61,9 @@
 
         document.addEventListener('keydown', function(event) {
             const key = event.key;
+            if ((key == 'f' || key== 'F') && event.repeat) {
+                return;
+            }
             const message = {
                 type: 'keydown',
                 key: key

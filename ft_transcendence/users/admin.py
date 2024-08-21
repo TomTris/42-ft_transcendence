@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 
 from game.models import GameSession
 from .models import MyUser
-from .models import Match
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
@@ -90,5 +89,5 @@ class MatchAdmin(admin.ModelAdmin):
     list_filter = ["player1"] 
 
 admin.site.register(MyUser, UserAdmin)
-admin.site.register(Match, MatchAdmin)
+# admin.site.register(Match, MatchAdmin)
 admin.site.unregister(Group)

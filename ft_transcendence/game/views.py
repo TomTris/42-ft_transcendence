@@ -16,11 +16,16 @@ def join_game_session(request):
     ).first()
     if game_session is None:
         game_session = GameSession.objects.filter(player2=None, is_active=True).first()
-       
+        print(game_session)
+        print('asd')
         if game_session is None:
+            print('asd')
             game_session = GameSession.objects.create()
+            print('asd')
             game_session.init_game_state()
+            print('asd')
         try:
+            print('try')
             game_session.add_player(user)
         except ValueError:
             return JsonResponse({'error': 'Game session is full'}, status=400)

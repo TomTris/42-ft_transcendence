@@ -14,12 +14,13 @@ radius = 10
 
 
 class GameSession(models.Model):
-    player1 = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='game_player1', null=True, on_delete=models.SET_NULL)
-    player2 = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='game_player2', null=True, on_delete=models.SET_NULL)
+    player1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='game_player1', null=True, on_delete=models.SET_NULL)
+    player2 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='game_player2', null=True, on_delete=models.SET_NULL)
     score1 = models.IntegerField(default=0)
     score2 = models.IntegerField(default=0)
     rank_change1 = models.IntegerField(default=0)
     rank_change2 = models.IntegerField(default=0)
+    winner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='winner', null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -49,20 +50,18 @@ class GameSession(models.Model):
         pass
 
     
-
-
     def update_playing(self):
         game_state = self.get_game_state()
-        if game_state['paused1'] or game_state['paused2'] or self.player2 is None or game_state['start'] > time.time():
-            if game_state['playing'] == 1:
-                game_state['playing'] = 1
-                self.set_game_state(game_state)
+        if game_state['paused'] == 0 and self.player2 is not None:
+            if game_state['start'] < time.time():
+                if game_state['playing'] == 0:
+                    game_state['playing'] = 1
+                    game_state['last_update'] = time.time()
+                    self.set_game_state(game_state)
         else:
-            if game_state['playing'] == 0:
-                game_state['playing'] = 1
-                game_state['last_update'] = time.time()
+            if game_state['playing'] == 1:
+                game_state['playing'] = 0
                 self.set_game_state(game_state)
-
 
 
 
@@ -97,6 +96,7 @@ class GameSession(models.Model):
             "mov2": 0,
             "mov_until1": 0,
             "mov_until2": 0,
+            "paused": 0,
             "paused1": 0,
             "paused2": 0,
             "centered": 0,
