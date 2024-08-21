@@ -24,6 +24,7 @@ services:
     container_name: my_django
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./ft_transcendence:/app
     networks:
