@@ -64,40 +64,7 @@ class GameSession(models.Model):
                 self.set_game_state(game_state)
 
 
-    def simulate_ball_position(self, x, y, dx, dy, dt):
-        new_x = x + dx * dt
-        new_y = y + dy * dt
 
-        # Check for collisions with the walls and adjust the position and velocity
-        if new_x - radius <= 0:  # Left wall collision
-            new_x = 2 * radius - new_x
-            dx = -dx
-        elif new_x + radius >= width:  # Right wall collision
-            new_x = 2 * (width - radius) - new_x
-            dx = -dx
-
-        if new_y - radius <= 0:  # Bottom wall collision
-            new_y = 2 * radius - new_y
-            dy = -dy
-        elif new_y + radius >= height:  # Top wall collision
-            new_y = 2 * (height - radius) - new_y
-            dy = -dy
-
-        return new_x, new_y, dx, dy
-
-
-    def make_move(self):
-        game_state = self.get_game_state()
-        update_time = time.time()
-        delta_time = update_time - game_state['last_update']
-        # print(delta_time)
-        pos_x, pos_y, vecx, vecy = self.simulate_ball_position(game_state['posx'], game_state['posy'], game_state['vecx'], game_state['vecy'], delta_time)
-        game_state['posx'] = pos_x
-        game_state['posy'] = pos_y
-        game_state['vecx'] = vecx
-        game_state['vecy'] = vecy
-        game_state['last_update'] = update_time
-        self.set_game_state(game_state)
 
     def position_center_random_move(self):
         game_state = self.get_game_state()
@@ -128,10 +95,15 @@ class GameSession(models.Model):
             "vecy": 1,
             "mov1": 0,
             "mov2": 0,
+            "mov_until1": 0,
+            "mov_until2": 0,
             "paused1": 0,
             "paused2": 0,
             "centered": 0,
             "playing": 0,
+            "score1":0,
+            "score2":0,
+            "won": 0,
             "start": time.time(),
             "last_update": 0,
         }

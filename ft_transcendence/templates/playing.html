@@ -24,13 +24,14 @@
         <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
         <p>Player 1: <span id="player1">{{ player1 }}</span></p>
         <p>Player 2: <span id="player2">{{ player2 }}</span></p>
+        <div><div id="score1"></div> <div id="score2"></div></div>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
     </div>
 
     <script>
         // JavaScript to connect to WebSocket and update player list
         const sessionId = "{{ session_id }}";
-        const socket = new WebSocket(`wss://${window.location.host}/wss/game/${sessionId}/`);
+        const socket = new WebSocket(`ws://${window.location.host}/wss/game/${sessionId}/`);
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -41,6 +42,8 @@
             document.getElementById('player1').textContent = data.player1;
             document.getElementById('player2').textContent = data.player2;
             document.getElementById('time').textContent = data.time
+            document.getElementById('score1').textContent = data.score1
+            document.getElementById('score2').textContent = data.score2
             updateGameCanvas(data);
         };
 
