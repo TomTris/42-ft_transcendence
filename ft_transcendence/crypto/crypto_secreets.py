@@ -13,3 +13,6 @@ deployer_account = '0xd2acb8D6BB9C833D1aC4d82746224AEb6bc403f8'
 
 with open('TournamentContractABI.json') as file:
     contract_abi = json.load(file) 
+    
+# with open('TournamentContractABI.json', 'w') as json_file:
+#     json.dump(contract_abi, json_file, indent=4, sort_keys=True, ensure_ascii=False)
