@@ -16,16 +16,10 @@ def join_game_session(request):
     ).first()
     if game_session is None:
         game_session = GameSession.objects.filter(player2=None, is_active=True).first()
-        print(game_session)
-        print('asd')
         if game_session is None:
-            print('asd')
             game_session = GameSession.objects.create()
-            print('asd')
             game_session.init_game_state()
-            print('asd')
         try:
-            print('try')
             game_session.add_player(user)
         except ValueError:
             return JsonResponse({'error': 'Game session is full'}, status=400)
@@ -43,3 +37,9 @@ def playing_view(request, session_id):
     if game_session is None or user not in [game_session.player1, game_session.player2] or not game_session.is_active:
         return render(request, "user_doesnt_exist.html")
     return render(request, "playing.html", {'session_id':session_id})
+
+def offline_view(request):
+    return render(request, 'offline.html')
+
+def bot_view(request):
+    return render(request, 'playing_bot.html')

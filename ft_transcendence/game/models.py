@@ -49,39 +49,6 @@ class GameSession(models.Model):
     def disconnect(self, user):
         pass
 
-    
-    def update_playing(self):
-        game_state = self.get_game_state()
-        if game_state['paused'] == 0 and self.player2 is not None:
-            if game_state['start'] < time.time():
-                if game_state['playing'] == 0:
-                    game_state['playing'] = 1
-                    game_state['last_update'] = time.time()
-                    self.set_game_state(game_state)
-        else:
-            if game_state['playing'] == 1:
-                game_state['playing'] = 0
-                self.set_game_state(game_state)
-
-
-
-    def position_center_random_move(self):
-        game_state = self.get_game_state()
-        angle = random.uniform(0, 1) * 2.0 * math.pi
-        speed = 300
-        game_state['vecx'] = int(math.sin(angle) * speed)
-        game_state['vecy'] = int(math.cos(angle) * speed)
-        game_state['posx'] = width / 2
-        game_state['posy'] = height / 2
-        game_state['pos1'] = height / 2 - pheight / 2
-        game_state['pos2'] = height / 2 - pheight / 2
-        game_state['last_update'] = time.time()
-        game_state['mov1'] = 0
-        game_state['mov2'] = 0
-        game_state['centered'] = 1
-        self.set_game_state(game_state)
-
-
     def init_game_state(self):
         game_state = {
             "disc1": 0,
@@ -94,8 +61,8 @@ class GameSession(models.Model):
             "vecy": 1,
             "mov1": 0,
             "mov2": 0,
-            "mov_until1": 0,
-            "mov_until2": 0,
+            "move_until1": 0,
+            "move_until2": 0,
             "paused": 0,
             "paused1": 0,
             "paused2": 0,
