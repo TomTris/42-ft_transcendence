@@ -3,104 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pong Game</title>
+    <title>Pong Game Selection</title>
     <style>
-        canvas {
-            background: black;
-            display: block;
-            margin: 0 auto;
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #444;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #666;
         }
     </style>
 </head>
 <body>
-    <canvas id="pongCanvas" width="1600" height="800"></canvas>
+    <h1>Choose Your Pong Mode</h1>
+    <button onclick="startGame('1player.html')">1 Player</button>
+    <button onclick="startGame('2player.html')">2 Player</button>
+    <button onclick="startGame('3player.html')">3 Player</button>
+
+    <iframe id="gameFrame" style="width: 100%; height: 100vh; border: none;" src=""></iframe>
 
     <script>
-        const canvas = document.getElementById('pongCanvas');
-        const context = canvas.getContext('2d');
-
-        const paddleWidth = 10, paddleHeight = 100, ballSize = 10;
-        let playerY = (canvas.height - paddleHeight) / 2;
-        let computerY = (canvas.height - paddleHeight) / 2;
-        let ballX = canvas.width / 2, ballY = canvas.height / 2;
-        let ballSpeedX = 5, ballSpeedY = 5;
-
-        function drawRect(x, y, width, height, color) {
-            context.fillStyle = color;
-            context.fillRect(x, y, width, height);
+        function startGame(gameMode) {
+            document.getElementById('gameFrame').src = gameMode;
         }
-
-        function drawBall(x, y, size, color) {
-            context.fillStyle = color;
-            context.beginPath();
-            context.arc(x, y, size, 0, Math.PI * 2, true);
-            context.closePath();
-            context.fill();
-        }
-
-        function moveComputerPaddle() {
-            let centerY = computerY + paddleHeight / 2;
-            if (centerY < ballY - 35) {
-                computerY += 6;
-            } else if (centerY > ballY + 35) {
-                computerY -= 6;
-            }
-        }
-
-        canvas.addEventListener('mousemove', function(evt) {
-            const mousePos = calculateMousePos(evt);
-            playerY = mousePos.y - (paddleHeight / 2);
-        });
-
-        function calculateMousePos(evt) {
-            const rect = canvas.getBoundingClientRect();
-            const root = document.documentElement;
-            let mouseY = evt.clientY - rect.top - root.scrollTop;
-            return { y: mouseY };
-        }
-
-        function updateGame() {
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
-
-            // Ball collision with top and bottom
-            if (ballY + ballSize > canvas.height || ballY - ballSize < 0) {
-                ballSpeedY = -ballSpeedY;
-            }
-
-            // Ball collision with player paddle
-            if (ballX - ballSize < paddleWidth && ballY > playerY && ballY < playerY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            // Ball collision with computer paddle
-            if (ballX + ballSize > canvas.width - paddleWidth && ballY > computerY && ballY < computerY + paddleHeight) {
-                ballSpeedX = -ballSpeedX;
-            }
-
-            // Ball goes off the screen
-            if (ballX - ballSize < 0 || ballX + ballSize > canvas.width) {
-                ballX = canvas.width / 2;
-                ballY = canvas.height / 2;
-                ballSpeedX = -ballSpeedX;
-            }
-
-            moveComputerPaddle();
-        }
-
-        function drawGame() {
-            drawRect(0, 0, canvas.width, canvas.height, 'black');
-            drawRect(0, playerY, paddleWidth, paddleHeight, 'white');
-            drawRect(canvas.width - paddleWidth, computerY, paddleWidth, paddleHeight, 'white');
-            drawBall(ballX, ballY, ballSize, 'white');
-        }
-
-        function gameLoop() {
-            updateGame();
-            drawGame();
-        }
-
-        setInterval(gameLoop, 1000 / 60);
     </script>
 </body>
 </html>
