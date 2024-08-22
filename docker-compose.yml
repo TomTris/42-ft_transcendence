@@ -30,6 +30,8 @@ services:
       - redis
     volumes:
       - ./ft_transcendence:/app
+    env_file:
+      .env
     networks:
       - inception_network
 
