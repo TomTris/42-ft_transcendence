@@ -3,6 +3,7 @@ NAME = ./docker-compose.yml
 all:
 	@printf "Running configuration $(NAME) ... \n"
 	mkdir -p ~/data/psql
+	mkdir -p ~/data/vault
 	@docker-compose -f $(NAME) up -d
 # mkdir -p /home/${USER}/data/wordpress_volume
 

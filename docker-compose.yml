@@ -14,10 +14,7 @@ services:
       - inception_network
 
   redis:
-    image: redis:7.2.5
-    expose:
-      - "6379"
-    command: "redis-server"
+    build: ./redis
     container_name: my_redis
     networks:
       - inception_network

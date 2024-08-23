@@ -97,16 +97,9 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # }
 
 import hvac
-token_file_path = '/vault/file/rootToken'
-import time
-for a in range(8):
-    if os.path.exists(token_file_path) == True:
-        break
-    time.sleep(3)
-with open(token_file_path, 'r') as file:
+with open('/vault/file/rootToken', 'r') as file:
     vault_token = file.read().strip()
 client = hvac.Client(url='http://vault:8200', token=vault_token)
-# print(vault_token)
 secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
 DATABASES = {
     'default': {
