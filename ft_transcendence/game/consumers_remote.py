@@ -11,6 +11,8 @@ import random
 from .models import width, height, pwidth, pheight, radius, distance
 from .utils import Player, generate_random_angle, simulate_ball_position
 
+counter = 1
+
 class GameConsumer(WebsocketConsumer):
     def connect(self):
         
@@ -32,13 +34,14 @@ class GameConsumer(WebsocketConsumer):
                 self.group_name,
                 self.channel_name
             )
-            if not self.game_session.get_game_state() == {}:
-                self.game_session.init_game_state()
+            t = 0
             game_state = self.game_session.get_game_state()
-            print(game_state)
             self.update_game_session()
             if self.user == self.game_session.player1:
                 game_state['disc1'] = 0
+                if self.game_session.player1 == self.game_session.player2:
+                    self.game_session.delete_second()
+                    t = 1
             else:
                 game_state['disc2'] = 0
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
@@ -49,8 +52,8 @@ class GameConsumer(WebsocketConsumer):
             self.close()
             return  
        
-        if self.user == self.game_session.player1:
-            self.game_state_lock = threading.Lock()
+        self.game_state_lock = threading.Lock()
+        if self.user == self.game_session.player1 and t == 0:
             self.periodic_task = threading.Thread(target=self.send_data, daemon=True)
             self.periodic_task.start()
         self.update_game_session()
@@ -71,32 +74,60 @@ class GameConsumer(WebsocketConsumer):
         self.game_session = GameSession.objects.filter(id=self.session_id).first()
 
 
+    def ensure(self):
+        time.sleep(0.2)
+        self.game_session = GameSession.objects.filter(id=self.session_id).first()
+        with self.game_state_lock:
+            game_state = self.game_session.get_game_state()
+            if game_state['online'] == self.count and game_state['disc1'] == 1:
+                self.game_session.delete()
+            else:
+                if self.game_session.player1 == self.game_session.player2:
+                    self.game_session.delete_second()
+                game_state['online'] = 0
+        self.game_session.set_game_state(game_state)
+        self.update_game_session()
+
+    def disconecting(self):
+        try:
+            self.game_session.add_player(self.user)
+            self.game_session.save()
+        except Exception:
+            return
+        self.periodic_task = threading.Thread(target=self.ensure, daemon=True)
+        self.periodic_task.start()
+
+
     def disconnect(self, close_code):
         self.game_session = GameSession.objects.filter(id=self.session_id).first()
         if self.game_session is None:
             return
-        if self.game_session.is_active:
-            game_state = self.game_session.get_game_state()
-            if self.user == self.game_session.player1:
-                # if self.game_session.player2 is None:
-                #     self.game_session.delete()
-                #     return
-                game_state['disc1'] = 1
-                if game_state['paused1'] != 2:
-                    game_state['paused'] = 1
-                    game_state['paused1'] += 1
-                    game_state['start'] = time.time() + 21
-            else:
-                game_state['disc2'] = 1
-                if game_state['paused2'] != 2:
-                    game_state['paused'] = 2
-                    game_state['paused2'] += 1
-                    game_state['start'] = time.time() + 21
+        with self.game_state_lock:
+            if self.game_session.is_active:
+                game_state = self.game_session.get_game_state()
+                if self.user == self.game_session.player1:
+                    if self.game_session.player2 is None:
+                        global counter
+                        self.count = counter
+                        counter += 1
+                        game_state['online'] = self.count
+                        self.disconecting()
+                    game_state['disc1'] = 1
+                    if game_state['paused1'] != 2:
+                        game_state['paused'] = 1
+                        game_state['paused1'] += 1
+                        game_state['start'] = time.time() + 21
+                else:
+                    game_state['disc2'] = 1
+                    if game_state['paused2'] != 2:
+                        game_state['paused'] = 2
+                        game_state['paused2'] += 1
+                        game_state['start'] = time.time() + 21
 
-            self.game_session.set_game_state(game_state)
-            if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active:
-                self.game_session.delete()
-                return
+                self.game_session.set_game_state(game_state)
+                if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active:
+                    self.game_session.delete()
+                    return
             
             self.send_data_to_group()
             print("bla bla bla")
@@ -187,7 +218,7 @@ class GameConsumer(WebsocketConsumer):
 
 
     def send_data(self):
-        while(self.game_session.is_active):
+        while(self.game_session and self.game_session.is_active):
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
                 if not game_state:
@@ -203,7 +234,6 @@ class GameConsumer(WebsocketConsumer):
     def pause(self, ind):
        
         game_state = self.game_session.get_game_state()
-        print(game_state)
         if ind:
             if game_state['paused'] == 0:
                 if game_state['paused1'] != 2:
@@ -237,20 +267,28 @@ class GameConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        with self.game_state_lock:
-            if data['key'] in ['ArrowUp', 'w', 'W']:
-                self.move_up(self.user == self.game_session.player1)
-            elif data['key'] in ['ArrowDown', 's', 'S']:
-                self.move_down(self.user == self.game_session.player1)
-            elif data['key'] in ['f', 'F']:
-                self.pause(self.user == self.game_session.player1)
-
+        if data['type'] == 'keydown':
+            with self.game_state_lock:
+                if data['key'] in ['ArrowUp', 'w', 'W']:
+                    self.move_up(self.user == self.game_session.player1)
+                elif data['key'] in ['ArrowDown', 's', 'S']:
+                    self.move_down(self.user == self.game_session.player1)
+                elif data['key'] in ['f', 'F']:
+                    self.pause(self.user == self.game_session.player1)
+        else:
+            response = {}
+            response['status'] = 'cancel'
+            if self.game_session.player2 is None:
+                response['message'] = 'ok'
+                self.game_session.delete()
+            else:
+                response['message'] = 'not ok'
+            self.send(text_data=json.dumps(response))
 
     def make_move(self):
         game_state = self.game_session.get_game_state()
         update_time = time.time()
         delta_time = update_time - game_state['last_update']
-        # print(delta_time)
         mov1, mov2 = 0, 0
         dts = []
         
@@ -347,7 +385,7 @@ class GameConsumer(WebsocketConsumer):
         game_state = self.game_session.get_game_state()
         if game_state['won'] != 0:
             status = 'Won'
-        elif self.game_session.player2 is None or self.game_session.player1 is None:
+        elif self.game_session.player2 is None or self.game_session.player1 is None or game_state['online'] != 0:
             status = "Waiting for other player"
         elif game_state['paused'] != 0:
             status = "Paused"

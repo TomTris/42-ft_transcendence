@@ -37,6 +37,10 @@ class GameSession(models.Model):
     def is_full(self):
         return self.player1 and self.player2
 
+    def delete_second(self):
+        self.player2 = None
+        self.save()
+
     def add_player(self, user):
         if not self.player1:
             self.player1 = user
@@ -71,6 +75,7 @@ class GameSession(models.Model):
             "score1":0,
             "score2":0,
             "won": 0,
+            'online': 0,
             "start": time.time(),
             "last_update": 0,
         }

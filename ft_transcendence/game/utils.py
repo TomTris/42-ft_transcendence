@@ -29,7 +29,7 @@ class Player:
 def generate_random_angle():
     while True:
         angle = random.uniform(0, 1) * 2.0 * math.pi
-        if not ((angle > math.pi / 2.0 - math.pi / 4.0 and angle < math.pi / 2.0 + math.pi / 4.0) or (angle > math.pi / 2.0 * 3.0 - math.pi / 4.0 and angle < math.pi / 2.0 * 3.0 + math.pi / 4.0)):
+        if abs(math.sin(angle)) > 0.6:
             break
     return angle
 
