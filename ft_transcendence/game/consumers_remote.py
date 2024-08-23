@@ -23,15 +23,20 @@ class GameConsumer(WebsocketConsumer):
         if not self.game_session.is_active:
             self.close()
             return
-        game_state = self.game_session.get_game_state()
+        
         self.user = self.scope['user']
         if self.user in [self.game_session.player1, self.game_session.player2]:
+            
             self.accept()
             async_to_sync(self.channel_layer.group_add)(
                 self.group_name,
                 self.channel_name
             )
-            
+            if not self.game_session.get_game_state() == {}:
+                self.game_session.init_game_state()
+            game_state = self.game_session.get_game_state()
+            print(game_state)
+            self.update_game_session()
             if self.user == self.game_session.player1:
                 game_state['disc1'] = 0
             else:
@@ -43,11 +48,12 @@ class GameConsumer(WebsocketConsumer):
         else:
             self.close()
             return  
-        self.update_game_session()
+       
         if self.user == self.game_session.player1:
+            self.game_state_lock = threading.Lock()
             self.periodic_task = threading.Thread(target=self.send_data, daemon=True)
             self.periodic_task.start()
-
+        self.update_game_session()
 
     def update_game_session(self):
         message = {
@@ -72,9 +78,9 @@ class GameConsumer(WebsocketConsumer):
         if self.game_session.is_active:
             game_state = self.game_session.get_game_state()
             if self.user == self.game_session.player1:
-                if self.game_session.player2 is None:
-                    self.game_session.delete()
-                    return
+                # if self.game_session.player2 is None:
+                #     self.game_session.delete()
+                #     return
                 game_state['disc1'] = 1
                 if game_state['paused1'] != 2:
                     game_state['paused'] = 1
@@ -93,7 +99,7 @@ class GameConsumer(WebsocketConsumer):
                 return
             
             self.send_data_to_group()
-        self.close()
+            print("bla bla bla")
 
 
     def calculate_rank_change(self, elo1, elo2, win, factor=16):
@@ -182,18 +188,22 @@ class GameConsumer(WebsocketConsumer):
 
     def send_data(self):
         while(self.game_session.is_active):
-            game_state = self.game_session.get_game_state()
-            self.update_playing()
-            if game_state['centered'] == 0:
-                self.position_center_random_move()
-            elif game_state['playing']:
-                self.make_move()
-            self.send_data_to_group()
+            with self.game_state_lock:
+                game_state = self.game_session.get_game_state()
+                if not game_state:
+                    return
+                self.update_playing()
+                if game_state['centered'] == 0:
+                    self.position_center_random_move()
+                elif game_state['playing']:
+                    self.make_move()
+                self.send_data_to_group()
             time.sleep(0.0167)
     
     def pause(self, ind):
        
         game_state = self.game_session.get_game_state()
+        print(game_state)
         if ind:
             if game_state['paused'] == 0:
                 if game_state['paused1'] != 2:
@@ -227,12 +237,13 @@ class GameConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        if data['key'] in ['ArrowUp', 'w', 'W']:
-            self.move_up(self.user == self.game_session.player1)
-        elif data['key'] in ['ArrowDown', 's', 'S']:
-            self.move_down(self.user == self.game_session.player1)
-        elif data['key'] in ['f', 'F']:
-            self.pause(self.user == self.game_session.player1)
+        with self.game_state_lock:
+            if data['key'] in ['ArrowUp', 'w', 'W']:
+                self.move_up(self.user == self.game_session.player1)
+            elif data['key'] in ['ArrowDown', 's', 'S']:
+                self.move_down(self.user == self.game_session.player1)
+            elif data['key'] in ['f', 'F']:
+                self.pause(self.user == self.game_session.player1)
 
 
     def make_move(self):

@@ -25,7 +25,7 @@ class GameSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_cache_key(self):
-        return f'game_state_{self.id}'
+        return f'game_session_game_state_{self.id}'
 
     def set_game_state(self, game_state):
         cache.set(self.get_cache_key(), game_state, timeout=None)  # Timeout can be set according to your needs

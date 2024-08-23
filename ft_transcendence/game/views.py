@@ -43,3 +43,6 @@ def offline_view(request):
 
 def bot_view(request):
     return render(request, 'playing_bot.html')
+
+def tournament_view(request):
+    return render(request, 'tournaments.html')
