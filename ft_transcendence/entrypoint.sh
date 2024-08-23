@@ -3,8 +3,9 @@
 # Optionally, you can add a wait-for-it or similar script to handle waiting for Postgres to be available.
 
 # Run migrations
+sleep 2
 i=0
-while [ ! -e /vault/file/rootToken ] && [ $i -lt 60 ]; do
+while [ ! -e /vault/file/created ] && [ $i -lt 60 ]; do
   sleep 2
   i=$(($i + 1))
 done

@@ -19,7 +19,7 @@ build:
 
 down:
 	@printf "Stopping configuration $(NAME) ... \n"
-	@docker-compose -f $(NAME) down -y
+	@docker-compose down
 
 re:
 	@printf "Rebuilding configuration $(NAME) ... \n"
