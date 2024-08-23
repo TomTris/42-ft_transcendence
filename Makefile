@@ -33,8 +33,17 @@ clean:
 # rm -rf ./srcs/web
 # mkdir ./srcs/web
 
+clean1:
+	docker-compose down -v;\
+	docker stop $$(docker ps -qa);\
+	docker rm $$(docker ps -qa);\
+	docker rmi -f $$(docker images -qa);\
+	docker network rm $$(docker network ls -q);\
+	rm -rf ~/data/psql/*;\
+	rm -rf ~/data/vault/*;
+
 re1:
-	make clean; make
+	make clean1; make
 
 clean_volumes:
 	@docker volume rm $$(docker volume ls -q);

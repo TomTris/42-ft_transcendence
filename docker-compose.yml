@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:latest
+    build: ./postgreSQL
     container_name: postgres
     environment:
       POSTGRES_USER: myuser
@@ -22,6 +22,22 @@ services:
     networks:
       - inception_network
 
+  vault:
+    build: ./vault
+    container_name: vault
+    depends_on:
+      - postgres
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault-volume:/vault/file
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    networks:
+      - inception_network
+
   django:
     build: ./ft_transcendence
     container_name: my_django
@@ -30,6 +46,7 @@ services:
       - redis
     volumes:
       - ./ft_transcendence:/app
+      - vault-volume:/vault/file
     env_file:
       .env
     networks:
@@ -57,3 +74,9 @@ volumes:
       o: bind
       type: none
       device: ~/data/psql
+  vault-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/data/vault
+

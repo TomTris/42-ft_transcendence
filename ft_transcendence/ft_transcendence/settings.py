@@ -28,7 +28,8 @@ DEBUG = True
 
 # ALLOWED_HOSTS = []
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yourdomain.com']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
@@ -88,10 +89,33 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+import hvac
+token_file_path = '/vault/file/rootToken'
+import time
+for a in range(8):
+    if os.path.exists(token_file_path) == True:
+        break
+    time.sleep(3)
+with open(token_file_path, 'r') as file:
+    vault_token = file.read().strip()
+client = hvac.Client(url='http://vault:8200', token=vault_token)
+# print(vault_token)
+secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': secret['db_name'],
+        'USER': secret['db_user'],
+        'PASSWORD': secret['db_password'],
+        'HOST': secret['db_host'],
+        'PORT': secret['db_port'],
     }
 }
 # DATABASES = {
@@ -184,7 +208,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
@@ -192,7 +216,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
+        'LOCATION': 'redis://redis:6379/1',  # Use Redis server URL here
     }
 }
 
