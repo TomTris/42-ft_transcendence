@@ -115,21 +115,21 @@ DATABASES = {
 #     }
 # }
 
-import hvac
-with open('/vault/file/rootToken', 'r') as file:
-    vault_token = file.read().strip()
-client = hvac.Client(url='http://vault:8200', token=vault_token)
-secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': secret['db_name'],
-        'USER': secret['db_user'],
-        'PASSWORD': secret['db_password'],
-        'HOST': secret['db_host'],
-        'PORT': secret['db_port'],
-    }
-}
+# import hvac
+# with open('/vault/file/rootToken', 'r') as file:
+#     vault_token = file.read().strip()
+# client = hvac.Client(url='http://vault:8200', token=vault_token)
+# secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': secret['db_name'],
+#         'USER': secret['db_user'],
+#         'PASSWORD': secret['db_password'],
+#         'HOST': secret['db_host'],
+#         'PORT': secret['db_port'],
+#     }
+# }
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

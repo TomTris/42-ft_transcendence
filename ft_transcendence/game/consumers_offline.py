@@ -144,7 +144,7 @@ class BaseConsumer(WebsocketConsumer):
                 elif self.game_state['playing']:
                     self.make_move()
                 self.send_data()
-                time.sleep(0.0167)
+            time.sleep(0.0167)
 
     def get_time(self):
         return int(self.game_state['start'] - time.time())
