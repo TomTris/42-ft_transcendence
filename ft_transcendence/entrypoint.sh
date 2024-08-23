@@ -3,8 +3,10 @@
 # Optionally, you can add a wait-for-it or similar script to handle waiting for Postgres to be available.
 
 # Run migrations
-sleep 5
+sleep 60
 python manage.py makemigrations users
+python manage.py makemigrations game
+python manage.py makemigrations 
 python manage.py migrate
 
 # Start the Django development server

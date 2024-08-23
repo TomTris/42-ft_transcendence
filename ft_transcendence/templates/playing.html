@@ -31,7 +31,7 @@
     <script>
         // JavaScript to connect to WebSocket and update player list
         const sessionId = "{{ session_id }}";
-        const socket = new WebSocket(`ws://${window.location.host}/wss/game/${sessionId}/`);
+        const socket = new WebSocket(`wss://${window.location.host}/wss/game/${sessionId}/`);
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -48,7 +48,7 @@
         };
 
         function updateGameCanvas(data) {
-            ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
+            ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas`
             console.log(data.posx, data.posy, data.vecx, data.vecy)
             // Draw the paddles and ball
             ctx.fillStyle = 'black';

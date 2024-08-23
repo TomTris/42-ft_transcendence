@@ -1,3 +1,9 @@
 https://localhost/vulnerable/?id=1%27%20OR%20%271%27%3D%271
 
 <!-- https://www.linode.com/docs/guides/securing-nginx-with-modsecurity/ -->
+Check users data:
+id |                                         password                                         |          last_login           | login  |      email       | date_of_birth | is_active | is_admin |       avatar        | elo | wins | loses | total 
+----+------------------------------------------------------------------------------------------+-------------------------------+--------+------------------+---------------+-----------+----------+---------------------+-----+------+-------+-------
+  2 | pbkdf2_sha256$600000$36sOFmuibGUeOLPNQAhQFv$KCN2NrPQwaDxXLTJkULW/b4+47CgLuuQ9lB/XE5svVQ= | 2024-08-21 16:16:29.740952+00 | aaaaa1 | aaaaa1@gmail.com | 2000-01-01    | t         | f        | default/default.png | 400 |    0 |     0 |     0
+  1 | pbkdf2_sha256$600000$3aPMdDyiHthi9iVlfKgHI0$egBVvbaPcadls642/a79Uf5d0uvt8VyAv2AucjO42GU= | 2024-08-21 16:34:57.492743+00 | aaaaa  | aaaaa@gmail.com  | 2000-01-01    | t         | f        | default/default.png | 400 |    0 |     0 |     0
+(2 rows)
