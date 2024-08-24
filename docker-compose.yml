@@ -44,6 +44,7 @@ services:
     volumes:
       - ./ft_transcendence:/app
       - vault-volume:/vault/file
+      - ~/data/localip/:/localip
     env_file:
       .env
     networks:

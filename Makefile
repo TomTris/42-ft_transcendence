@@ -2,9 +2,13 @@ NAME = ./docker-compose.yml
 
 all:
 	@printf "Running configuration $(NAME) ... \n"
-	mkdir -p ~/data/psql
-	mkdir -p ~/data/vault
+	@mkdir -p ~/data/psql  
+	@mkdir -p ~/data/vault 
+	@mkdir -p ~/data/localip 
+	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
 	@docker-compose -f $(NAME) up -d
+	@echo "Your local IP-Address is:"
+	@cat ~/data/localip/localip.txt
 # mkdir -p /home/${USER}/data/wordpress_volume
 
 ps:
@@ -23,8 +27,15 @@ down:
 
 re:
 	@printf "Rebuilding configuration $(NAME) ... \n"
-	@docker-compose -f $(NAME) down -y
+	@docker-compose -f $(NAME) down
+	@printf "Running configuration $(NAME) ... \n"
+	@mkdir -p ~/data/psql  
+	@mkdir -p ~/data/vault 
+	@mkdir -p ~/data/localip 
+	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
 	@docker-compose -f $(NAME) up -d --build
+	@echo "Your local IP-Address is:"
+	@cat ~/data/localip/localip.txt
 
 clean:
 	@docker stop $$(docker ps -qa);

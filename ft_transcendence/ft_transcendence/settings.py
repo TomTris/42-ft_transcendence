@@ -29,7 +29,9 @@ DEBUG = True
 # ALLOWED_HOSTS = []
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yourdomain.com']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+with open('/localip/localip.txt', 'r') as file:
+    localip = file.read().strip()
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', localip]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
