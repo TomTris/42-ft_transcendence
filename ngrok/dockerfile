@@ -1,0 +1,4 @@
+FROM ngrok:latest
+
+COPY .ngrok_token .ngrok_token
+CMD -c "-e NGROK_AUTHTOKEN=http --domain=deciding-delicate-raptor.ngrok-free.app"

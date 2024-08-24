@@ -45,6 +45,7 @@ services:
       - ./ft_transcendence:/app
       - vault-volume:/vault/file
       - ~/data/localip/:/localip
+      - ./.domain_name.txt:/domain_name.txt
     env_file:
       .env
     networks:

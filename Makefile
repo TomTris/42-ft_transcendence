@@ -1,15 +1,17 @@
 NAME = ./docker-compose.yml
 
 all:
-	@printf "Running configuration $(NAME) ... \n"
+	@printf "Running configuration $(NAME) ..."
 	@mkdir -p ~/data/psql  
 	@mkdir -p ~/data/vault 
-	@mkdir -p ~/data/localip 
+	@mkdir -p ~/data/localip
+	@./ngrok_run.sh
 	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
 	@docker-compose -f $(NAME) up -d
 	@echo "Your local IP-Address is:"
 	@cat ~/data/localip/localip.txt
-# mkdir -p /home/${USER}/data/wordpress_volume
+	@echo "The Domain is:"
+	@echo $(cat .domain_name.txt)
 
 ps:
 	docker-compose -f $(NAME) ps
@@ -28,31 +30,34 @@ down:
 re:
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down
-	@printf "Running configuration $(NAME) ... \n"
+	@printf "Running configuration $(NAME) ..."
 	@mkdir -p ~/data/psql  
 	@mkdir -p ~/data/vault 
-	@mkdir -p ~/data/localip 
+	@mkdir -p ~/data/localip
+	@./ngrok_run.sh
 	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
 	@docker-compose -f $(NAME) up -d --build
 	@echo "Your local IP-Address is:"
 	@cat ~/data/localip/localip.txt
+	@echo "The Domain is:"
+	@cat .domain_name.txt
 
 clean:
-	@docker stop $$(docker ps -qa);
-	@docker rm $$(docker ps -qa);
-	@docker rmi -f $$(docker images -qa);
-	@docker network rm $$(docker network ls -q);
-# rm -rf ./srcs/web
-# mkdir ./srcs/web
+	@docker stop $$(docker ps -qa);\
+	docker rm $$(docker ps -qa);\
+	docker rmi -f $$(docker images -qa);\
+	docker network rm $$(docker network ls -q);\
+	docker rm ngrok_running
 
 clean1:
-	docker-compose down -v;\
+	@docker-compose down -v;\
 	docker stop $$(docker ps -qa);\
 	docker rm $$(docker ps -qa);\
 	docker rmi -f $$(docker images -qa);\
 	docker network rm $$(docker network ls -q);\
 	rm -rf ~/data/psql/*;\
-	rm -rf ~/data/vault/*;
+	rm -rf ~/data/vault/*;\
+	docker rm ngrok_running
 
 re1:
 	make clean1; make
