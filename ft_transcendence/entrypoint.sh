@@ -3,12 +3,15 @@
 # Optionally, you can add a wait-for-it or similar script to handle waiting for Postgres to be available.
 
 # Run migrations
+echo aaaa
 sleep 2
 i=0
 while [ ! -e /vault/file/created ] && [ $i -lt 60 ]; do
   sleep 2
+  echo c
   i=$(($i + 1))
 done
+echo bbbbb
 
 sleep 5
 python manage.py makemigrations users

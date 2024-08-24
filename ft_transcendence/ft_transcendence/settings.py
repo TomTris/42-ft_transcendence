@@ -25,16 +25,17 @@ SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm=
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 # ALLOWED_HOSTS = []
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yourdomain.com']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django']
 with open('/localip/localip.txt', 'r') as file:
     localip = file.read().strip()
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', localip]
-
+localip = "https://" + localip
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
+    'https://127.0.0.1',
+    localip,
     # 'https://yourdomain.com',
 ]
 
@@ -105,21 +106,21 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 #     }
 # }
 
-# import hvac
-# with open('/vault/file/rootToken', 'r') as file:
-#     vault_token = file.read().strip()
-# client = hvac.Client(url='http://vault:8200', token=vault_token)
-# secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': secret['db_name'],
-#         'USER': secret['db_user'],
-#         'PASSWORD': secret['db_password'],
-#         'HOST': secret['db_host'],
-#         'PORT': secret['db_port'],
-#     }
-# }
+import hvac
+with open('/vault/file/rootToken', 'r') as file:
+    vault_token = file.read().strip()
+client = hvac.Client(url='http://vault:8200', token=vault_token)
+secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': secret['db_name'],
+        'USER': secret['db_user'],
+        'PASSWORD': secret['db_password'],
+        'HOST': secret['db_host'],
+        'PORT': secret['db_port'],
+    }
+}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
