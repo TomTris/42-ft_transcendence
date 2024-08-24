@@ -28,16 +28,16 @@ DEBUG = True
 # ALLOWED_HOSTS = []
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'yourdomain.com']
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django']
-with open('/localip/localip.txt', 'r') as file:
-    localip = file.read().strip()
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', localip]
-localip = "https://" + localip
-CSRF_TRUSTED_ORIGINS = [
-    'https://localhost',
-    'https://127.0.0.1',
-    localip,
-    # 'https://yourdomain.com',
-]
+# with open('/localip/localip.txt', 'r') as file:
+#     localip = file.read().strip()
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', localip]
+# localip = "https://" + localip
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://localhost',
+#     'https://127.0.0.1',
+#     localip,
+#     # 'https://yourdomain.com',
+# ]
 
 # Application definition
 
@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'pages.middleware.CheckUserAuthorizationMiddleware',
+    'game.middleware.CleanupMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
