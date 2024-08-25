@@ -130,7 +130,6 @@ class GameConsumer(WebsocketConsumer):
                     return
             
             self.send_data_to_group()
-            print("bla bla bla")
 
 
     def calculate_rank_change(self, elo1, elo2, win, factor=16):

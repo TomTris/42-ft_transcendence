@@ -13,7 +13,7 @@ def login_view(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
+                login(request, user)    
                 return redirect('home')  # Redirect to a success page
             else:
                 # Invalid credentials
