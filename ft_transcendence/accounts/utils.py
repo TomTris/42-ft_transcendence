@@ -14,6 +14,7 @@ def generateOtp():
 def send_code_to_user(email):
 	Subject="One time passcode for Email verification"
 	otp_code=generateOtp()
+	print(otp_code)
 	user=User.objects.get(email=email)
 	current_site="deciding-delicate-raptor.ngrok-free.app"
 	email_body=f"Hi {user.first_name} thanks for signing up on {current_site} \
