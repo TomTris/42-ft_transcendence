@@ -11,7 +11,7 @@ all:
 	@echo "Your local IP-Address is:"
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
-	@echo $(cat .domain_name.txt)
+	@echo $$(cat .domain_name.txt)
 
 ps:
 	docker-compose -f $(NAME) ps
@@ -40,14 +40,14 @@ re:
 	@echo "Your local IP-Address is:"
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
-	@cat .domain_name.txt
+	@echo $$(cat .domain_name.txt)
 
 clean:
 	@docker stop $$(docker ps -qa);\
 	docker rm $$(docker ps -qa);\
 	docker rmi -f $$(docker images -qa);\
 	docker network rm $$(docker network ls -q);\
-	docker rm ngrok_running
+	rm ngrok_running
 
 clean1:
 	@docker-compose down -v;\
@@ -57,7 +57,7 @@ clean1:
 	docker network rm $$(docker network ls -q);\
 	rm -rf ~/data/psql/*;\
 	rm -rf ~/data/vault/*;\
-	docker rm ngrok_running
+	rm ngrok_running
 
 re1:
 	make clean1; make
