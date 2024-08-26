@@ -4,6 +4,8 @@ from django.db.models import Q
 from game.models import GameSession
 
 def home_view(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/home.html')
     return render(request, "home.html")
 
 def inactive_view(request):
@@ -14,15 +16,14 @@ def best_view(request):
 
 def users_view(request):
     users = MyUser.objects.order_by("id")
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/users.html', {'users':users, 'amount':len(users)})
     return render(request, "users.html", {'users':users, 'amount':len(users)})
 
-def user_view(request, id):
-    id -= 1
-    print(id)
-    users = MyUser.objects.all()
-    if id >= len(users) or id < 0:
+def user_view(request, id): 
+    user = MyUser.objects.all().filter(id=id).first()
+    if not user:
         return render(request, "user_doesnt_exist.html")
-    user = users[id]
     matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user))
     matches_with_ids = []
     for match in matches:
@@ -44,6 +45,8 @@ def user_view(request, id):
         winrate = 0
     else:
         winrate = "%.2f" % (user.wins / user.total)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
 
 

@@ -64,21 +64,16 @@ class ChatConsumer(WebsocketConsumer):
 
 
     def send_to_all(self):
-        print(1)
-        messages = get_messages(self.user)
-        print(messages)
-        serializer = ChatMessageSerializer(messages, many=True)
-        message_data = serializer.data
-        print(message_data)
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
                 'type': 'chat_message',
-                'message': message_data
             }
         )
 
 
     def chat_message(self, event):
-        message_data = event['message']
+        messages = get_messages(self.user)
+        serializer = ChatMessageSerializer(messages, many=True)
+        message_data = serializer.data
         self.send(text_data=json.dumps(message_data))

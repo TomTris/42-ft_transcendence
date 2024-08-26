@@ -4,6 +4,9 @@ from .models import GameSession
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import TournamentSession
+import string
+import random
 import json
 
 
@@ -39,6 +42,8 @@ def playing_view(request, session_id):
     return render(request, "playing.html", {'session_id':session_id})
 
 def offline_view(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/offline.html')
     return render(request, 'offline.html')
 
 def bot_view(request):
@@ -46,3 +51,44 @@ def bot_view(request):
 
 def tournament_view(request):
     return render(request, 'tournaments.html')
+
+def online_tournament_view(request):
+    return render(request, 'online_tournament.html')
+
+
+def online_tournaments_view(request):
+    return render(request, 'online_tournaments.html')
+
+
+
+def generate_unique_code():
+    length = 8
+    characters = string.ascii_uppercase + string.digits
+    while True:
+        code = ''.join(random.choice(characters) for _ in range(length))
+        if not TournamentSession.objects.filter(code=code).exists():
+            return code
+
+@require_POST
+def create_tournament(request):
+    name = request.POST.get('name')
+    if not name:
+        return JsonResponse({'error': 'Tournament name is required'}, status=400)
+
+    code = generate_unique_code()
+    tournament = TournamentSession.objects.create(name=name, code=code)
+    return JsonResponse({'success': True, 'code': code})
+
+@require_POST
+def join_tournament(request):
+    code = request.POST.get('code')
+    if not code:
+        return JsonResponse({'error': 'Tournament code is required'}, status=400)
+    try:
+        tournament = TournamentSession.objects.get(code=code, is_active=True)
+        tournament.add_player(request.user)
+        return JsonResponse({'success': True, 'tournament_id': tournament.id})
+    except TournamentSession.DoesNotExist:
+        return JsonResponse({'error': 'Tournament not found'}, status=404)
+    except ValueError:
+        return JsonResponse({'error': 'Tournament is full'}, status=400)

@@ -23,5 +23,4 @@ urlpatterns = [
     path('register/', include('users.url_register')),
     path('', include('pages.urls')),
     path('game/', include('game.urls')),
-    path('chat/', include('chat.urls')),
 ]

@@ -45,7 +45,10 @@ class GameConsumer(WebsocketConsumer):
             else:
                 game_state['disc2'] = 0
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
-                game_state['start'] = (time.time() + 4)
+                if self.game_session.is_tournament:
+                    game_state['start'] = (time.time() + 31)
+                else:
+                    game_state['start'] = time.time() + 4
                 game_state['playing'] = 0
             self.game_session.set_game_state(game_state)
         else:
@@ -89,13 +92,14 @@ class GameConsumer(WebsocketConsumer):
         self.update_game_session()
 
     def disconecting(self):
-        try:
-            self.game_session.add_player(self.user)
-            self.game_session.save()
-        except Exception:
-            return
-        self.periodic_task = threading.Thread(target=self.ensure, daemon=True)
-        self.periodic_task.start()
+        if not self.game_session.is_tournament:
+            try:
+                self.game_session.add_player(self.user)
+                self.game_session.save()
+            except Exception:
+                return
+            self.periodic_task = threading.Thread(target=self.ensure, daemon=True)
+            self.periodic_task.start()
 
 
     def disconnect(self, close_code):
@@ -125,7 +129,7 @@ class GameConsumer(WebsocketConsumer):
                         game_state['start'] = time.time() + 21
 
                 self.game_session.set_game_state(game_state)
-                if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active:
+                if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active and not self.game_session.is_tournament:
                     self.game_session.delete()
                     return
             
@@ -185,6 +189,12 @@ class GameConsumer(WebsocketConsumer):
 
     def update_playing(self):
         game_state = self.game_session.get_game_state()
+        if self.game_session.is_tournament:
+            if game_state['disc1'] == 1 and game_state['disc2'] == 1:
+                if game_state['start'] < time.time():
+                    game_state['playing'] = 1
+                    self.game_session.set_game_state(game_state)
+                return
         if game_state['paused'] == 0 and self.game_session.player2 is not None:
             if game_state['start'] < time.time():
                 if game_state['playing'] == 0:
@@ -427,6 +437,7 @@ class GameConsumer(WebsocketConsumer):
                 'vecx': game_state['vecx'],
                 'distance': distance, 
                 'time':self.get_time(),
+                'is_tournament': int(self.game_session.is_tournament),
         }
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,

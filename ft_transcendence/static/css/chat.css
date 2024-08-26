@@ -1,0 +1,57 @@
+/* Styles specific to the chat component */
+#chat-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 300px;
+    max-width: 100%;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure chat box is on top of other content */
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+#chat-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f5f5f5;
+}
+#hide-button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+#chat-box {
+    flex: 1;
+    overflow-y: scroll;
+    padding: 10px;
+    box-sizing: border-box;
+}
+#message-input {
+    width: calc(100% - 80px);
+    padding: 10px;
+    box-sizing: border-box;
+}
+#send-button {
+    width: 80px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+#toggle-button {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1001; /* Ensure toggle button is on top of other content */
+}

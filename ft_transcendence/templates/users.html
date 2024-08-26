@@ -1,13 +1,5 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>There are {{amount}} users</h1>
-<ul>
-
-{% for i in users %}
-    <li><img src="{{i.avatar.url}}" width="15" height="15"> <a href="{{i.id}}">{{i.login}}</a></li>
-{% endfor %}
-
-</ul>
-
+    {% include "partials/users.html" %}
 {% endblock  %}

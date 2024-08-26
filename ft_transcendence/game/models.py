@@ -20,6 +20,7 @@ class GameSession(models.Model):
     score2 = models.IntegerField(default=0)
     rank_change1 = models.IntegerField(default=0)
     rank_change2 = models.IntegerField(default=0)
+    is_tournament = models.BooleanField(default=False)
     winner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='winner', null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -83,3 +84,44 @@ class GameSession(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+
+class TournamentSession(models.Model):
+    name = models.CharField(max_length=40)
+
+    player1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament1', null=True, on_delete=models.SET_NULL)
+    player2 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament2', null=True, on_delete=models.SET_NULL)
+    player3 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament3', null=True, on_delete=models.SET_NULL)
+    player4 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament4', null=True, on_delete=models.SET_NULL)
+    
+    is_active = models.BooleanField(default=True)
+    code = models.CharField(max_length=10, unique=True)
+
+    game1 = models.ForeignKey(GameSession, related_name='game1', null=True, on_delete=models.SET_NULL)
+    game2 = models.ForeignKey(GameSession, related_name='game2', null=True, on_delete=models.SET_NULL)
+    game3 = models.ForeignKey(GameSession, related_name='game3', null=True, on_delete=models.SET_NULL)
+
+    def get_cache_key(self):
+        return f'tournament_{self.id}'
+
+    def set_tournament__state(self, game_state):
+        cache.set(self.get_cache_key(), game_state, timeout=None)  # Timeout can be set according to your needs
+
+    def get_tournament__state(self):
+        return cache.get(self.get_cache_key(), default={})
+    
+    def is_full(self):
+        return self.player1 and self.player2 and self.player3 and self.player4
+    
+    def add_player(self, user):
+        if not self.player1:
+            self.player1 = user
+        elif not self.player2:
+            self.player2 = user
+        elif not self.player3:
+            self.player3 = user
+        elif not self.player4:
+            self.player4 = user
+        else:
+            raise ValueError("Game session is already full")
+        self.save()

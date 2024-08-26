@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +7,14 @@
     <title>Pong Ping</title>
 </head>
 <body>
-    <div>
+
+    {% include "navbar.html" %}
+
+    <div id='app'>
         {% block content %}
         {% endblock  %}
     </div>
+    {% include "chat.html" %}
+    <script src="{% static 'js/spa.js' %}"></script>
 </body>
 </html>

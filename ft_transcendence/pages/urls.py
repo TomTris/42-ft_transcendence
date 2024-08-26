@@ -6,9 +6,10 @@ from django.conf import settings
 urlpatterns = [
     path('', views.home_view, name='home'),
     path('home/', views.home_view),
-    path('inactive/', views.inactive_view),
     path('users/', views.users_view),
     path('users/<int:id>', views.user_view),
+    path('inactive/', views.inactive_view),
+
     path('best/', views.best_view),
     
     #for test modsecurity

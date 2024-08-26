@@ -1,0 +1,44 @@
+<h1>Welcome to the Game</h1>
+
+<button data-route="/game/offline/">Offline</button>
+<button data-route="/game/bot/">Bot</button>
+<button id="join-game">Matchmaking</button>
+
+<script>
+document.getElementById('join-game').onclick = function() {
+    fetch('/game/join-game-session/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.session_id) {
+            // Redirect to the new game page with the session ID
+            window.location.href = `/game/${data.session_id}/`;
+        } else {
+            console.error('Failed to join game session:', data.error);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+};
+
+document.addEventListener('click', function(event) {
+    const button = event.target.closest('button[data-route]');
+    if (button) {
+        event.preventDefault(); // Prevent default button behavior
+        const path = button.getAttribute('data-route');
+        console.log('Navigating to:', path); // Log the path for debugging
+        loadContent(path, true); // Load content and push to history
+    }
+});
+
+</script>

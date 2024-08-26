@@ -1,0 +1,19 @@
+<h1>{{user.login}}</h1>
+    
+<h2>Stats</h2>
+<p> total-matches{{user.total}} wins:{{user.wins}} loses:{{user.loses}} winrate:{{winrate}}</p>
+<p>Elo: {{user.elo}}</p>
+<h1>History</h1>
+<ul>
+{% for m in matches_with_ids %}
+    <li>
+        <img src="{{m.player1.avatar.url}}" width="15" height="15"/>
+        <a href="/users/{{m.player1.id }}">{{m.match.player1}}</a>
+        rank_change: {{m.match.rank_change1}}
+        vs 
+        <img src="{{m.player2.avatar.url}}" width="15" height="15"/>
+        <a href="/users/{{m.player2.id }}">{{m.match.player2}}</a>
+        rank_change: {{m.match.rank_change2}}
+    </li>
+{% endfor %}
+</ul>

@@ -1,0 +1,88 @@
+
+    <div id="game-container">
+        <h1>Game Session: {{ session_id }}</h1>
+        <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
+        <p>Player 1: <span id="player1">{{ player1 }}</span></p>
+        <p>Player 2: <span id="player2">{{ player2 }}</span></p>
+        <div><div id="score1"></div> <div id="score2"></div></div>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+    </div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        console.log('Initializing WebSocket...');
+        const gameContainer = document.getElementById('game-container');
+        if (!gameContainer) {
+            console.warn('Game container not found');
+            return;
+        }
+    
+        const socket = new WebSocket(`ws://${window.location.host}/wss/game/offline/`);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+    
+        socket.onopen = () => console.log('WebSocket connection established');
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            // Safely update elements only if they exist
+            const statusElement = document.getElementById('status');
+            const player1Element = document.getElementById('player1');
+            const player2Element = document.getElementById('player2');
+            const timeElement = document.getElementById('time');
+            const score1Element = document.getElementById('score1');
+            const score2Element = document.getElementById('score2');
+    
+            if (statusElement) statusElement.textContent = data.status;
+            if (player1Element) player1Element.textContent = data.player1;
+            if (player2Element) player2Element.textContent = data.player2;
+            if (timeElement) timeElement.textContent = data.time;
+            if (score1Element) score1Element.textContent = data.score1;
+            if (score2Element) score2Element.textContent = data.score2;
+    
+            updateGameCanvas(data);
+        };
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+        socket.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+    
+        function updateGameCanvas(data) {
+            ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
+            ctx.fillStyle = 'black';
+            ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
+            ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
+            ctx.beginPath();
+            ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
+            ctx.fill();
+        }
+    
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            if ((key === 'f' || key === 'F') && event.repeat) {
+                return;
+            }
+            const message = {
+                type: 'keydown',
+                key: key
+            };
+            socket.send(JSON.stringify(message));
+        });
+    });
+</script>
+
+<style>
+    #game-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    canvas {
+        border: 1px solid black;
+        background: #eee;
+        display: block;
+        margin: 0 auto;
+    }
+</style> 

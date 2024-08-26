@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Tournament</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('create-tournament').addEventListener('click', function() {
+                var name = document.getElementById('create-name').value;
+                fetch('/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: 'name=' + encodeURIComponent(name)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Tournament created! Code: ' + data.code);
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            document.getElementById('join-tournament').addEventListener('click', function() {
+                var code = document.getElementById('join-code').value;
+                fetch('/join/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: 'code=' + encodeURIComponent(code)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Successfully joined tournament! Tournament ID: ' + data.tournament_id);
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Manage Tournament</h1>
+
+    <h2>Create Tournament</h2>
+    <input type="text" id="create-name" placeholder="Tournament Name">
+    <button id="create-tournament">Create Tournament</button>
+
+    <h2>Join Tournament</h2>
+    <input type="text" id="join-code" placeholder="Tournament Code">
+    <button id="join-tournament">Join Tournament</button>
+</body>
+</html>
