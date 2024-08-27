@@ -5,7 +5,6 @@ all:
 	@mkdir -p ~/data/psql  
 	@mkdir -p ~/data/vault 
 	@mkdir -p ~/data/localip
-	@./ngrok_run.sh
 	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
 	@docker-compose -f $(NAME) up -d
 	@echo "Your local IP-Address is:"
@@ -13,6 +12,7 @@ all:
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
 
+#@./ngrok_run.sh
 ps:
 	docker-compose -f $(NAME) ps
 

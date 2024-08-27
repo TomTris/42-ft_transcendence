@@ -28,23 +28,23 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost']
 
-# with open('/localip/localip.txt', 'r') as file:
-#     localip = file.read().strip()
-# with open('/domain_name.txt', 'r') as file:
-#     domain_name = file.read().strip()
+with open('/localip/localip.txt', 'r') as file:
+    localip = file.read().strip()
+with open('/domain_name.txt', 'r') as file:
+    domain_name = file.read().strip()
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
 
-# localip = "https://" + localip
-# domain_name = "https://" + domain_name
+localip = "https://" + localip
+domain_name = "https://" + domain_name
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://localhost',
-#     'https://127.0.0.1',
-#     domain_name,
-#     localip,
-#     # 'https://yourdomain.com',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost',
+    'https://127.0.0.1',
+    domain_name,
+    localip,
+    # 'https://yourdomain.com',
+]
 
 # Application definition
 
@@ -103,12 +103,12 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
@@ -132,16 +132,16 @@ DATABASES = {
 #         'PORT': secret['db_port'],
 #     }
 # }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'mydatabase',  # Match POSTGRES_DB in docker-compose.yml
-#         'USER': 'myuser',      # Match POSTGRES_USER in docker-compose.yml
-#         'PASSWORD': 'mypassword',  # Match POSTGRES_PASSWORD in docker-compose.yml
-#         'HOST': 'postgres',    # This should match the service name in docker-compose.yml
-#         'PORT': '5432',        # Default PostgreSQL port
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydatabase',  # Match POSTGRES_DB in docker-compose.yml
+        'USER': 'myuser',      # Match POSTGRES_USER in docker-compose.yml
+        'PASSWORD': 'mypassword',  # Match POSTGRES_PASSWORD in docker-compose.yml
+        'HOST': 'postgres',    # This should match the service name in docker-compose.yml
+        'PORT': '5432',        # Default PostgreSQL port
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -200,29 +200,11 @@ AUTH_USER_MODEL = "users.MyUser"
 # }
 
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
-    }
-}
-
-
-
 # CHANNEL_LAYERS = {
 #     "default": {
 #         "BACKEND": "channels_redis.core.RedisChannelLayer",
 #         "CONFIG": {
-#             "hosts": [("redis", 6379)],
+#             "hosts": [("127.0.0.1", 6379)],
 #         },
 #     },
 # }
@@ -230,9 +212,27 @@ CACHES = {
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://redis:6379/1',  # Use Redis server URL here
+#         'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
 #     }
 # }
+
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',  # Use Redis server URL here
+    }
+}
 
 
 

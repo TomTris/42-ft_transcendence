@@ -5,7 +5,7 @@ import random
 import math
 from django.core.cache import cache
 
-width = 800
+width = 1000
 height = 600
 pheight = 120
 pwidth = 15

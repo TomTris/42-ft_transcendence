@@ -16,7 +16,11 @@ function init() {
   camera.updateProjectionMatrix();
   scene = new THREE.Scene();
 
-  var geometry = new THREE.DodecahedronGeometry(8, 4);
+  var width = (1000 - 80) / 2
+  var height = 600 / 2
+  var slder_width = 120 / 2
+
+  var geometry = new THREE.DodecahedronGeometry(7, 4);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0x555555,
     color: 0x555555,
@@ -28,7 +32,7 @@ function init() {
   ball.castShadow = true;
   scene.add(ball);
 
-  var geometry = new THREE.BoxGeometry(5, 100, 15);
+  var geometry = new THREE.BoxGeometry(5, slder_width, 15);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0x555555,
     color: 0xff0000,
@@ -37,10 +41,10 @@ function init() {
     shading: THREE.SmoothShading
   });
   sliderL = new THREE.Mesh(geometry, material);
-  sliderL.position.x = -200;
+  sliderL.position.x = - width / 2;
   scene.add(sliderL);
 
-  var geometry = new THREE.BoxGeometry(5, 100, 15);
+  var geometry = new THREE.BoxGeometry(5, slder_width, 15);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0x555555,
     color: 0x0000ff,
@@ -49,7 +53,7 @@ function init() {
     shading: THREE.SmoothShading
   });
   sliderR = new THREE.Mesh(geometry, material);
-  sliderR.position.x = 200;
+  sliderR.position.x = width / 2;
   scene.add(sliderR);
 
   var geometry = new THREE.PlaneGeometry(2000, 2000);
@@ -64,7 +68,7 @@ function init() {
   plate.position.z = -100;
   scene.add(plate);
 
-  var geometry = new THREE.BoxGeometry(400, 300, 10);
+  var geometry = new THREE.BoxGeometry(width, height, 10);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0x000000,
     color: 0x00ff00,
@@ -76,9 +80,7 @@ function init() {
   table.position.z = -10;
   scene.add(table);
 
-
-
-  var geometry = new THREE.BoxGeometry(400, 5, 10);
+  var geometry = new THREE.BoxGeometry(width, 5, 10);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0xffffff,
     color: 0x8B4513,
@@ -87,10 +89,10 @@ function init() {
     shading: THREE.SmoothShading
   });
   trimD = new THREE.Mesh(geometry, material);
-  trimD.position.y = -150;
+  trimD.position.y = - height / 2;
   scene.add(trimD);
 
-  var geometry = new THREE.BoxGeometry(400, 5, 10);
+  var geometry = new THREE.BoxGeometry(width, 5, 10);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0xffffff,
     color: 0x8B4513,
@@ -99,7 +101,7 @@ function init() {
     shading: THREE.SmoothShading
   });
   trimU = new THREE.Mesh(geometry, material);
-  trimU.position.y = +150;
+  trimU.position.y = height / 2;
   scene.add(trimU);
 
 
@@ -120,9 +122,9 @@ function init() {
 
 
 function animate(px, py, p1, p2) {
-  ball.position.x = -px / 2 + 200;
-  ball.position.y = -py * 3 / 4 + 150;
-  sliderL.position.y = -p1 / 2 + 50;
-  sliderR.position.y = -p2 / 2 + 50;
+  ball.position.x = px / 2 - 250;
+  ball.position.y = -py / 2 + 150;
+  sliderL.position.y = -p1 / 2 + 120;
+  sliderR.position.y = -p2 / 2 + 120;
   renderer.render(scene, camera);
 }
