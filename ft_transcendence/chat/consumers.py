@@ -76,4 +76,8 @@ class ChatConsumer(WebsocketConsumer):
         messages = get_messages(self.user)
         serializer = ChatMessageSerializer(messages, many=True)
         message_data = serializer.data
-        self.send(text_data=json.dumps(message_data))
+        response_data = {
+            'messages': message_data,
+            'current_user': self.user.username,
+        }
+        self.send(text_data=json.dumps(response_data))

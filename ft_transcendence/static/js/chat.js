@@ -13,9 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
         chatBox.innerHTML = '';
-
+        console.log(123)
         if (Array.isArray(data)) {
             data.forEach(function(message) {
+                console.log(message)
                 displayMessage(message);
             });
         } else {
