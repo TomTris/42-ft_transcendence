@@ -29,7 +29,7 @@
         const socket = new WebSocket(`ws://${window.location.host}/wss/game/${sessionId}/`);
         // const canvas = document.getElementById('gameCanvas');
         // const ctx = canvas.getContext('2d');
-        animate();
+        animate(0, 0, 0, 0);
 
 
         socket.onmessage = function(event) {
@@ -53,7 +53,7 @@
             // ctx.beginPath();
             // ctx.arc(data.posx, data.posy, data.radius, 0, 2 * Math.PI); // Ball
             // ctx.fill();
-            animate()
+            animate(data.posx, data.posy, data.pos1, data.pos2);
         };
 
         document.addEventListener('keydown', function(event) {

@@ -55,7 +55,7 @@ function init() {
   var geometry = new THREE.PlaneGeometry(2000, 2000);
   var material = new THREE.MeshPhongMaterial({
     ambient: 0xffffff,
-    color: 0xffffff,
+    color: 0x9fff9f,
     specular: 0x000000,
     shininess: 0,
     shading: THREE.SmoothShading
@@ -66,7 +66,7 @@ function init() {
 
   var geometry = new THREE.BoxGeometry(400, 300, 10);
   var material = new THREE.MeshPhongMaterial({
-    ambient: 0xffffff,
+    ambient: 0x000000,
     color: 0x00ff00,
     specular: 0x000000,
     shininess: 0,
@@ -119,13 +119,10 @@ function init() {
 }
 
 
-function animate() {
-    // camera.aspect = 16/10;
-    // camera.updateProjectionMatrix();
-//   resize();
-//   mesh.rotation.x += 0.005;
-//   mesh.rotation.y += 0.01;
-//   ball.position.x += 0.2;
+function animate(px, py, p1, p2) {
+  ball.position.x = px;
+  ball.position.y = py;
+  sliderL.position.y = p1;
+  sliderR.position.y = p2;
   renderer.render(scene, camera);
-  // requestAnimationFrame(animate);
 }
