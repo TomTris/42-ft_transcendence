@@ -39,7 +39,7 @@ def playing_view(request, session_id):
     user = request.user
     if game_session is None or user not in [game_session.player1, game_session.player2] or not game_session.is_active:
         return render(request, "user_doesnt_exist.html")
-    return render(request, "playing.html", {'session_id':session_id})
+    return render(request, "play3d/play3d.html", {'session_id':session_id})
 
 def offline_view(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

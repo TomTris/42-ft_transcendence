@@ -120,9 +120,9 @@ function init() {
 
 
 function animate(px, py, p1, p2) {
-  ball.position.x = px;
-  ball.position.y = py;
-  sliderL.position.y = p1;
-  sliderR.position.y = p2;
+  ball.position.x = -px / 2 + 200;
+  ball.position.y = -py * 3 / 4 + 150;
+  sliderL.position.y = -p1 / 2 + 50;
+  sliderR.position.y = -p2 / 2 + 50;
   renderer.render(scene, camera);
 }

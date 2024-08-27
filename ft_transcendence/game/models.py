@@ -6,8 +6,8 @@ import math
 from django.core.cache import cache
 
 width = 800
-height = 400
-pheight = 80
+height = 600
+pheight = 120
 pwidth = 15
 distance = 40
 radius = 10
@@ -79,6 +79,8 @@ class GameSession(models.Model):
             'online': 0,
             "start": time.time(),
             "last_update": 0,
+            "connected1":0,
+            "connected2":0,
         }
         self.set_game_state(game_state)
 
@@ -104,14 +106,23 @@ class TournamentSession(models.Model):
     def get_cache_key(self):
         return f'tournament_{self.id}'
 
-    def set_tournament__state(self, game_state):
+    def set_tournament_state(self, game_state):
         cache.set(self.get_cache_key(), game_state, timeout=None)  # Timeout can be set according to your needs
 
-    def get_tournament__state(self):
+    def get_tournament_state(self):
         return cache.get(self.get_cache_key(), default={})
     
     def is_full(self):
         return self.player1 and self.player2 and self.player3 and self.player4
+    
+    def delete_player(self, user):
+        if self.player2 == user:
+            self.player2 = None
+        if self.player3 == user:
+            self.player3 = None
+        if self.player4 == user:
+            self.player4 = None
+        
     
     def add_player(self, user):
         if not self.player1:
@@ -125,3 +136,24 @@ class TournamentSession(models.Model):
         else:
             raise ValueError("Game session is already full")
         self.save()
+
+    def init_tournament_state(self):
+        game_state = {
+            'score1_1':0,
+            'score1_2':0,
+            'score2_1':0,
+            'score2_2':0,
+            'score3_1':0,
+            'score3_2':0,
+            'joined1_1':0,
+            'joined1_2':0,
+            'joined2_1':0,
+            'joined2_2':0,
+            'joined3_1':0,
+            'joined3_2':0,
+            'tournament_started':0,
+            'confirmed':0,
+            'start1':0,
+            'start2':0,
+        }
+        self.set_tournament_state(game_state)

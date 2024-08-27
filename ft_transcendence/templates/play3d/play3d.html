@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,8 +22,8 @@
         <div><div id="score1"></div> <div id="score2"></div></div>
         <canvas id="gameCanvas" width="1024" height="640"></canvas>
     </div>
-    <script src="three.js"></script>
-    <script src="play.js"></script>
+    <script src="{% static 'js/three.js' %}"></script>
+    <script src="{% static 'js/play.js' %}"></script>
     <script>
         // JavaScript to connect to WebSocket and update player list
         const sessionId = "{{ session_id }}";

@@ -46,7 +46,12 @@ class GameConsumer(WebsocketConsumer):
                 game_state['disc2'] = 0
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
                 if self.game_session.is_tournament:
-                    game_state['start'] = (time.time() + 31)
+                    if self.user == self.game_session.player1 and game_state['connected2'] == 0:
+                        game_state['start'] = (time.time() + 31)
+                        game_state['connected1'] = 1
+                    elif self.user == self.game_session.player2 and game_state['connected1'] == 0:
+                        game_state['start'] = (time.time() + 31)
+                        game_state['connected1'] = 1
                 else:
                     game_state['start'] = time.time() + 4
                 game_state['playing'] = 0
@@ -158,30 +163,33 @@ class GameConsumer(WebsocketConsumer):
                 self.game_session.winner = self.game_session.player1
             else:
                 self.game_session.winner = self.game_session.player2
-            rank_change = self.calculate_rank_change(self.game_session.player1.elo, self.game_session.player2.elo, game_state['won'])
-
-            elo1 = self.game_session.player1.elo
-            elo2 = self.game_session.player2.elo
+            
+            if self.game_session.is_tournament == False:
+                rank_change = self.calculate_rank_change(self.game_session.player1.elo, self.game_session.player2.elo, game_state['won'])
+                elo1 = self.game_session.player1.elo
+                elo2 = self.game_session.player2.elo
+                if game_state['won'] == 1:
+                    elo1 += rank_change
+                    elo2 -= rank_change
+                else:
+                    elo2 += rank_change
+                    elo1 -= rank_change
+                if elo2 < 0:
+                    elo2 = 0
+                if elo1 < 0:
+                    elo1 = 0
+                self.game_session.rank_change1 = elo1 - self.game_session.player1.elo
+                self.game_session.rank_change2 = elo2 - self.game_session.player2.elo
+                self.game_session.player1.elo = elo1
+                self.game_session.player2.elo = elo2
             self.game_session.player1.total += 1
             self.game_session.player2.total += 1
             if game_state['won'] == 1:
-                elo1 += rank_change
-                elo2 -= rank_change
                 self.game_session.player1.wins += 1
                 self.game_session.player2.loses += 1
             else:
-                elo2 += rank_change
-                elo1 -= rank_change
                 self.game_session.player2.wins += 1
                 self.game_session.player1.loses += 1
-            if elo2 < 0:
-                elo2 = 0
-            if elo1 < 0:
-                elo1 = 0
-            self.game_session.rank_change1 = elo1 - self.game_session.player1.elo
-            self.game_session.rank_change2 = elo2 - self.game_session.player2.elo
-            self.game_session.player1.elo = elo1
-            self.game_session.player2.elo = elo2
             self.game_session.player1.save()
             self.game_session.player2.save()
             self.game_session.save()
