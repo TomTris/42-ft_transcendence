@@ -39,7 +39,7 @@ def login_view(request):
         return render(request, 'partials/login.html', {'form': form})  # Partial template for AJAX requests
     return render(request, 'login.html', {'form': form})
 
-
+@csrf_exempt
 def register_view(request):
     logout(request)
     if request.method == "POST":
