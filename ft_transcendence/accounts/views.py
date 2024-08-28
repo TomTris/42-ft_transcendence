@@ -1,4 +1,6 @@
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import render, redirect
+from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from .serializers import (UserRegisterSerializer, LoginSerializer, PasswordResetRequestSerializer,
 						  SetNewPasswordSerializer, LogoutUserSeriallizer, TrashSerializer, VerifyLoginSerializer)
@@ -96,6 +98,7 @@ class LoginUserView(GenericAPIView):
 	serializer_class = LoginSerializer
 
 	def post(self, request):
+		print(request)
 		serializer = self.serializer_class(data=request.data, context={'request': request})
 		if serializer.is_valid():
 			send_code_to_user_login(serializer.validated_data)
@@ -113,8 +116,16 @@ class VerifyLoginUserView(GenericAPIView):
 	def post(self, request):
 		serializer = self.serializer_class(data=request.data, context={'request': request})
 		if serializer.is_valid():
-			return Response(serializer.validated_data, status=status.HTTP_200_OK)
-		print(1111)
+			response = Response({
+				'access_token': serializer.validated_data['access_token'],
+				'refresh_token': serializer.validated_data['refresh_token']
+			}, status=status.HTTP_200_OK)
+			response.set_cookie('access_token', serializer.validated_data['access_token'], domain='localhost', httponly=True, secure=True, samesite='Strict', max_age=15 * 60, path='/')
+			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], domain='localhost', httponly=True, secure=True, samesite='Strict', max_age=7 * 24 * 60 * 60, path='/accounts/refresh')
+			print(response.data)
+			print(serializer.validated_data['refresh_token'])
+			# print(1)
+			return response
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def get(self, request):
@@ -123,17 +134,41 @@ class VerifyLoginUserView(GenericAPIView):
 
 
 
+class TokenRefreshView(APIView):
+	def get(self, request):
+		print("This is TokenRefreshView")
+		print(request)
+		refresh_token = request.COOKIES.get('refreshToken')
+		if refresh_token is None:
+			return Response({
+				'detail': 'Refresh token not provided',
+				'redirect_url': reverse('home')
+				}, status=status.HTTP_401_UNAUTHORIZED)
+
+		try:
+			refresh = RefreshToken(refresh_token)
+			new_access_token = str(refresh.access_token)
+			response = Response({'access_token': new_access_token}, status=status.HTTP_200_OK)
+			response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict', max_age=15 * 60)
+			return response
+		except Exception as e:
+			return Response({'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 class TestAuthenticationView(GenericAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
-		# return render(request, "login_ok.html")
-		data={
-			'msg': 'it works'
-		}
-		# redirect("/home.html/")
-		return Response(data, status=status.HTTP_200_OK)
+		print("This is testauthenticationview")
+		print(request)
+		print(request.COOKIES)
+		return render(request, "home.html")
+		# data={
+		# 	'msg': 'it works'
+		# }
+		# # redirect("/home.html/")
+		# return Response(data, status=status.HTTP_200_OK)
 
 
 
