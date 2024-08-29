@@ -59,5 +59,6 @@
   "files.associations": {
     "ios": "cpp",
     "istream": "cpp"
-  }
+},
+"livePreview.defaultPreviewPath": "/ft_transcendence/templates/game.html"
 }
