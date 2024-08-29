@@ -47,6 +47,8 @@ def offline_view(request):
     return render(request, 'offline.html')
 
 def bot_view(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/playing_bot.html')
     return render(request, 'playing_bot.html')
 
 def tournament_view(request):

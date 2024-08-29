@@ -35,8 +35,8 @@ def add_tournament(creator, player1, player2, player3, player4, score1_1, score1
     }
     
 
-    txn = contract.functions.addTournament(creator, name, players, scores).build_transaction({
-        'chainId': 11155111,  # Sepolia chain ID
+    txn = contract.functions.addTournament(creator, name, online, players, scores).build_transaction({
+        'chainId': 17000,  # Sepolia chain ID
         'gas': 1000000,
         'gasPrice': web3.eth.gas_price,
         'nonce': web3.eth.get_transaction_count(deployer_account),
@@ -46,4 +46,5 @@ def add_tournament(creator, player1, player2, player3, player4, score1_1, score1
     return txn_hash
 
 if __name__ == "__main__":
+    # add_tournament('2', 'bro', 'asd', 'sdf', 'gda', 1, 5, 5, 2, 5 ,4)
     print(get_tournaments())
