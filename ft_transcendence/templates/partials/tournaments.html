@@ -1,4 +1,67 @@
+<h1>Tournaments</h1>
+{% if tournaments %}
+    <div class="tournament-list">
+        {% for tournament in tournaments %}
+            <div class="tournament-item">
+                <img src="{{ tournament.owner.avatar }}" alt="{{ tournament.owner.username }}" class="owner-avatar">
+                <div class="tournament-details">
+                    <h2 class="tournament-name">{{ tournament.name }}</h2>
+                    <span class="info-item"><strong>Owner:</strong> {{ tournament.owner.username }}</span>
+                    <span class="info-item"><strong>Date:</strong> {{ tournament.year }}-{{ tournament.month|floatformat:0 }}-{{ tournament.day }}</span>
+                    <span class="info-item"><strong>Time:</strong> {{ tournament.hour }}:{{ tournament.minutes }}</span>
+                    <span class="info-item"><strong>Status:</strong> {% if tournament.online %} Online {% else %} Offline {% endif %}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No tournaments available.</p>
+{% endif %}
 
-{% for  in  %}
-
-{% endfor %}
+<style>
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+    .tournament-list {
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        gap: 20px; /* Space between list items */
+        align-items: center; /* Center align items horizontally */
+    }
+    .tournament-item {
+        border: 1px solid #ddd;
+        padding: 15px; /* Padding for better spacing */
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column; /* Stack avatar and details vertically */
+        align-items: center; /* Center align content horizontally */
+        background-color: #f9f9f9;
+        width: 100%; /* Full width of the container */
+        max-width: 600px; /* Limit the width of each item */
+    }
+    .owner-avatar {
+        width: 60px; /* Adjusted width */
+        height: 60px; /* Adjusted height */
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 10px; /* Space between avatar and details */
+    }
+    .tournament-details {
+        display: flex;
+        flex-direction: column;
+        font-size: 1em; /* Adjust font size for readability */
+        text-align: center; /* Center align text */
+    }
+    .tournament-name {
+        font-size: 1.2em; /* Larger font size for the tournament name */
+        margin-bottom: 10px; /* Space between name and details */
+    }
+    .info-item {
+        margin-bottom: 8px; /* Space between info items */
+    }
+    .info-item strong {
+        display: inline-block;
+        width: 120px; /* Fixed width for labels to align text */
+    }
+</style>

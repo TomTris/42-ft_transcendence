@@ -4,6 +4,8 @@ from django.utils.deprecation import MiddlewareMixin
 from game.models import GameSession
 from game.models import TournamentSession
 from django.conf import settings
+from crypto.functions import start_tournament_update
+
 
 class CleanupMiddleware(MiddlewareMixin):
     _initialized = settings.INITIALIZED_1
@@ -19,4 +21,5 @@ class CleanupMiddleware(MiddlewareMixin):
         un_finished.delete()
         un_finished = TournamentSession.objects.filter(is_active=True)
         un_finished.delete()
+        start_tournament_update()
         print('Cleanup complete.')

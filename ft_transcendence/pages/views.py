@@ -2,7 +2,11 @@ from django.shortcuts import render, redirect
 from users.models import MyUser
 from django.db.models import Q
 from game.models import GameSession
-from crypto.functions import get_tournaments, get_tournament_by_creator
+from crypto.functions import get_tournament_by_creator
+from chat.serializer import UserSerializer
+from users.models import MyUser
+from datetime import datetime, timedelta
+
 
 def home_view(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -51,16 +55,57 @@ def user_view(request, id):
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
 
 
-def modify_data_for_view(tournaments):
-    pass
+def modify_data_for_view():
+    output = []
+    from crypto.functions import all_tournaments
+    for tournament in all_tournaments:
+        userId = tournament[0]
+        try:
+            user = MyUser.objects.get(id=userId)
+            serializer = UserSerializer(user)
+            user = serializer.data
+
+        except MyUser.DoesNotExist:
+            user = {
+                'id':userId,
+                'username':'Deleted',
+                'avatar':'/media/default/default.png'
+            }
+
+        reference_date = datetime(1970, 1, 1)  # Unix epoch start date
+
+        # Calculate the future date by adding the seconds
+        future_date = reference_date + timedelta(seconds=tournament[3])
+        
+        # Extract year, month, and day from the future date
+        year = future_date.year
+        month = future_date.month
+        day = future_date.day
+        hour = future_date.hour
+        minutes = future_date.minute
+
+        data = {
+            'owner':user,
+            'name':tournament[1],
+            'year':year,
+            'month':month if month > 9 else '0' + str(month),
+            'day':day,
+            'hour':hour,
+            'minutes':minutes,
+            'online':tournament[2]
+        }
+        output.append(data)
+    return output.reverse()
 
 
 def tournaments_view(request):
-    tournaments = get_tournaments()
-
+    data = {
+        'tournaments' : modify_data_for_view(),
+    }
+    print(data)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/user.html', )
-    return render(request, "user.html", )
+        return render(request, 'partials/tournaments.html', data)
+    return render(request, "tournaments.html", data)
 
 
 #for test modsecurity

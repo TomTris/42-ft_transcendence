@@ -1,14 +1,24 @@
 from web3 import Web3
 from .crypto_secreets import infura_url, private_key, contract_abi, contract_address, deployer_account
 import json
+import time
+import threading
 
 web3 = Web3(Web3.HTTPProvider(infura_url))
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
-
-def get_tournaments():
-    result = contract.functions.getTournaments().call()
-    return result
+all_tournaments = []
+def start_tournament_update():
+    def get_tournaments_loop():
+        global all_tournaments
+        while True:
+            all_tournaments = contract.functions.getTournaments().call()
+            # print(all_tournaments)
+            time.sleep(5)
+    
+    status_thread = threading.Thread(target=get_tournaments_loop)
+    status_thread.daemon = True
+    status_thread.start()
 
 def get_tournament_by_creator(creator_login):
     result = contract.functions.getTournamentsByCreator(creator_login).call()
@@ -47,4 +57,5 @@ def add_tournament(creator, player1, player2, player3, player4, score1_1, score1
 
 if __name__ == "__main__":
     # add_tournament('2', 'bro', 'asd', 'sdf', 'gda', 1, 5, 5, 2, 5 ,4)
-    print(get_tournaments())
+    # print(get_tournaments())
+    pass
