@@ -12,12 +12,13 @@
         <button id="send-button">Send</button>
     </div>
 </div>
-<button id="toggle-button" style="display: none;">Show Chat</button> 
+<button id="toggle-button" style="display: none;">Show Chat</button>
 
 {% endif %}
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
 
 {% comment %} <script src="{% static 'js/chat.js' %}"></script> {% endcomment %}
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     const chatWrapper = document.getElementById('chat-wrapper');
@@ -28,15 +29,14 @@
     const hideButton = document.getElementById('hide-button');
 
     // Create a WebSocket connection
-    const socket = new WebSocket('ws://' + window.location.host + '/wss/chat/');
+    const socket = new WebSocket('wss://' + window.location.host + '/wss/chat/');
 
     // Handle incoming messages
     socket.onmessage = function(event) {
         const data_all = JSON.parse(event.data);
-        console.log(data_all)
         const data = data_all.messages;
         chatBox.innerHTML = '';
-        console.log(data)
+        // console.log(data)
         if (Array.isArray(data)) {
             data.forEach(function(message) {
                 console.log(message)
@@ -53,7 +53,7 @@
         if (messageContent) {
             socket.send(JSON.stringify({
                 'type': 'message',
-                'content': messageContent
+                'content': messageContent,
             }));
             messageInput.value = '';
         }
@@ -61,14 +61,55 @@
 
     // Function to display a message in the chat box
     function displayMessage(message) {
+
         const messageElement = document.createElement('div');
         const imageElement = document.createElement('img');
         imageElement.src = message.sender.avatar;
         imageElement.style.width = '20px'; // Set desired width
         imageElement.style.height = '20px';
 
+		//-------------------------------------------------------
         const contentElement = document.createElement('div');
         contentElement.textContent = `${message.sender.username}: ${message.content}`;
+		console.log(message.sender.username)
+		console.log (message.sender['id'])
+		//i am here
+
+		if (message.sender['id'] == 1){
+			contentElement.style.color = 'blue';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'right';
+
+		}
+		else if (message.sender['id'] == 2){
+			contentElement.style.color = 'green';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'left';
+
+		}
+		else if (message.sender['id'] == 3){
+			contentElement.style.color = 'red';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'right';
+
+		}
+		else if (message.sender['id'] == 4){
+			contentElement.style.color = 'purple';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'left';
+		}
+		else if (message.sender['id'] == 5){
+			contentElement.style.color = 'orange';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'right';
+		}
+		else {
+			contentElement.style.color = 'black';
+			contentElement.style.fontWeight = 'bold';
+			contentElement.style.textAlign = 'left';
+		}
+		//-------------------------------------------------------
+
 
         messageElement.appendChild(imageElement);
         messageElement.appendChild(contentElement);
