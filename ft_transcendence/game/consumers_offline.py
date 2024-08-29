@@ -37,6 +37,7 @@ class BaseConsumer(WebsocketConsumer):
             "won": 0,
             "start": time.time() + 4,
             "last_update": 0,
+            "time_passed":0,
         }
         self.game_state_lock = threading.Lock()
         self.periodic_task = threading.Thread(target=self.start, daemon=True)
@@ -105,7 +106,10 @@ class BaseConsumer(WebsocketConsumer):
         players = []
         players.append(Player(distance, self.game_state['pos1'], pwidth, pheight, width, height, mov1, speed=200))
         players.append(Player(width - distance - pwidth, self.game_state['pos2'], pwidth, pheight, width, height, mov2, speed=200))
-        pos_x, pos_y, vecx, vecy, p = simulate_ball_position(self.game_state['posx'], self.game_state['posy'], self.game_state['vecx'], self.game_state['vecy'], delta_time, players, dts)
+        pos_x, pos_y, vecx, vecy, p = simulate_ball_position(self.game_state['posx'], self.game_state['posy'], self.game_state['vecx'], self.game_state['vecy'], delta_time, players, dts, self.game_state['time_passed'])
+        
+        vecx, vecy = self.update_speed(vecx, vecy, self.game_state['time_passed'], delta_time)
+        self.game_state['time_passed'] += delta_time
         self.game_state['posx'] = pos_x
         self.game_state['posy'] = pos_y
         self.game_state['vecx'] = vecx
@@ -121,6 +125,7 @@ class BaseConsumer(WebsocketConsumer):
                 else:
                     self.game_state["centered"] = 0
                     self.game_state["start"] = time.time() + 3
+                    self.game_state['time_passed'] = 0
             else:
                 self.game_state["score2"] += 1
                 if self.game_state["score2"] == 5:
@@ -128,6 +133,7 @@ class BaseConsumer(WebsocketConsumer):
                     self.game_state["start"] = time.time() + 1000000
                 else:
                     self.game_state["centered"] = 0
+                    self.game_state['time_passed'] = 0
                     self.game_state["start"] = time.time() + 3
             self.game_state["playing"] = 0
         self.game_state['last_update'] = update_time

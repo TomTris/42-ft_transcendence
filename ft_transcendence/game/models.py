@@ -11,7 +11,7 @@ pheight = 120
 pwidth = 15
 distance = 40
 radius = 10
-
+speed = 300
 
 class GameSession(models.Model):
     player1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='game_player1', null=True, on_delete=models.SET_NULL)
@@ -81,6 +81,7 @@ class GameSession(models.Model):
             "last_update": 0,
             "connected1":0,
             "connected2":0,
+            "time_passed":0,
         }
         self.set_game_state(game_state)
 
@@ -89,7 +90,7 @@ class GameSession(models.Model):
 
 
 class TournamentSession(models.Model):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=40, null=True)
 
     player1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament1', null=True, on_delete=models.SET_NULL)
     player2 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament2', null=True, on_delete=models.SET_NULL)
@@ -104,7 +105,7 @@ class TournamentSession(models.Model):
     game3 = models.ForeignKey(GameSession, related_name='game3', null=True, on_delete=models.SET_NULL)
 
     def get_cache_key(self):
-        return f'tournament_{self.id}'
+        return f'online_tournament_{self.id}'
 
     def set_tournament_state(self, game_state):
         cache.set(self.get_cache_key(), game_state, timeout=None)  # Timeout can be set according to your needs
@@ -123,7 +124,12 @@ class TournamentSession(models.Model):
         if self.player4 == user:
             self.player4 = None
         
-    
+    def is_player_in(self, player):
+        if player in [self.player1, self.player2, self.player3, self.player4]:
+            return True
+        return False
+
+
     def add_player(self, user):
         if not self.player1:
             self.player1 = user
@@ -139,6 +145,7 @@ class TournamentSession(models.Model):
 
     def init_tournament_state(self):
         game_state = {
+            'status':'Waiting',
             'score1_1':0,
             'score1_2':0,
             'score2_1':0,
@@ -153,7 +160,19 @@ class TournamentSession(models.Model):
             'joined3_2':0,
             'tournament_started':0,
             'confirmed':0,
+            'finished1':0,
+            'finished2':0,
+            'finished3':0,
             'start1':0,
             'start2':0,
+            'game1_id':0,
+            'game2_id':0,
+            'game3_id':0,
+            'final1':0,
+            'final2':0,
+            'pos1':0,
+            'pos2':0,
+            'pos3_1':0,
+            'pos3_2':0,
         }
         self.set_tournament_state(game_state)

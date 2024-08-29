@@ -56,8 +56,12 @@ def online_tournament_view(request):
     return render(request, 'online_tournament.html')
 
 
-def online_tournaments_view(request):
-    return render(request, 'online_tournaments.html')
+def online_tournaments_view(request, session_id):
+    user = request.user
+    tournament = TournamentSession.objects.filter(id=session_id).first()
+    if tournament is None or user not in [tournament.player1, tournament.player2, tournament.player3, tournament.player4]:
+        return render(request, "user_doesnt_exist.html")
+    return render(request, 'online_tournaments.html', {'session_id': session_id})
 
 
 
@@ -77,7 +81,9 @@ def create_tournament(request):
 
     code = generate_unique_code()
     tournament = TournamentSession.objects.create(name=name, code=code)
-    return JsonResponse({'success': True, 'code': code})
+    tournament.init_tournament_state()
+    tournament.add_player(request.user)
+    return JsonResponse({'success': True, 'code': code, 'id':tournament.id})
 
 @require_POST
 def join_tournament(request):
@@ -86,8 +92,9 @@ def join_tournament(request):
         return JsonResponse({'error': 'Tournament code is required'}, status=400)
     try:
         tournament = TournamentSession.objects.get(code=code, is_active=True)
-        tournament.add_player(request.user)
-        return JsonResponse({'success': True, 'tournament_id': tournament.id})
+        if not tournament.is_player_in(request.user):
+            tournament.add_player(request.user)
+        return JsonResponse({'success': True, 'id': tournament.id})
     except TournamentSession.DoesNotExist:
         return JsonResponse({'error': 'Tournament not found'}, status=404)
     except ValueError:

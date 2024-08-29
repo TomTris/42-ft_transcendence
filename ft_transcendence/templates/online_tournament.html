@@ -6,7 +6,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('create-tournament').addEventListener('click', function() {
                 var name = document.getElementById('create-name').value;
-                fetch('/create/', {
+                fetch('/game/create/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -17,7 +17,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Tournament created! Code: ' + data.code);
+                        // Redirect to the created tournament page
+                        window.location.href = '/game/online_tournament/' + data.id;
                     } else {
                         alert('Error: ' + data.error);
                     }
@@ -27,7 +28,7 @@
 
             document.getElementById('join-tournament').addEventListener('click', function() {
                 var code = document.getElementById('join-code').value;
-                fetch('/join/', {
+                fetch('/game/join/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,7 +39,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Successfully joined tournament! Tournament ID: ' + data.tournament_id);
+                        // Redirect to the joined tournament page
+                        window.location.href = '/game/online_tournament/' + data.id;
                     } else {
                         alert('Error: ' + data.error);
                     }

@@ -3,9 +3,10 @@
 from django.utils.deprecation import MiddlewareMixin
 from game.models import GameSession
 from game.models import TournamentSession
+from django.conf import settings
 
 class CleanupMiddleware(MiddlewareMixin):
-    _initialized = False
+    _initialized = settings.INITIALIZED_1
 
     def process_request(self, request):
         if not self.__class__._initialized:

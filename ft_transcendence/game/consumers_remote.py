@@ -8,8 +8,8 @@ from asgiref.sync import async_to_sync
 import time
 import math
 import random
-from .models import width, height, pwidth, pheight, radius, distance
-from .utils import Player, generate_random_angle, simulate_ball_position
+from .models import width, height, pwidth, pheight, radius, distance, speed
+from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
 
 counter = 1
 
@@ -219,7 +219,7 @@ class GameConsumer(WebsocketConsumer):
     def position_center_random_move(self):
         game_state = self.game_session.get_game_state()
         angle = generate_random_angle()
-        speed = 300
+
         game_state['vecx'] = int(math.sin(angle) * speed)
         game_state['vecy'] = int(math.cos(angle) * speed)
         game_state['posx'] = width / 2
@@ -246,7 +246,7 @@ class GameConsumer(WebsocketConsumer):
                 elif game_state['playing']:
                     self.make_move()
                 self.send_data_to_group()
-            time.sleep(0.0167)
+            time.sleep(0.012)
     
     def pause(self, ind):
        
@@ -302,6 +302,11 @@ class GameConsumer(WebsocketConsumer):
                 response['message'] = 'not ok'
             self.send(text_data=json.dumps(response))
 
+
+
+
+
+
     def make_move(self):
         game_state = self.game_session.get_game_state()
         update_time = time.time()
@@ -330,11 +335,16 @@ class GameConsumer(WebsocketConsumer):
         players = []
         players.append(Player(distance, game_state['pos1'], pwidth, pheight, width, height, mov1, speed=200))
         players.append(Player(width - distance - pwidth, game_state['pos2'], pwidth, pheight, width, height, mov2, speed=200))
-        pos_x, pos_y, vecx, vecy, p = simulate_ball_position(game_state['posx'], game_state['posy'], game_state['vecx'], game_state['vecy'], delta_time, players, dts)
+        pos_x, pos_y, vecx, vecy, p = simulate_ball_position(game_state['posx'], game_state['posy'], game_state['vecx'], game_state['vecy'], delta_time, players, dts, game_state['time_passed'])
+        
+        vecx, vecy = update_speed(vecx, vecy, game_state['time_passed'], delta_time)
+        game_state['time_passed'] += delta_time
         game_state['posx'] = pos_x
         game_state['posy'] = pos_y
         game_state['vecx'] = vecx
         game_state['vecy'] = vecy
+       
+        
         game_state['pos1'] = players[0].y
         game_state['pos2'] = players[1].y
         if p != 0:
@@ -349,6 +359,7 @@ class GameConsumer(WebsocketConsumer):
                     self.send_data_to_group()
                 else:
                     game_state["centered"] = 0
+                    game_state['time_passed'] = 0
                     game_state["start"] = time.time() + 3
             else:
                 game_state["score2"] += 1
@@ -360,6 +371,7 @@ class GameConsumer(WebsocketConsumer):
                     self.update_game_session()
                     self.send_data_to_group()
                 else:
+                    game_state['time_passed'] = 0
                     game_state["centered"] = 0
                     game_state["start"] = time.time() + 3
             game_state["playing"] = 0

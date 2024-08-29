@@ -2,7 +2,7 @@
 import random
 import math
 
-from .models import width, height, pwidth, pheight, radius, distance
+from .models import width, height, pwidth, pheight, radius, distance, speed
 
 class Player:
     
@@ -33,8 +33,33 @@ def generate_random_angle():
             break
     return angle
 
+def randomize(dx, dy, time_passed):
+    if time_passed == 0:
+        return dx, dy
+    n = random.randint(0, 2)
+    f = get_factor(time_passed)
+    dx = dx / f
+    dy = dy / f
+    fac_dx = 1 if dx > 0 else -1
+    fac_dy = 1 if dy > 0 else -1
+    angle = math.atan(abs(dy / dx))
+    new_angle = angle
+    if n == 0:
+        new_angle += math.pi / 60.0 * random.uniform(0, 1)
 
-def simulate_ball_position(x, y, dx, dy, dt, players, dts):
+    if n == 1:
+        new_angle -= math.pi / 60.0 * random.uniform(0, 1)
+
+    if abs(math.cos(new_angle)) > 0.5 and abs(math.cos(new_angle)) < 0.9:
+        angle = new_angle
+    dx = speed * math.cos(angle) * fac_dx
+    dy = speed * math.sin(angle) * fac_dy
+    dx *= f
+    dy *= f
+    return dx, dy
+
+
+def simulate_ball_position(x, y, dx, dy, dt, players, dts, time_passed=0):
     new_x = x + dx * dt
     new_y = y + dy * dt
     p = 0
@@ -51,9 +76,11 @@ def simulate_ball_position(x, y, dx, dy, dt, players, dts):
     if new_y - radius <= 0:  # Bottom wall collision
         new_y = 2 * radius - new_y
         dy = -dy
+        dx, dy = randomize(dx, dy, time_passed)
     elif new_y + radius >= height:  # Top wall collision
         new_y = 2 * (height - radius) - new_y
         dy = -dy
+        dx, dy = randomize(dx, dy, time_passed)
     
     for ind, player in enumerate(players):
 
@@ -82,3 +109,10 @@ def simulate_ball_position(x, y, dx, dy, dt, players, dts):
 
     return new_x, new_y, dx, dy, p
 
+def get_factor(time):
+    return 1 + (((time + 1) ** 0.5) * 0.2)
+
+def update_speed(vecx, vecy, total, delta):
+    f1 = get_factor(total)
+    f2 = get_factor(total + delta)
+    return vecx / f1 * f2, vecy / f1 * f2
