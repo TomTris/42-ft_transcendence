@@ -8,6 +8,7 @@ import time
 from users.models import MyUser
 from rest_framework import serializers
 from chat.models import Message
+from crypto.functions import add_tournament
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +19,20 @@ class UserSerializer(serializers.ModelSerializer):
 class OnlineTournamentConsumer(WebsocketConsumer):
 
     def save_to_crypto(self):
-        pass
+        add_tournament(
+            self.tournament.player1, 
+            self.tournament.player1, 
+            self.tournament.player2, 
+            self.tournament.player3, 
+            self.tournament.player4,
+            self.tournament.game1.score1,
+            self.tournament.game1.score2,
+            self.tournament.game2.score1,
+            self.tournament.game2.score2,
+            self.tournament.game3.score1,
+            self.tournament.game3.score2,
+            name=self.tournament.name
+        )
 
 
 

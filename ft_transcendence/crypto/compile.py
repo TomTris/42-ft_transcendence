@@ -29,7 +29,7 @@ abi = compiled_sol['contracts']['TournamentContract.sol']['TournamentContract'][
 bytecode = compiled_sol['contracts']['TournamentContract.sol']['TournamentContract']['evm']['bytecode']['object']
 
 with open('TournamentContractABI.json', 'w') as f:
-    json.dump(abi, f)
+    json.dump(abi, f, indent=4)
 
 with open('TournamentContractBytecode.txt', 'w') as f:
     f.write(bytecode)

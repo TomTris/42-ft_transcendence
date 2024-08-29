@@ -3,7 +3,7 @@ import time
 import math
 from .models import width, height, pwidth, pheight, radius, distance
 import random
-from .utils import Player, generate_random_angle, simulate_ball_position, get_factor
+from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
 
 import json
 from channels.generic.websocket import WebsocketConsumer
@@ -109,7 +109,7 @@ class BaseConsumer(WebsocketConsumer):
         players.append(Player(width - distance - pwidth, self.game_state['pos2'], pwidth, pheight, width, height, mov2, speed=s))
         pos_x, pos_y, vecx, vecy, p = simulate_ball_position(self.game_state['posx'], self.game_state['posy'], self.game_state['vecx'], self.game_state['vecy'], delta_time, players, dts, self.game_state['time_passed'])
         
-        vecx, vecy = self.update_speed(vecx, vecy, self.game_state['time_passed'], delta_time)
+        vecx, vecy = update_speed(vecx, vecy, self.game_state['time_passed'], delta_time)
         self.game_state['time_passed'] += delta_time
         self.game_state['posx'] = pos_x
         self.game_state['posy'] = pos_y

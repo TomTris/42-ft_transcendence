@@ -13,71 +13,16 @@
             },
             {
                 "internalType": "string",
-                "name": "player1",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "player2",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "player3",
-                "type": "string"
-            },
-            {
-                "internalType": "string",
-                "name": "player4",
+                "name": "name",
                 "type": "string"
             },
             {
                 "internalType": "uint8",
-                "name": "score1_1",
+                "name": "online",
                 "type": "uint8"
             },
-            {
-                "internalType": "uint8",
-                "name": "score1_2",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "score2_1",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "score2_2",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "score3_1",
-                "type": "uint8"
-            },
-            {
-                "internalType": "uint8",
-                "name": "score3_2",
-                "type": "uint8"
-            }
-        ],
-        "name": "addTournament",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getTournaments",
-        "outputs": [
             {
                 "components": [
-                    {
-                        "internalType": "string",
-                        "name": "creator",
-                        "type": "string"
-                    },
                     {
                         "internalType": "string",
                         "name": "player1",
@@ -97,7 +42,14 @@
                         "internalType": "string",
                         "name": "player4",
                         "type": "string"
-                    },
+                    }
+                ],
+                "internalType": "struct TournamentContract.Players",
+                "name": "player",
+                "type": "tuple"
+            },
+            {
+                "components": [
                     {
                         "internalType": "uint8",
                         "name": "score1_1",
@@ -129,6 +81,107 @@
                         "type": "uint8"
                     }
                 ],
+                "internalType": "struct TournamentContract.Scores",
+                "name": "score",
+                "type": "tuple"
+            }
+        ],
+        "name": "addTournament",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getTournaments",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "string",
+                        "name": "creator",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "online",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "uint8",
+                                "name": "score1_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score1_2",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score2_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score2_2",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score3_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score3_2",
+                                "type": "uint8"
+                            }
+                        ],
+                        "internalType": "struct TournamentContract.Scores",
+                        "name": "score",
+                        "type": "tuple"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "player1",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player2",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player3",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player4",
+                                "type": "string"
+                            }
+                        ],
+                        "internalType": "struct TournamentContract.Players",
+                        "name": "player",
+                        "type": "tuple"
+                    }
+                ],
                 "internalType": "struct TournamentContract.Tournament[]",
                 "name": "",
                 "type": "tuple[]"
@@ -156,53 +209,82 @@
                     },
                     {
                         "internalType": "string",
-                        "name": "player1",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "player2",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "player3",
-                        "type": "string"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "player4",
+                        "name": "name",
                         "type": "string"
                     },
                     {
                         "internalType": "uint8",
-                        "name": "score1_1",
+                        "name": "online",
                         "type": "uint8"
                     },
                     {
-                        "internalType": "uint8",
-                        "name": "score1_2",
-                        "type": "uint8"
+                        "internalType": "uint256",
+                        "name": "timestamp",
+                        "type": "uint256"
                     },
                     {
-                        "internalType": "uint8",
-                        "name": "score2_1",
-                        "type": "uint8"
+                        "components": [
+                            {
+                                "internalType": "uint8",
+                                "name": "score1_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score1_2",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score2_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score2_2",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score3_1",
+                                "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint8",
+                                "name": "score3_2",
+                                "type": "uint8"
+                            }
+                        ],
+                        "internalType": "struct TournamentContract.Scores",
+                        "name": "score",
+                        "type": "tuple"
                     },
                     {
-                        "internalType": "uint8",
-                        "name": "score2_2",
-                        "type": "uint8"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "score3_1",
-                        "type": "uint8"
-                    },
-                    {
-                        "internalType": "uint8",
-                        "name": "score3_2",
-                        "type": "uint8"
+                        "components": [
+                            {
+                                "internalType": "string",
+                                "name": "player1",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player2",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player3",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "player4",
+                                "type": "string"
+                            }
+                        ],
+                        "internalType": "struct TournamentContract.Players",
+                        "name": "player",
+                        "type": "tuple"
                     }
                 ],
                 "internalType": "struct TournamentContract.Tournament[]",
