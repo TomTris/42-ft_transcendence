@@ -20,18 +20,19 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
     def save_to_crypto(self):
         add_tournament(
-            self.tournament.player1, 
-            self.tournament.player1, 
-            self.tournament.player2, 
-            self.tournament.player3, 
-            self.tournament.player4,
+            str(self.tournament.player1.id), 
+            str(self.tournament.player1.id), 
+            str(self.tournament.player2.id), 
+            str(self.tournament.player3.id), 
+            str(self.tournament.player4.id),
             self.tournament.game1.score1,
             self.tournament.game1.score2,
             self.tournament.game2.score1,
             self.tournament.game2.score2,
             self.tournament.game3.score1,
             self.tournament.game3.score2,
-            name=self.tournament.name
+            name=self.tournament.name,
+            online=1
         )
 
 

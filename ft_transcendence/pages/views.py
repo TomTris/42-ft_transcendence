@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from users.models import MyUser
 from django.db.models import Q
 from game.models import GameSession
+from crypto.functions import get_tournaments, get_tournament_by_creator
 
 def home_view(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -48,6 +49,18 @@ def user_view(request, id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
+
+
+def modify_data_for_view(tournaments):
+    pass
+
+
+def tournaments_view(request):
+    tournaments = get_tournaments()
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/user.html', )
+    return render(request, "user.html", )
 
 
 #for test modsecurity
