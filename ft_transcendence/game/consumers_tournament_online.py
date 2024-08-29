@@ -140,22 +140,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             game_state['status'] = 'Waiting'
             self.tournament.set_tournament_state(game_state)
 
-
-    def create_games(self):
-        game1 = GameSession.objects.create(
-            player1=self.tournament.player1,
-            player2=self.tournament.player2,
-            is_tournament=True
-        )
-        game2 = GameSession.objects.create(
-            player1=self.tournament.player3,
-            player2=self.tournament.player4,
-            is_tournament=True
-        )
-        game1.init_game_state()
-        game2.init_game_state()
-        self.tournament.game1 = game1
-        self.tournament.game2 = game2
+    def notify_round1(self):
         Message.objects.create(
             send_to=self.tournament.player1.username,
             content="Your match will start in a Minute"
@@ -172,20 +157,102 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             send_to=self.tournament.player4.username,
             content="Your match will start in a Minute"
         )
-        self.tournament.save()
         async_to_sync(self.channel_layer.group_send)(
             'chat',
             {
                 'type': 'chat_message',
             }
         )
+
+    def notify_round1_start(self):
+        Message.objects.create(
+            send_to=self.tournament.player1.username,
+            content="Your match has been started",
+            game_id=self.tournament.game1.id
+        )
+        Message.objects.create(
+            send_to=self.tournament.player2.username,
+            content="Your match has been started",
+            game_id=self.tournament.game1.id
+        )
+        Message.objects.create(
+            send_to=self.tournament.player3.username,
+            content="Your match has been started",
+            game_id=self.tournament.game2.id
+        )
+        Message.objects.create(
+            send_to=self.tournament.player4.username,
+            content="Your match has been started",
+            game_id=self.tournament.game2.id
+        )
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'chat_message',
+            }
+        )
+
+
+    def notify_round2(self, finalist1, finalist2):
+        Message.objects.create(
+            send_to=finalist1.username,
+            content="Your match will start in a Minute"
+        )
+        Message.objects.create(
+            send_to=finalist2.username,
+            content="Your match will start in a Minute"
+        )
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'chat_message',
+            }
+        )
+
+
+    def notify_round2_start(self, finalist1, finalist2):
+        Message.objects.create(
+            send_to=finalist1.username,
+            content="Your match has been started",
+            game_id=self.tournament.game3.id
+        )
+        Message.objects.create(
+            send_to=finalist2.username,
+            content="Your match has been started",
+            game_id=self.tournament.game3.id
+        )
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'chat_message',
+            }
+        )
+
+
+    def create_games(self):
+        game1 = GameSession.objects.create(
+            player1=self.tournament.player1,
+            player2=self.tournament.player2,
+            is_tournament=True
+        )
+        game2 = GameSession.objects.create(
+            player1=self.tournament.player3,
+            player2=self.tournament.player4,
+            is_tournament=True
+        )
+        game1.init_game_state()
+        game2.init_game_state()
+        self.tournament.game1 = game1
+        self.tournament.game2 = game2
+        self.tournament.save()
+
+        self.notify_round1()
+
         game_state = self.tournament.get_tournament_state()
         game_state['status'] = 'Round1_count'
         game_state['game1_id'] = game1.id
         game_state['game2_id'] = game2.id
-        print(game1.id)
-        print(game2.id)
-        print(game_state)
+
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
         self.start_status_updates()
@@ -204,7 +271,10 @@ class OnlineTournamentConsumer(WebsocketConsumer):
     def start_status_updates(self):
         def status_update_loop():
             game_state = self.tournament.get_tournament_state()
-            time.sleep(3)
+            time.sleep(3) #change to 60
+            
+            self.notify_round1_start()
+
             game_state['status'] = 'Round1'
             self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
@@ -237,7 +307,11 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.game3 = game3
             self.tournament.save()
 
-            time.sleep(3)
+            
+            self.notify_round2(finalist1, finalist2)
+            time.sleep(3) #update to 60
+            self.notify_round2_start(finalist1, finalist2)
+
             game_state['status'] = "Round2"
             game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
             game_state['final2'] = 3 if self.tournament.game2.score1 > self.tournament.game2.score2 else 4
@@ -354,7 +428,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def game_update(self, event):
-        game_state = self.tournament.get_tournament_state()
         self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
         message = event['message']
         self.validate_message(message)

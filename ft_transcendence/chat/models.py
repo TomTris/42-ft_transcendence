@@ -9,7 +9,7 @@ class Message(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sender', null=True, on_delete=models.SET_NULL)
     send_to = models.CharField(max_length=40)
     content = models.CharField(max_length=200)
-
+    game_id = models.IntegerField(null=True)
 
 
 class BlockList(models.Model):

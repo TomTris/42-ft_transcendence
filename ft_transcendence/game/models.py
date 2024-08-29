@@ -20,6 +20,7 @@ class GameSession(models.Model):
     score2 = models.IntegerField(default=0)
     rank_change1 = models.IntegerField(default=0)
     rank_change2 = models.IntegerField(default=0)
+    connected = models.BooleanField(default=False)
     is_tournament = models.BooleanField(default=False)
     winner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='winner', null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)

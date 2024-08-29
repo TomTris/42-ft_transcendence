@@ -11,11 +11,9 @@ import random
 from .models import width, height, pwidth, pheight, radius, distance, speed
 from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
 
-counter = 1
-
 class GameConsumer(WebsocketConsumer):
     def connect(self):
-        
+        self.count = 0
         self.session_id = self.scope['url_route']['kwargs']['session_id']
         self.group_name = f'game_{self.session_id}'
         self.game_session = GameSession.objects.filter(id=self.session_id).first()
@@ -34,14 +32,12 @@ class GameConsumer(WebsocketConsumer):
                 self.group_name,
                 self.channel_name
             )
-            t = 0
             game_state = self.game_session.get_game_state()
             self.update_game_session()
             if self.user == self.game_session.player1:
                 game_state['disc1'] = 0
                 if self.game_session.player1 == self.game_session.player2:
                     self.game_session.delete_second()
-                    t = 1
             else:
                 game_state['disc2'] = 0
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
@@ -61,9 +57,12 @@ class GameConsumer(WebsocketConsumer):
             return  
        
         self.game_state_lock = threading.Lock()
-        if self.user == self.game_session.player1 and t == 0:
+        if self.game_session.connected == False:
+            self.game_session.connected = True
+            self.game_session.save()
             self.periodic_task = threading.Thread(target=self.send_data, daemon=True)
             self.periodic_task.start()
+
         self.update_game_session()
 
     def update_game_session(self):
@@ -116,9 +115,7 @@ class GameConsumer(WebsocketConsumer):
                 game_state = self.game_session.get_game_state()
                 if self.user == self.game_session.player1:
                     if self.game_session.player2 is None:
-                        global counter
-                        self.count = counter
-                        counter += 1
+                        self.count += 1
                         game_state['online'] = self.count
                         self.disconecting()
                     game_state['disc1'] = 1
@@ -333,8 +330,9 @@ class GameConsumer(WebsocketConsumer):
         mov1 = game_state['mov1']
         mov2 = game_state['mov2']
         players = []
-        players.append(Player(distance, game_state['pos1'], pwidth, pheight, width, height, mov1, speed=200))
-        players.append(Player(width - distance - pwidth, game_state['pos2'], pwidth, pheight, width, height, mov2, speed=200))
+        s = 200 * get_factor(game_state['time_passed'])
+        players.append(Player(distance, game_state['pos1'], pwidth, pheight, width, height, mov1, speed=s))
+        players.append(Player(width - distance - pwidth, game_state['pos2'], pwidth, pheight, width, height, mov2, speed=s))
         pos_x, pos_y, vecx, vecy, p = simulate_ball_position(game_state['posx'], game_state['posy'], game_state['vecx'], game_state['vecy'], delta_time, players, dts, game_state['time_passed'])
         
         vecx, vecy = update_speed(vecx, vecy, game_state['time_passed'], delta_time)

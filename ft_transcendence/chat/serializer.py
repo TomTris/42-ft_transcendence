@@ -13,4 +13,4 @@ class ChatMessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer()
     class Meta:
         model = Message
-        fields = ['sender', 'send_to', 'content']
+        fields = ['sender', 'send_to', 'content', 'game_id']
