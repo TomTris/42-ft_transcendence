@@ -18,22 +18,58 @@ class UserSerializer(serializers.ModelSerializer):
 
 class OnlineTournamentConsumer(WebsocketConsumer):
 
-    def save_to_crypto(self):
-        add_tournament(
-            str(self.tournament.player1.id), 
-            str(self.tournament.player1.id), 
-            str(self.tournament.player2.id), 
-            str(self.tournament.player3.id), 
-            str(self.tournament.player4.id),
-            self.tournament.game1.score1,
-            self.tournament.game1.score2,
-            self.tournament.game2.score1,
-            self.tournament.game2.score2,
-            self.tournament.game3.score1,
-            self.tournament.game3.score2,
-            name=self.tournament.name,
-            online=1
-        )
+    def save_to_crypto(self, game=0):
+        if game == 0:
+            add_tournament(
+                str(self.tournament.player1.id),
+                str(self.tournament.player1.id),
+                str(self.tournament.player2.id),
+                str(self.tournament.player3.id),
+                str(self.tournament.player4.id),
+                self.tournament.game1.score1,
+                self.tournament.game1.score2,
+                self.tournament.game2.score1,
+                self.tournament.game2.score2,
+                self.tournament.game3.score1,
+                self.tournament.game3.score2,
+                name=self.tournament.name,
+                online=1
+            )
+
+        if game == 1:
+            add_tournament(
+                str(self.tournament.player1.id),
+                str(self.tournament.player1.id),
+                str(self.tournament.player2.id),
+                str(self.tournament.player3.id),
+                str(self.tournament.player4.id),
+                self.tournament.game1.score1,
+                self.tournament.game1.score2,
+                0,
+                0,
+                0,
+                0,
+                name=self.tournament.name,
+                online=1
+            )
+
+        if game == 2:
+            add_tournament(
+                str(self.tournament.player1.id),
+                str(self.tournament.player1.id),
+                str(self.tournament.player2.id),
+                str(self.tournament.player3.id),
+                str(self.tournament.player4.id),
+                0,
+                0,
+                self.tournament.game2.score1,
+                self.tournament.game2.score2,
+                0,
+                0,
+                name=self.tournament.name,
+                online=1
+            )
+
 
 
 
@@ -282,6 +318,109 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                 return self.tournament.game2.player1
             return self.tournament.game2.player2
 
+    def both_finished(self, game_state):
+        game_state['finished1'] = 1
+        game_state['finished2'] = 1
+        game_state['status'] = 'Round2_count'
+        self.tournament.set_tournament_state(game_state)
+        self.send_data_to_group()
+        finalist1 = self.get_finalist(1)
+        finalist2 = self.get_finalist(2)
+        game3 = GameSession.objects.create(
+            player1=finalist1,
+            player2=finalist2,
+            is_tournament=True
+        )
+        game3.init_game_state()
+        self.tournament.game3 = game3
+        self.tournament.save()
+
+        
+        self.notify_round2(finalist1, finalist2)
+        time.sleep(3) #update to 60
+        self.notify_round2_start(finalist1, finalist2)
+
+        game_state['status'] = "Round2"
+        game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
+        game_state['final2'] = 3 if self.tournament.game2.score1 > self.tournament.game2.score2 else 4
+        game_state['game3_id'] = self.tournament.game3.id
+        self.tournament.set_tournament_state(game_state)
+        self.send_data_to_group()
+        res = 0 
+        start = time.time()
+        while True:
+            self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
+            if  not self.tournament.game3.is_active:
+                break
+            if not self.tournament.game3.connected and start + 300 > time.time():
+                res = 1
+                break
+            time.sleep(1)
+        if res == 0:
+            game_state['status'] = 'Finished'
+            game_state['pos1'] = self.get_serialized(self.tournament.game3.player1) if self.tournament.game3.score1 > self.tournament.game3.score2 else self.get_serialized(self.tournament.game3.player2)
+            game_state['pos2'] = self.get_serialized(self.tournament.game3.player2) if self.tournament.game3.score1 < self.tournament.game3.score2 else self.get_serialized(self.tournament.game3.player1)
+            game_state['pos3_1'] = self.get_serialized(self.tournament.game1.player1) if self.tournament.game1.score1 < self.tournament.game1.score2 else self.get_serialized(self.tournament.game1.player2)
+            game_state['pos3_2'] = self.get_serialized(self.tournament.game2.player1) if self.tournament.game2.score1 < self.tournament.game2.score2 else self.get_serialized(self.tournament.game2.player2)
+            self.tournament.set_tournament_state(game_state)
+            self.send_data_to_group()
+            self.save_to_crypto()
+            time.sleep(30)
+            self.disconnect_all()
+            self.tournament.is_active = False
+            self.tournament.save()
+        else:
+            game_state['status'] = 'Cancel'
+            self.tournament.set_tournament_state(game_state)
+            self.send_data_to_group()
+            self.tournament.delete()
+            time.sleep(30)
+            self.disconnect_all()
+            self.tournament.is_active = False
+            self.tournament.save()
+
+    def one_finished(self, game_state):
+        if not self.tournament.game1.connected:
+            self.tournament.game1.delete()
+            game_state['pos1'] = self.get_serialized(self.tournament.game2.player1) if self.tournament.game2.score1 > self.tournament.game2.score2 else self.get_serialized(self.tournament.game2.player2)
+            game_state['pos2'] = self.get_serialized(self.tournament.game2.player2) if self.tournament.game2.score1 < self.tournament.game2.score2 else self.get_serialized(self.tournament.game2.player1)
+            game_state['pos3_1'] = self.get_serialized(self.tournament.player1)
+            game_state['pos3_2'] = self.get_serialized(self.tournament.player2)
+            game_state['status'] = 'Finished'
+            self.tournament.set_tournament_state(game_state)
+            self.send_data_to_group()
+            self.save_to_crypto(2)
+            time.sleep(30)
+            self.disconnect_all()
+            self.tournament.is_active = False
+            self.tournament.save()
+
+        if not self.tournament.game2.connected:
+            self.tournament.game2.delete()
+            game_state['pos1'] = self.get_serialized(self.tournament.game1.player1) if self.tournament.game1.score1 > self.tournament.game1.score2 else self.get_serialized(self.tournament.game1.player2)
+            game_state['pos2'] = self.get_serialized(self.tournament.game1.player2) if self.tournament.game1.score1 < self.tournament.game1.score2 else self.get_serialized(self.tournament.game1.player1)
+            game_state['pos3_1'] = self.get_serialized(self.tournament.player4)
+            game_state['pos3_2'] = self.get_serialized(self.tournament.player3)
+            game_state['status'] = 'Finished'
+            self.tournament.set_tournament_state(game_state)
+            self.send_data_to_group()
+            self.save_to_crypto(1)
+            time.sleep(30)
+            self.disconnect_all()
+            self.tournament.is_active = False
+            self.tournament.save()
+
+    
+    def none_finished(self, game_state):
+        game_state['status'] = 'Cancel'
+        self.tournament.set_tournament_state(game_state)
+        self.send_data_to_group()
+        self.tournament.delete()
+        time.sleep(30)
+        self.disconnect_all()
+        self.tournament.is_active = False
+        self.tournament.save()
+
 
     def start_status_updates(self):
         def status_update_loop():
@@ -293,9 +432,17 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             game_state['status'] = 'Round1'
             self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
+            res = 0
+            start = time.time()
             while True:
                 self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
                 if not self.tournament.game1.is_active and not self.tournament.game2.is_active:
+                    res = 1
+                    break
+                if time.time() > start + 300 and (not self.tournament.game1.connected or not self.tournament.game2.connected):
+                    if not self.tournament.game1.connected and not self.tournament.game2.connected:
+                        break
+                    res = 2
                     break
                 if game_state['finished1'] == 0 and not self.tournament.game1.is_active:
                     game_state['finished1'] = 1
@@ -306,50 +453,14 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                     self.tournament.set_tournament_state(game_state)
                     self.send_data_to_group()
                 time.sleep(1)
-            game_state['finished1'] = 1
-            game_state['finished2'] = 1
-            game_state['status'] = 'Round2_count'
-            self.tournament.set_tournament_state(game_state)
-            self.send_data_to_group()
-            finalist1 = self.get_finalist(1)
-            finalist2 = self.get_finalist(2)
-            game3 = GameSession.objects.create(
-                player1=finalist1,
-                player2=finalist2,
-                is_tournament=True
-            )
-            game3.init_game_state()
-            self.tournament.game3 = game3
-            self.tournament.save()
 
-            
-            self.notify_round2(finalist1, finalist2)
-            time.sleep(3) #update to 60
-            self.notify_round2_start(finalist1, finalist2)
 
-            game_state['status'] = "Round2"
-            game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
-            game_state['final2'] = 3 if self.tournament.game2.score1 > self.tournament.game2.score2 else 4
-            game_state['game3_id'] = self.tournament.game3.id
-            self.tournament.set_tournament_state(game_state)
-            self.send_data_to_group()
-            while True:
-                self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
-                if  not self.tournament.game3.is_active:
-                    break
-                time.sleep(1)
-            game_state['status'] = 'Finished'
-            game_state['pos1'] = self.get_serialized(self.tournament.game3.player1) if self.tournament.game3.score1 > self.tournament.game3.score2 else self.get_serialized(self.tournament.game3.player2)
-            game_state['pos2'] = self.get_serialized(self.tournament.game3.player2) if self.tournament.game3.score1 < self.tournament.game3.score2 else self.get_serialized(self.tournament.game3.player1)
-            game_state['pos3_1'] = self.get_serialized(self.tournament.game1.player1) if self.tournament.game1.score1 < self.tournament.game1.score2 else self.get_serialized(self.tournament.game1.player2)
-            game_state['pos3_2'] = self.get_serialized(self.tournament.game2.player1) if self.tournament.game2.score1 < self.tournament.game2.score2 else self.get_serialized(self.tournament.game2.player2)
-            self.tournament.set_tournament_state(game_state)
-            self.send_data_to_group()
-            self.save_to_crypto()
-            time.sleep(300)
-            self.disconnect_all()
-            self.tournament.is_active = False
-            self.tournament.save()
+            if res == 1:
+                self.both_finished(game_state)
+            elif res == 2:
+                self.one_finished(game_state)
+            else:
+                self.none_finished(game_state)
 
         self.status_thread = threading.Thread(target=status_update_loop)
         self.status_thread.daemon = True

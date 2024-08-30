@@ -1,22 +1,26 @@
 <h1>Tournaments</h1>
-{% if tournaments %}
-    <div class="tournament-list">
-        {% for tournament in tournaments %}
-            <div class="tournament-item">
-                <img src="{{ tournament.owner.avatar }}" alt="{{ tournament.owner.username }}" class="owner-avatar">
-                <div class="tournament-details">
-                    <h2 class="tournament-name">{{ tournament.name }}</h2>
-                    <span class="info-item"><strong>Owner:</strong> {{ tournament.owner.username }}</span>
-                    <span class="info-item"><strong>Date:</strong> {{ tournament.year }}-{{ tournament.month|floatformat:0 }}-{{ tournament.day }}</span>
-                    <span class="info-item"><strong>Time:</strong> {{ tournament.hour }}:{{ tournament.minutes }}</span>
-                    <span class="info-item"><strong>Status:</strong> {% if tournament.online %} Online {% else %} Offline {% endif %}</span>
-                </div>
+<ul>
+    {% if tournaments %}
+        <li>
+            <div class="tournament-list">
+                {% for tournament in tournaments %}
+                    <div class="tournament-item">
+                        <img src="{{ tournament.owner.avatar }}" alt="{{ tournament.owner.username }}" class="owner-avatar">
+                        <div class="tournament-details">
+                            <h2 class="tournament-name">{{ tournament.name }}</h2>
+                            <span class="info-item"><strong>Owner:</strong> {{ tournament.owner.username }}</span>
+                            <span class="info-item"><strong>Date:</strong> {{ tournament.year }}-{{ tournament.month|floatformat:0 }}-{{ tournament.day }}</span>
+                            <span class="info-item"><strong>Time:</strong> {{ tournament.hour }}:{{ tournament.minutes }}</span>
+                            <span class="info-item"><strong>Status:</strong> {% if tournament.online %} Online {% else %} Offline {% endif %}</span>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
-{% else %}
-    <p>No tournaments available.</p>
-{% endif %}
+        </li>
+    {% else %}
+        <p>No tournaments available.</p>
+    {% endif %}
+</ul>
 
 <style>
     h1 {

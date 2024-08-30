@@ -7,18 +7,9 @@ import threading
 web3 = Web3(Web3.HTTPProvider(infura_url))
 contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
-all_tournaments = []
-def start_tournament_update():
-    def get_tournaments_loop():
-        global all_tournaments
-        while True:
-            all_tournaments = contract.functions.getTournaments().call()
-            # print(all_tournaments)
-            time.sleep(5)
-    
-    status_thread = threading.Thread(target=get_tournaments_loop)
-    status_thread.daemon = True
-    status_thread.start()
+def get_tournament():
+    result = contract.functions.getTournaments().call()
+    return result
 
 def get_tournament_by_creator(creator_login):
     result = contract.functions.getTournamentsByCreator(creator_login).call()

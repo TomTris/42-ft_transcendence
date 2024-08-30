@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from users.models import MyUser
 from django.db.models import Q
 from game.models import GameSession
-from crypto.functions import get_tournament_by_creator
+from crypto.functions import get_tournament_by_creator, get_tournament
 from chat.serializer import UserSerializer
 from users.models import MyUser
 from datetime import datetime, timedelta
@@ -57,7 +57,8 @@ def user_view(request, id):
 
 def modify_data_for_view():
     output = []
-    from crypto.functions import all_tournaments
+    all_tournaments = get_tournament()
+    
     for tournament in all_tournaments:
         userId = tournament[0]
         try:
@@ -95,7 +96,10 @@ def modify_data_for_view():
             'online':tournament[2]
         }
         output.append(data)
-    return output.reverse()
+    length = len(output)
+    for i in range(int(length // 2)):
+        output[i], output[-1 -i] = output[-1 -i], output[i]
+    return output
 
 
 def tournaments_view(request):

@@ -144,7 +144,8 @@ class BaseConsumer(WebsocketConsumer):
         while (1):
             with self.game_state_lock:
                 if self.game_state['left'] != 0:
-                    break
+                    
+                    return
                 self.update_playing()
                 if self.game_state['centered'] == 0:
                     self.position_center_random_move()
