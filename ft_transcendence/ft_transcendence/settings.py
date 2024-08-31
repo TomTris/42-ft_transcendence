@@ -28,23 +28,23 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost']
 
-# with open('/localip/localip.txt', 'r') as file:
-#     localip = file.read().strip()
-# with open('/domain_name.txt', 'r') as file:
-#     domain_name = file.read().strip()
+with open('/localip/localip.txt', 'r') as file:
+    localip = file.read().strip()
+with open('/domain_name.txt', 'r') as file:
+    domain_name = file.read().strip()
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
 
-# localip = "https://" + localip
-# domain_name = "https://" + domain_name
+localip = "https://" + localip
+domain_name = "https://" + domain_name
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://localhost',
-#     'https://127.0.0.1',
-#     domain_name,
-#     localip,
-#     # 'https://yourdomain.com',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost',
+    'https://127.0.0.1',
+    domain_name,
+    localip,
+    # 'https://yourdomain.com',
+]
 
 # Application definition
 
@@ -103,12 +103,12 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
@@ -117,21 +117,21 @@ DATABASES = {
 #     }
 # }
 
-# import hvac
-# with open('/vault/file/rootToken', 'r') as file:
-#     vault_token = file.read().strip()
-# client = hvac.Client(url='http://vault:8200', token=vault_token)
-# secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': secret['db_name'],
-#         'USER': secret['db_user'],
-#         'PASSWORD': secret['db_password'],
-#         'HOST': secret['db_host'],
-#         'PORT': secret['db_port'],
-#     }
-# }
+import hvac
+with open('/vault/file/rootToken', 'r') as file:
+    vault_token = file.read().strip()
+client = hvac.Client(url='http://vault:8200', token=vault_token)
+secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': secret['db_name'],
+        'USER': secret['db_user'],
+        'PASSWORD': secret['db_password'],
+        'HOST': secret['db_host'],
+        'PORT': secret['db_port'],
+    }
+}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -200,29 +200,11 @@ AUTH_USER_MODEL = "users.MyUser"
 # }
 
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
-    }
-}
-
-
-
 # CHANNEL_LAYERS = {
 #     "default": {
 #         "BACKEND": "channels_redis.core.RedisChannelLayer",
 #         "CONFIG": {
-#             "hosts": [("redis", 6379)],
+#             "hosts": [("127.0.0.1", 6379)],
 #         },
 #     },
 # }
@@ -230,9 +212,27 @@ CACHES = {
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://redis:6379/1',  # Use Redis server URL here
+#         'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
 #     }
 # }
+
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',  # Use Redis server URL here
+    }
+}
 
 INITIALIZED_1 = False
 
