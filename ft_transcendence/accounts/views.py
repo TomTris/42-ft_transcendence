@@ -13,7 +13,8 @@ from .models import OneTimePassword, OneTimePasswordLogin, User, OneTimePassword
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-# Create your views here.
+
+
 
 class RegisterUserView(GenericAPIView):
 	serializer_class=UserRegisterSerializer
@@ -33,7 +34,6 @@ class RegisterUserView(GenericAPIView):
 
 	def get(self, request):
 		return render(request, "register.html")
-
 
 class VerifyUserEmail(GenericAPIView):
 	serializer_class=TrashSerializer
@@ -75,7 +75,6 @@ class VerifyUserEmail(GenericAPIView):
 	def get(self, request):
 		return render(request, "register-verify.html")
 
-# havent checked
 class SendRegisterCode(GenericAPIView):
 	serializer_class=TrashSerializer
 	def post(self, request):
@@ -118,13 +117,11 @@ class VerifyLoginUserView(GenericAPIView):
 		if serializer.is_valid():
 			response = Response({
 				'access_token': serializer.validated_data['access_token'],
-				'refresh_token': serializer.validated_data['refresh_token']
+				'refresh_token': serializer.validated_data['refresh_token'],
+				'redirect_url': reverse('home')
 			}, status=status.HTTP_200_OK)
-			response.set_cookie('access_token', serializer.validated_data['access_token'], domain='localhost', httponly=True, secure=True, samesite='Strict', max_age=15 * 60, path='/')
-			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], domain='localhost', httponly=True, secure=True, samesite='Strict', max_age=7 * 24 * 60 * 60, path='/accounts/refresh')
-			print(response.data)
-			print(serializer.validated_data['refresh_token'])
-			# print(1)
+			response.set_cookie('access_token', serializer.validated_data['access_token'], httponly=True, secure=True, samesite='Strict', max_age=15 * 60, path='/')
+			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], httponly=True, secure=True, samesite='Strict', max_age=7 * 24 * 60 * 60, path='/accounts/refresh')
 			return response
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -134,15 +131,14 @@ class VerifyLoginUserView(GenericAPIView):
 
 
 
+
 class TokenRefreshView(APIView):
 	def get(self, request):
-		print("This is TokenRefreshView")
-		print(request)
-		refresh_token = request.COOKIES.get('refreshToken')
+		refresh_token = request.COOKIES.get('refresh_token')
 		if refresh_token is None:
 			return Response({
 				'detail': 'Refresh token not provided',
-				'redirect_url': reverse('home')
+				'redirect_url': reverse('login')
 				}, status=status.HTTP_401_UNAUTHORIZED)
 
 		try:
@@ -156,20 +152,12 @@ class TokenRefreshView(APIView):
 
 
 
-class TestAuthenticationView(GenericAPIView):
+
+class HomeView(GenericAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
-		print("This is testauthenticationview")
-		print(request)
-		print(request.COOKIES)
 		return render(request, "home.html")
-		# data={
-		# 	'msg': 'it works'
-		# }
-		# # redirect("/home.html/")
-		# return Response(data, status=status.HTTP_200_OK)
-
 
 
 
@@ -185,32 +173,30 @@ class PasswordResetRequestView(GenericAPIView):
 	def get(self, request):
 		return render(request, 'password_reset-request.html')
 
+
 class PasswordResetConfirm(GenericAPIView):
-	serializer_class=PasswordResetRequestSerializer
+	serializer_class=TrashSerializer
 	def get(self, request, uidb64, token):
 		try:
 			user_id=smart_str(urlsafe_base64_decode(uidb64))
-			try:
-				user=User.objects.get(id=user_id)
-			except User.DoesNotExist:
-				return Response({'message':'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-			if user == None:
-				return Response({'message':'Email doesn\'t exists'}, status=status.HTTP_400_BAD_REQUEST)
-			try:
-				user_row = OneTimePasswordReset.objects.get(user=user)
-			except:
+			user=User.objects.get(id=user_id)
+			user_row = OneTimePasswordReset.objects.get(user=user)
+			if user_row.reset_token != token or user_row.times != 0:
 				return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
-			if user_row == None:
-				return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
-			if user_row.times == 1:
-				return Response({'message':'token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+			user_row.reset_token=PasswordResetTokenGenerator().make_token(user)
 			user_row.times = 1
+			user_row.save()
 			return Response({
 				'success': True,
 				'message': 'Credentials are valid',
 				'uidb64': uidb64,
-				'token': token,
-				'redirect_url': reverse('password_reset-set_new')}, status=status.HTTP_200_OK)
+				'token': user_row.reset_token
+				# 'redirect_url': reverse('password_reset-set_new')
+				}, status=status.HTTP_200_OK)
+		except User.DoesNotExist:
+			return Response({'message':'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+		except OneTimePasswordReset.DoesNotExist:
+			return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
 		except DjangoUnicodeDecodeError:
 			return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -221,11 +207,12 @@ class SetNewPassword(GenericAPIView):
 		serializer.is_valid(raise_exception=True)
 		return Response({
 			'message':'passwort reset successfull',
-			'redirect_url': reverse('login')
+			# 'redirect_url': reverse('login')
 			}, status=status.HTTP_200_OK)
 	
 	def get(self, request):
 		return render(request, 'password_reset-set_new.html')
+
 
 
 
@@ -239,7 +226,4 @@ class LogoutUserView(GenericAPIView):
 		serializer.is_valid(raise_exception=True)
 		serializer.save()
 		return Response(status=status.HTTP_204_NO_CONTENT)
-	
-class HomeView(GenericAPIView):
-	def get(self, request):
-		return render(request, "home.html")
+

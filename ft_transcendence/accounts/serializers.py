@@ -97,8 +97,8 @@ class VerifyLoginSerializer(serializers.Serializer):
 				'email': user.email,
 				'full_name': user.get_full_name,
 				'access_token': str(user_tokens.get('access')),
-				'refresh_token': str(user_tokens.get('refresh'))
-				# 'redirect_url': reverse('home')
+				'refresh_token': str(user_tokens.get('refresh')),
+				'redirect_url': reverse('home')
 				}
 		
 		if user_row.times == 2:
@@ -125,6 +125,11 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 			user=User.objects.get(email=email)
 			uidb64=urlsafe_base64_encode(smart_bytes(user.id))
 			token=PasswordResetTokenGenerator().make_token(user)
+			try:
+				user_OneTimePasswordReset = OneTimePasswordReset.objects.get(user=user)
+				user_OneTimePasswordReset.delete_for_user(user=user)
+			except Exception as e:
+				pass
 			OneTimePasswordReset.objects.create(user=user, reset_token=token, email=email, times=0)
 			request=self.context.get('request')
 			site_domain=get_current_site(request).domain
@@ -136,11 +141,10 @@ class PasswordResetRequestSerializer(serializers.Serializer):
 				'email_subject':"Reset your Password",
 				'to_email':user.email
 			}
-			user.token_reset_password = token
 			send_normal_email(data)
 			return attrs
 		else:
-			raise AuthenticationFailed("Email not exists")
+			raise AuthenticationFailed("Email not exists", 400)
 
 
 class SetNewPasswordSerializer(serializers.Serializer):
@@ -160,11 +164,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
 			confirm_password=attrs.get('confirm_password', '')
 
 			user_id=force_str(urlsafe_base64_decode(uidb64))
-			try:
-				user=User.objects.get(id=user_id)
-				user_OneTimePasswordReset = OneTimePasswordReset.objects.get(user=user)
-			except Exception as e:
-				raise AuthenticationFailed("Reset link is invalid or has expired", 401)
+			user=User.objects.get(id=user_id)
+			user_OneTimePasswordReset = OneTimePasswordReset.objects.get(user=user)
 			if not PasswordResetTokenGenerator().check_token(user, token) \
 				or user_OneTimePasswordReset.reset_token != token:
 				raise AuthenticationFailed("reset link is invalid or has expired", 401)
@@ -174,8 +175,11 @@ class SetNewPasswordSerializer(serializers.Serializer):
 			user.save()
 			user_OneTimePasswordReset.delete_for_user()
 			return user
-		except Exception as e:
-			return AuthenticationFailed("Link is invalid or has expired")
+		except User.DoesNotExist:
+			raise AuthenticationFailed("Reset link is invalid or has expired", 401)
+		except OneTimePasswordReset.DoesNotExist:
+			raise AuthenticationFailed("Reset link is invalid or has expired", 401)
+
 
 
 class LogoutUserSeriallizer(serializers.Serializer):
@@ -197,6 +201,7 @@ class LogoutUserSeriallizer(serializers.Serializer):
 
 
 
+
 class TrashSerializer(serializers.ModelSerializer):
 	otp=serializers.CharField(max_length=68, min_length=6, write_only=True)
 
@@ -206,3 +211,5 @@ class TrashSerializer(serializers.ModelSerializer):
 
 	def validate(self, attrs):
 		return attrs
+
+
