@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login with OTP</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+	<form id="loginForm">
+		<h2>Login</h2>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+		<button id='login-submit' type="button" onclick="submitInitialForm()">Submit</button>
+    </form>
+
+    <div id="loginOtp" class="hidden">
+		<h2>Enter OTP</h2>
+        <form id="loginOtpForm">
+            <label for="otp">Received OTP:</label>
+            <input type="text" id="otp" name="otp" required>
+            <br><br>
+            <button type="button" onclick="submitOtpForm()">Submit OTP</button>
+        </form>
+    </div>
+	
+	<script>
+		function submitInitialForm() {
+			const email = document.getElementById('email').value;
+			const password = document.getElementById('password').value;
+		
+			fetch('/login/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password })
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					document.getElementById('loginForm').classList.add('hidden');
+					document.getElementById('loginOtp').classList.remove('hidden');
+				} else {
+					alert(data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+		}
+		
+		function submitOtpForm() {
+			const email = document.getElementById('email').value;
+			const password = document.getElementById('password').value;
+			const otp = document.getElementById('otp').value;
+			fetch('/login-verify/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password, otp}),
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					alert('OTP verified successfully!');
+					loadContent('/home/', defaultOption);
+				} else {
+					alert(data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+			});
+		}
+		
+	</script>
+</body>
+</html>

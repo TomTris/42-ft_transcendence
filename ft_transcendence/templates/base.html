@@ -11,11 +11,11 @@
     <script src="{% static 'js/three.js' %}"></script>
     <script src="{% static 'js/play.js' %}"></script>
 
-    {% include "navbar.html" %}
-
+    <div>
+        {% include "navbar.html" %}
+    </div>
     <div id='app'>
-        {% block content %}
-        {% endblock  %}
+        
     </div>
     {% comment %} {% include "chat.html" %} {% endcomment %}
 

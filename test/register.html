@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+	<style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="registration-form">
+        <h2>Register</h2>
+		<form id="register-form">
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value="" required><br><br>
+
+			<label for="first_name">First Name:</label>
+			<input type="text" id="first_name" name="first_name" value="" required><br><br>
+
+			<label for="last_name">Last Name:</label>
+			<input type="text" id="last_name" name="last_name" value="" required><br><br>
+
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value="" required><br><br>
+
+			<label for="password2">Confirm Password:</label>
+			<input type="password" id="password2" name="password2" value="" required><br><br>
+
+			<button type="button" onclick="submitRegistrationForm()">Register</button>
+		</form>
+	</div>
+	
+	<div id="otp-form" class="hidden">
+		<h2>Enter OTP</h2>
+        <form id="otp-form-content">
+			<label for="otp">OTP:</label>
+            <input type="text" id="otp" name="otp" required><br><br>
+			
+            <button type="button" onclick="submitOtpForm()">Submit OTP</button>
+			<br><br>
+			<button type="button" onclick="sendAgain()">Send OTP again</button>
+        </form>
+    </div>
+	<script>
+
+function submitRegistrationForm() {
+    const email = document.getElementById('email').value;
+    const firstName = document.getElementById('first_name').value;
+    const lastName = document.getElementById('last_name').value;
+    const password = document.getElementById('password').value;
+    const password2 = document.getElementById('password2').value;
+
+    if (password !== password2) {
+        alert('Passwords do not match');
+        return;
+    }
+
+    fetch('/accounts/register/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, firstName, lastName, password, password2 }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('registration-form').classList.add('hidden');
+            document.getElementById('otp-form').classList.remove('hidden');
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function SendAgain() {
+	const email = document.getElementById('email').value;
+	fetch('/accounts/register-send_OTP/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+    })
+    .then(response => response.json())
+    .then(data => {
+            alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function submitOtpForm() {
+    const email = document.getElementById('email').value;
+    const firstName = document.getElementById('first_name').value;
+    const lastName = document.getElementById('last_name').value;
+    const password = document.getElementById('password').value;
+    const password2 = document.getElementById('password2').value;
+	const otp = document.getElementById('otp').value;
+
+    // Make an AJAX request to submit the OTP
+    fetch('/accounts/register-verify/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, firstName, lastName, password, password2, otp }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Registration successful!');
+			loadContent('/home/', defaultOption);
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+	</script>
+</body>
+</html>
