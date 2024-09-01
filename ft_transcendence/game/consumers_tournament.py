@@ -70,6 +70,7 @@ class TournamentConsumer(BaseConsumer):
                 "won": 0,
                 "finished": 0,
                 "start": time.time() + 4,
+                "time_passed":0,
                 "last_update": 0,
                 "disconected": 0,
                 "send": 1,

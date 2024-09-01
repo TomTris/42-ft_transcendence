@@ -7,6 +7,9 @@
     <title>Pong Ping</title>
 </head>
 <body>
+    <script src="{% static 'js/spa.js' %}"></script>
+    <script src="{% static 'js/three.js' %}"></script>
+    <script src="{% static 'js/play.js' %}"></script>
 
     {% include "navbar.html" %}
 
@@ -15,6 +18,13 @@
         {% endblock  %}
     </div>
     {% comment %} {% include "chat.html" %} {% endcomment %}
-    <script src="{% static 'js/spa.js' %}"></script>
+
+    <style>
+        body {
+            background-color: #f0f4f8;
+            padding:0px;
+            margin:0px;
+        }
+    </style>
 </body>
 </html>

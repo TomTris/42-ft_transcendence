@@ -40,8 +40,8 @@ def best_view(request):
 def users_view(request):
     users = MyUser.objects.order_by("id")
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/users.html', {'users':users, 'amount':len(users)})
-    return render(request, "users.html", {'users':users, 'amount':len(users)})
+        return render(request, 'partials/users.html', {'friends':users})
+    return render(request, "users.html", {'friends':users})
 
 def user_view(request, id):
     curent_user = request.user
@@ -75,6 +75,21 @@ def user_view(request, id):
         return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})
 
+
+def friends_view(request, id):
+    user = MyUser.objects.all().filter(id=id).first()
+    if not user:
+        return render(request, "user_doesnt_exist.html")
+    friendships = Friendship.objects.filter(Q(person1=user) | Q(person2=user)).order_by('-id')
+    only_friends = []
+    for friendship in friendships:
+        if friendship.person1 == user:
+            only_friends.append(friendship.person2)
+        else:
+            only_friends.append(friendship.person1)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/users.html', {'friends':only_friends})
+    return render(request, "users.html", {'friends':only_friends})
 
 def modify_data_for_view():
     output = []

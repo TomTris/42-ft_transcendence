@@ -1,16 +1,21 @@
+{% comment %} {% load static %} {% endcomment %}
+
 <div id="game-container">
     <h1>Game Session: {{ session_id }}</h1>
     <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
     <p>Player 1: <span id="player1">{{ player1 }}</span></p>
     <p>Player 2: <span id="player2">{{ player2 }}</span></p>
     <div><div id="score1"></div> <div id="score2"></div></div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="1000" height="600"></canvas>
 </div>
 
+
+
 <script id="playing-bot">
-    console.log('yessssss   ')
+    console.log('yessssss   ');
+    init();
     // JavaScript to connect to WebSocket and update player list
-    socket1 = new WebSocket(`wss://${window.location.host}/wss/game/bot/`);
+    socket1 = new WebSocket(`ws://${window.location.host}/wss/game/bot/`);
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
 
@@ -27,14 +32,16 @@
     };
     
     function updateGameCanvas(data) {
-        ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
-        // Draw the paddles and ball
-        ctx.fillStyle = 'black';
-        ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
-        ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
-        ctx.beginPath();
-        ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
-        ctx.fill();
+        //ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
+        //// Draw the paddles and ball
+        //ctx.fillStyle = 'black';
+        //ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
+        //ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
+        //ctx.beginPath();
+        //ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
+        //ctx.fill();
+        //console.log(data.posx, data.posy, data.pos1, data.pos2);
+        animate(data.posx, data.posy, data.pos1, data.pos2);
     };
 
     document.addEventListener('keydown', function(event) {

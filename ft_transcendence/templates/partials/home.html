@@ -1,4 +1,262 @@
-<h1>Welcome to the Game</h1>
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        padding-top: 10%;
+        align-items: center;
+        gap: 30px; /* Increased gap between elements */
+    }
+    
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Increased gap between buttons */
+        align-items: center; /* Center buttons horizontally */
+    }
+    
+    /* General Button Styling */
+    .button {
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        font-size: 20px; /* Further increased font size */
+        padding: 20px 40px; /* Further increased padding for larger buttons */
+        transition: background 0.3s ease, transform 0.3s ease;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Adjusted shadow for larger buttons */
+        width: 300px; /* Further increased width */
+        height: 70px; /* Further increased height */
+    }
+    
+    /* Menu Button Styling */
+    .menu-button {
+        background: #61dafb;
+        color: #282c34;
+    }
+    
+    /* Menu Button Hover and Active States */
+    .menu-button:hover {
+        background: #4fa3c0;
+        transform: translateY(-2px);
+    }
+    
+    .menu-button:active {
+        background: #3687a3;
+        transform: translateY(2px);
+    }
+    
+    /* Reveal Button Styling */
+    .reveal-button {
+        background: #ff6f61;
+        color: #fff;
+    }
+    
+    /* Reveal Button Hover and Active States */
+    .reveal-button:hover {
+        background: #e55b50;
+        transform: translateY(-2px);
+    }
+    
+    .reveal-button:active {
+        background: #c44a42;
+        transform: translateY(2px);
+    }
+    
+    /* Hidden Buttons */
+    .hidden-buttons {
+        display: none;
+    }
+    
+    /* Show Buttons */
+    .show-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Increased gap between buttons */
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 30px; /* Increased padding for modal content */
+        border: 1px solid #888;
+        width: 60%; /* Increased width */
+        max-width: 600px; /* Increased max-width */
+        display: flex;
+        flex-direction: column; /* Column layout for modal content */
+        gap: 30px; /* Increased gap between elements in modal */
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 32px; /* Increased font size for close button */
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .modal-input {
+        width: 100%;
+        padding: 15px; /* Further increased padding for input */
+        margin-bottom: 15px; /* Increased margin-bottom */
+        font-size: 20px; /* Match font size of larger buttons */
+    }
+    .modal-buttons {
+        display: flex;
+        flex-direction: column; /* Vertical button alignment */
+        gap: 15px; /* Increased space between buttons */
+        align-items: flex-end; /* Align buttons to the right */
+    }
+    .modal-buttons button {
+        width: 100%; /* Full width for buttons */
+        font-size: 20px; /* Match font size of larger buttons */
+        padding: 15px; /* Further increased padding */
+    }
+</style>
+
+<div class="container">
+    <button id="revealButton1" class="reveal-button button">Play Offline</button>
+
+    <div id="buttonContainer1" class="hidden-buttons button-container">
+        <button class="menu-button button" onclick="playAgainstAI()">Play Against AI</button>
+        <button class="menu-button button" onclick="playAgainstFriend()">Play Against Friend</button>
+        <button class="menu-button button" onclick="playTournamentOffline()">Play Tournament (Offline)</button>
+    </div>
+
+    <button id="revealButton2" class="reveal-button button">Play Online</button>
+
+    <div id="buttonContainer2" class="hidden-buttons button-container">
+        <button class="menu-button button">Matchmaking</button>
+        <button id="createTournamentButton" class="menu-button button">Create Tournament</button>
+        <button id="joinTournamentButton" class="menu-button button">Join Tournament</button>
+    </div>
+</div>
+
+<!-- The Modals -->
+<!-- Create Tournament Modal -->
+<div id="createTournamentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeCreateModal">&times;</span>
+        <h2>Create Tournament</h2>
+        <input type="text" id="tournamentName" class="modal-input" placeholder="Enter the tournament name">
+        <div class="modal-buttons">
+            <button id="createTournamentSubmit" class="menu-button button">Create</button>
+            <button id="createTournamentCancel" class="menu-button button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Join Tournament Modal -->
+<div id="joinTournamentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeJoinModal">&times;</span>
+        <h2>Join Tournament</h2>
+        <input type="text" id="tournamentCode" class="modal-input" placeholder="Enter the tournament code">
+        <div class="modal-buttons">
+            <button id="joinTournamentSubmit" class="menu-button button">Join</button>
+            <button id="joinTournamentCancel" class="menu-button button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle visibility of button containers
+    document.getElementById('revealButton1').addEventListener('click', function() {
+        document.getElementById('buttonContainer1').style.display = 'flex';
+        document.getElementById('buttonContainer2').style.display = 'none';
+    });
+
+    document.getElementById('revealButton2').addEventListener('click', function() {
+        document.getElementById('buttonContainer1').style.display = 'none';
+        document.getElementById('buttonContainer2').style.display = 'flex';
+    });
+
+    // Modal handling
+    var createTournamentModal = document.getElementById('createTournamentModal');
+    var joinTournamentModal = document.getElementById('joinTournamentModal');
+
+    document.getElementById('createTournamentButton').onclick = function() {
+        createTournamentModal.style.display = 'block';
+    };
+
+    document.getElementById('joinTournamentButton').onclick = function() {
+        joinTournamentModal.style.display = 'block';
+    };
+
+    document.getElementById('closeCreateModal').onclick = function() {
+        createTournamentModal.style.display = 'none';
+    };
+
+    document.getElementById('closeJoinModal').onclick = function() {
+        joinTournamentModal.style.display = 'none';
+    };
+
+    document.getElementById('createTournamentCancel').onclick = function() {
+        createTournamentModal.style.display = 'none';
+    };
+
+    document.getElementById('joinTournamentCancel').onclick = function() {
+        joinTournamentModal.style.display = 'none';
+    };
+
+    // Handle form submission in modals
+    document.getElementById('createTournamentSubmit').onclick = function() {
+        var tournamentName = document.getElementById('tournamentName').value;
+        if (tournamentName) {
+            console.log("Tournament '" + tournamentName + "' created successfully!");
+            createTournamentModal.style.display = 'none';
+        }
+    };
+
+    document.getElementById('joinTournamentSubmit').onclick = function() {
+        var tournamentCode = document.getElementById('tournamentCode').value;
+        if (tournamentCode) {
+            console.log("Joining tournament with code: " + tournamentCode);
+            joinTournamentModal.style.display = 'none';
+        }
+    };
+
+    // Close modals when clicking outside of them
+    window.onclick = function(event) {
+        if (event.target == createTournamentModal) {
+            createTournamentModal.style.display = 'none';
+        }
+        if (event.target == joinTournamentModal) {
+            joinTournamentModal.style.display = 'none';
+        }
+    };
+
+    function playAgainstAI() {
+        loadContent("/game/bot/", true);
+    }
+
+    function playAgainstFriend() {
+        loadContent("/game/offline/", true);
+    }
+    
+    function playTournamentOffline(){
+        loadContent("/game/tournament/", true);
+    }
+
+</script>
+
+{% comment %} <h1>Welcome to the Game</h1>
 
 <button data-route="/game/offline/">Offline</button>
 <button data-route="/game/bot/">Bot</button>
@@ -29,7 +287,7 @@ document.getElementById('join-game').onclick = function() {
         }
     })
     .catch(error => console.error('Error:', error));
-};
+}; {% endcomment %}
 
  {% comment %} document.addEventListener('click', function(event) {
     console.log(1111);
@@ -43,4 +301,3 @@ document.getElementById('join-game').onclick = function() {
         loadContent(path, true); // Load content and push to history
     }
 }); {% endcomment %}
-</script>

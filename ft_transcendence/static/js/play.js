@@ -3,7 +3,7 @@
 var camera, scene, renderer;
 var mesh, sliderL, sliderR, table, ball, plate, trimU, trimD;
 
-init();
+// init();
 // animate();
 
 function init() {

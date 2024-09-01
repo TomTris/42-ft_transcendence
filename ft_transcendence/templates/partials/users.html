@@ -1,8 +1,124 @@
-<h1>There are {{amount}} users</h1>
-<ul>
+<style>
+    /* Container for centering the friends list without affecting other elements */
+    .friends-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 80px; /* Increased spacing from the top */
+        padding-bottom: 60px; /* Added padding at the bottom for balance */
+    }
 
-{% for i in users %}
-    <li><img src="{{i.avatar.url}}" width="15" height="15"> <a href="{{i.id}}" data-route="{{i.id}}">{{i.username}}</a></li>
-{% endfor %}
+    .friends-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        width: 600px; /* Width for more space */
+        background-color: #fff;
+        border-radius: 12px; /* Slightly more rounded corners */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-</ul>
+    .friend-item {
+        display: flex;
+        align-items: center;
+        padding: 20px 24px; /* Increased padding for more comfort */
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s;
+        font-size: 18px; /* Increased font size for readability */
+    }
+
+    .friend-item:last-child {
+        border-bottom: none;
+    }
+
+    .friend-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .status-dot {
+        width: 16px; /* Slightly larger dot */
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 14px;
+    }
+
+    .status-dot.active {
+        background-color: #32cd32; /* Light green for active */
+    }
+
+    .status-dot.inactive {
+        background-color: #006400; /* Dark green for inactive */
+    }
+
+    .friend-avatar {
+        width: 48px; /* Increased avatar size */
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 16px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+    }
+
+    .friend-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        transition: opacity 0.3s; /* Smooth transition for opacity change */
+    }
+
+    .friend-link {
+        font-size: 20px; /* Larger font size for username */
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .friend-link:hover {
+        color: #007bff; /* Blue color on hover */
+    }
+
+    .friend-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 24px; /* Better spacing between stats */
+        margin-top: 8px;
+        font-size: 16px; /* Increased stats font size */
+        color: #555;
+        opacity: 0.5; /* Make stats less visible initially */
+        transition: opacity 0.3s, transform 0.3s; /* Smooth transitions */
+    }
+
+    .friend-item:hover .friend-stats {
+        opacity: 1; /* Make stats fully visible on hover */
+        transform: scale(1.05); /* Slightly enlarge the stats on hover */
+    }
+
+    .friend-stats div {
+        background-color: #f1f1f1;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+</style>
+
+<!-- Container to ensure friends list does not interfere with the navbar or other elements -->
+<div class="friends-container">
+    <ul class="friends-list">
+        {% for friend in friends %}
+        <li class="friend-item">
+            <span class="status-dot {% if friend.is_active %}active{% else %}inactive{% endif %}"></span>
+            <img src="{{friend.avatar.url}}" class="friend-avatar" alt="{{ friend.username }}'s avatar">
+            <div class="friend-info">
+                <a href="/users/{{friend.id}}/" class="friend-link" data-route="/users/{{friend.id}}/">{{ friend.username }}</a>
+                <div class="friend-stats">
+                    <div>ELO: {{ friend.elo }}</div>
+                    <div>Matches: {{ friend.total }}</div>
+                    <div>Wins: {{ friend.wins }}</div>
+                    <div>Loses: {{ friend.loses }}</div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
