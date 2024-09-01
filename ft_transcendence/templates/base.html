@@ -8,13 +8,16 @@
 </head>
 <body>
 
-    {% include "navbar.html" %}
-
+    <div>
+        {% include "navbar.html" %}
+    </div>
     <div id='app'>
-        {% block content %}
-        {% endblock  %}
+        
     </div>
     {% comment %} {% include "chat.html" %} {% endcomment %}
+    <script>
+        var originalMethod = "{{ method|escapejs }}";
+    </script>
     <script src="{% static 'js/spa.js' %}"></script>
 </body>
 </html>
