@@ -1,5 +1,238 @@
+<style>
+    nav {
+        display: flex;
+        justify-content: space-between; /* Align items to the ends */
+        padding: 10px;
+        align-items: center;
+        background-color: #333; /* Optional background color */
+    }
+    
+    nav a {
+        color: white;
+        text-decoration: none;
+        margin-right: 20px;
+    }
+    
+    .navbar-left {
+        display: flex;
+        align-items: center;
+    }
+    
+    .invitation-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .icon {
+        position: relative;
+        color: white;
+        cursor: pointer;
+    }
+    
+    .badge {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        padding: 3px 7px;
+        border-radius: 50%;
+        background: red;
+        color: white;
+        font-size: 12px;
+        display: none; /* Initially hidden */
+    }
+    
+    .invitation-list {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        width: 300px; /* Increased width for better display */
+        z-index: 1000;
+        padding: 10px;
+        display: none;
+        max-height: 400px; /* Adjusted height for scrollable list */
+        overflow-y: auto; /* Make the list scrollable */
+    }
+    
+    .invitation-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .invitation-list li {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #333; /* Text color */
+    }
+    
+    .invitation-list li img {
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .invitation-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .invitation-buttons {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .invitation-buttons button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    
+    .invitation-buttons button.deny {
+        background: #dc3545;
+    }
+    
+    .invitation-list a {
+        color: black;
+        font-size: 16px; /* Adjust font size as needed */
+        text-decoration: none;
+        white-space: nowrap; /* Prevent text wrapping */
+        overflow: hidden; /* Hide overflow text */
+        text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    }
+    
+    .invitation-list span {
+        font-size: 14px; /* Ensure consistent size for the text "wants to be friends" */
+        color: #555; /* Optional color adjustment */
+    }
+    
+</style>
+
 <nav>
-    <a href="/" data-route="/">Home</a>
-    <a href="/users/" data-route="/users/">Users</a>
-    <a href="/tournaments/" data-route="/tournaments/">Tournaments</a>
+    <div class="navbar-left">
+        <a href="/" data-route="/">Home</a>
+        <a href="/users/" data-route="/users/">Users</a>
+        <a href="/tournaments/" data-route="/tournaments/">Tournaments</a>
+    </div>
+    <div class="invitation-container">
+        <a href="#" id="invitation-icon" class="icon">
+            📨 <span id="invite-count" class="badge">0</span> <!-- Default count -->
+        </a>
+        <div id="invitation-list" class="invitation-list">
+            <!-- Invitation list items will be inserted here -->
+            <p>No invitations</p>
+        </div>
+    </div>
 </nav>
+
+<script>
+    const invitationIcon = document.getElementById('invitation-icon');
+    const invitationList = document.getElementById('invitation-list');
+    const inviteCountElement = document.getElementById('invite-count');
+
+    // Connect to WebSocket
+    const InviteSocket = new WebSocket(`ws://${window.location.host}/wss/invitations/`);
+
+    // Listen for messages from the WebSocket
+    InviteSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log(data);
+    
+        // Update count and show/hide badge
+        const invites = data.invites || [];
+        const inviteCount = invites.length;
+        inviteCountElement.textContent = inviteCount;
+        inviteCountElement.style.display = inviteCount > 0 ? 'inline' : 'none';
+    
+        // Clear the current list
+        invitationList.innerHTML = '';
+    
+        if (inviteCount > 0) {
+            const ul = document.createElement('ul');
+            invites.forEach(invite => {
+                const li = document.createElement('li');
+                
+                const avatar = document.createElement('img');
+                avatar.src = invite.sender.avatar; // Default avatar if missing
+                avatar.width = 30; // Adjust size as needed
+                avatar.height = 30; // Adjust size as needed
+    
+                const userLink = document.createElement('a');
+                userLink.href = `/users/${invite.sender.id}`; // Link to user profile
+                userLink.dataset.route = `/users/${invite.sender.id}`; // Add data-route attribute
+                userLink.textContent = invite.sender.username || 'Unknown'; // Display username
+    
+                const text = document.createElement('span');
+                text.textContent = ' wants to be friends'; // Adjust as needed
+                
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'invitation-buttons';
+    
+                const acceptButton = document.createElement('button');
+                acceptButton.textContent = 'Accept';
+                acceptButton.className = 'accept'; // Added class for acceptance
+                acceptButton.dataset.inviteId = invite.id; // Store the invite ID
+    
+                const denyButton = document.createElement('button');
+                denyButton.textContent = 'Deny';
+                denyButton.className = 'deny';
+                denyButton.dataset.inviteId = invite.id; // Store the invite ID
+    
+                buttonContainer.appendChild(acceptButton);
+                buttonContainer.appendChild(denyButton);
+    
+                li.appendChild(avatar);
+                li.appendChild(userLink);
+                li.appendChild(text);
+                li.appendChild(buttonContainer);
+    
+                ul.appendChild(li);
+            });
+            invitationList.appendChild(ul);
+        } else {
+            invitationList.innerHTML = '<p>No invitations</p>';
+        }
+    };
+    
+    // Handle click events for Accept and Deny buttons
+    invitationList.addEventListener('click', function(event) {
+        if (event.target.matches('.accept')) {
+            // Handle accept logic
+            const inviteId = event.target.dataset.inviteId;
+            // Send WebSocket message to accept the invitation
+            socket.send(JSON.stringify({
+                type: 'friendship',
+                result: 'accept',
+                id: inviteId
+            }));
+        } else if (event.target.matches('.deny')) {
+            // Handle deny logic
+            const inviteId = event.target.dataset.inviteId;
+    
+            // Send WebSocket message to deny the invitation
+            socket.send(JSON.stringify({
+                type: 'friendship',
+                result: 'deny',
+                id: inviteId
+            }));
+        }
+    });
+    
+    // Toggle the visibility of the invitation list
+    invitationIcon.addEventListener('click', function (event) {
+        event.preventDefault();
+        invitationList.style.display = invitationList.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    // Optional: Click outside to close the list
+    document.addEventListener('click', function (event) {
+        if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
+            invitationList.style.display = 'none';
+        }
+    });
+</script>

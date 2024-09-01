@@ -1,19 +1,154 @@
-<h1>{{user.login}}</h1>
-    
+<style>
+    .action-button {
+        border: none;
+        border-radius: 5px;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, box-shadow 0.3s;
+        margin-left: 10px;
+    }
+
+    .action-button.add-friend {
+        background-color: #28a745; /* Green */
+    }
+
+    .action-button.add-friend:hover {
+        background-color: #218838;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-button.delete-friend {
+        background-color: #dc3545; /* Red */
+    }
+
+    .action-button.delete-friend:hover {
+        background-color: #c82333;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-button.accept-friend {
+        background-color: #007bff; /* Blue */
+    }
+
+    .action-button.accept-friend:hover {
+        background-color: #0056b3;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-button.cancel-friend {
+        background-color: #ffc107; /* Yellow */
+    }
+
+    .action-button.cancel-friend:hover {
+        background-color: #e0a800;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<h1>{{ user.username }}</h1>
+
+{% if friend == 1 %}
+    <button id="add-friend-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Add Friend</button>
+{% elif friend == 2 %}
+    <button id="delete-friend-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Delete Friend</button>
+{% elif friend == 3 %}
+    <button id="accept-friend-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Friend Request</button>
+{% elif friend == 4 %}
+    <button id="cancel-friend-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Friend Request</button>
+{% endif %}
+
 <h2>Stats</h2>
-<p> total-matches{{user.total}} wins:{{user.wins}} loses:{{user.loses}} winrate:{{winrate}}</p>
-<p>Elo: {{user.elo}}</p>
+<p>Total Matches: {{ user.total }} Wins: {{ user.wins }} Loses: {{ user.loses }} Winrate: {{ winrate }}</p>
+<p>Elo: {{ user.elo }}</p>
+
 <h1>History</h1>
 <ul>
 {% for m in matches_with_ids %}
     <li>
-        <img src="{{m.player1.avatar.url}}" width="15" height="15"/>
-        <a href="/users/{{m.player1.id }}">{{m.match.player1}}</a>
-        rank_change: {{m.match.rank_change1}}
-        vs 
-        <img src="{{m.player2.avatar.url}}" width="15" height="15"/>
-        <a href="/users/{{m.player2.id }}">{{m.match.player2}}</a>
-        rank_change: {{m.match.rank_change2}}
+        <img src="{{ m.player1.avatar.url }}" width="15" height="15"/>
+        <a href="/users/{{ m.player1.id }}">{{ m.match.player1 }}</a>
+        Rank Change: {{ m.match.rank_change1 }}
+        vs
+        <img src="{{ m.player2.avatar.url }}" width="15" height="15"/>
+        <a href="/users/{{ m.player2.id }}">{{ m.match.player2 }}</a>
+        Rank Change: {{ m.match.rank_change2 }}
     </li>
 {% endfor %}
 </ul>
+
+
+<script>
+    addFriendButton = document.getElementById('add-friend-btn');
+    acceptFriendButton = document.getElementById('accept-friend-btn');
+    deleteFriendButton = document.getElementById('delete-friend-btn');
+    cancelFriendButton = document.getElementById('cancel-friend-btn');
+
+    function handleAction(url, method) {
+        fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: method === 'POST' ? JSON.stringify({ csrfmiddlewaretoken: getCookie('csrftoken') }) : null
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+            } else {
+                console.log('Success:', data.message);
+                const userId = {{user.id}};
+                {% comment %} window.location.href = `/users/${userId}`; {% endcomment %}
+                loadContent(`/users/${userId}`)
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    if (addFriendButton) {
+        addFriendButton.addEventListener('click', function() {
+            const userId = addFriendButton.getAttribute('data-user-id');
+            console.log(userId);
+            handleAction(`/add_friend/${userId}/`, 'POST');
+        });
+    }
+
+    if (acceptFriendButton) {
+        acceptFriendButton.addEventListener('click', function() {
+            const userId = acceptFriendButton.getAttribute('data-user-id');
+            handleAction(`/accept_friend/${userId}/`, 'POST');
+        });
+    }
+
+    if (deleteFriendButton) {
+        deleteFriendButton.addEventListener('click', function() {
+            const userId = deleteFriendButton.getAttribute('data-user-id');
+            handleAction(`/delete_friend/${userId}/`, 'POST');
+        });
+    }
+
+    if (cancelFriendButton) {
+        cancelFriendButton.addEventListener('click', function() {
+            const userId = cancelFriendButton.getAttribute('data-user-id');
+            handleAction(`/cancel_friend/${userId}/`, 'POST');
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>

@@ -272,7 +272,7 @@ class AIConsumer(BaseConsumer):
     def send_data(self):
         message = {
             'status': self.get_status(),
-            'player1': self.user.login,
+            'player1': self.user.username,
             'player2':'bot',
             'disc1':self.game_state['disc1'],
             'disc2':self.game_state['disc2'],

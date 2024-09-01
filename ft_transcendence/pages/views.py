@@ -1,12 +1,30 @@
 from django.shortcuts import render, redirect
 from users.models import MyUser
+from django.views.decorators.http import require_POST
 from django.db.models import Q
 from game.models import GameSession
 from crypto.functions import get_tournament_by_creator, get_tournament
 from chat.serializer import UserSerializer
-from users.models import MyUser
+from users.models import MyUser, Friendship
 from datetime import datetime, timedelta
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from .models import Invite
+from django.http import JsonResponse
 
+def get_friend_status(current_user, user):
+    if user == current_user:
+        return 0
+    f = Friendship.objects.filter(Q(person1=current_user, person2=user) | Q(person1=user, person2=current_user)).first()
+    if f is None:
+        f = Invite.objects.filter(sender=user, send_to=current_user).first()
+        if f is not None:
+            return 3
+        f = Invite.objects.filter(sender=current_user, send_to=user).first()
+        if f is not None:
+            return 4
+        return 1
+    return 2
 
 def home_view(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -25,7 +43,8 @@ def users_view(request):
         return render(request, 'partials/users.html', {'users':users, 'amount':len(users)})
     return render(request, "users.html", {'users':users, 'amount':len(users)})
 
-def user_view(request, id): 
+def user_view(request, id):
+    curent_user = request.user
     user = MyUser.objects.all().filter(id=id).first()
     if not user:
         return render(request, "user_doesnt_exist.html")
@@ -50,9 +69,11 @@ def user_view(request, id):
         winrate = 0
     else:
         winrate = "%.2f" % (user.wins / user.total)
+
+    friend=get_friend_status(curent_user, user)
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
-    return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate})
+        return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})
+    return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})
 
 
 def modify_data_for_view():
@@ -121,3 +142,69 @@ def vulnerable_view(request):
     cursor.execute(f"SELECT * FROM users_myuser")
     results = cursor.fetchall()
     return HttpResponse(f"Results: {results}")
+
+
+
+@require_POST
+def delete_friend(request, user_id):
+    print('delte')
+    sender = request.user
+    other =  MyUser.objects.filter(id=user_id).first()
+    if other is None:
+        return JsonResponse({'message': 'Not deleted'})
+    Friendship.objects.filter(Q(person1=sender, person2=other) | Q(person1=other, person2=sender)).delete()
+    return JsonResponse({'message': 'Deleted'})
+
+@require_POST
+def add_friend(request, user_id):
+    sender = request.user
+    send_to = MyUser.objects.filter(id=user_id).first()
+    if send_to is not None:
+        Invite.objects.filter(sender=sender, send_to=send_to).delete()
+        Invite.objects.create(
+            sender=sender,
+            send_to=send_to,
+            invite_type=1
+        )
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'invite',
+        {
+            'type': 'invite_message',
+        }
+    )
+    return JsonResponse({'message': 'Friend request sent'})
+
+@require_POST
+def accept_friend(request, user_id):
+    sender = request.user
+    send_to = MyUser.objects.filter(id=user_id).first()
+    if send_to is not None:
+        Invite.objects.filter(sender=send_to, send_to=sender).delete()
+        Friendship.objects.create(person1=sender, person2=send_to)
+    
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'invite',
+        {
+            'type': 'invite_message',
+        }
+    )
+    return JsonResponse({'message': 'Friend request sent'})
+
+@require_POST
+def cancel_friend(request, user_id):
+    print('asd')
+    sender = request.user
+    send_to = MyUser.objects.filter(id=user_id).first()
+    if send_to is not None:
+        Invite.objects.filter(sender=sender, send_to=send_to).delete()
+    
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'invite',
+        {
+            'type': 'invite_message',
+        }
+    )
+    return JsonResponse({'message': 'Friend request sent'})

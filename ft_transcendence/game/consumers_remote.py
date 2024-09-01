@@ -402,9 +402,9 @@ class GameConsumer(WebsocketConsumer):
 
     def get_player(self, ind):
         if ind == 1:
-            player = self.game_session.player1.login if self.game_session.player1 else 'Waiting...'
+            player = self.game_session.player1.username if self.game_session.player1 else 'Waiting...'
         else:
-            player = self.game_session.player2.login if self.game_session.player2 else 'Waiting...'
+            player = self.game_session.player2.username if self.game_session.player2 else 'Waiting...'
         return player
     
 

@@ -1,3 +1,7 @@
+var addFriendButton;
+var acceptFriendButton;
+var deleteFriendButton;
+var cancelFriendButton;
 // let  socket1 = new WebSocket(`wss://${window.location.host}/wss/game/bot/`);;
 let socket1 = null;
 let canvas;
