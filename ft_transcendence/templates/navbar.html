@@ -205,7 +205,7 @@
             // Handle accept logic
             const inviteId = event.target.dataset.inviteId;
             // Send WebSocket message to accept the invitation
-            socket.send(JSON.stringify({
+            InviteSocket.send(JSON.stringify({
                 type: 'friendship',
                 result: 'accept',
                 id: inviteId
@@ -215,7 +215,7 @@
             const inviteId = event.target.dataset.inviteId;
     
             // Send WebSocket message to deny the invitation
-            socket.send(JSON.stringify({
+            InviteSocket.send(JSON.stringify({
                 type: 'friendship',
                 result: 'deny',
                 id: inviteId

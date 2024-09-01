@@ -8,6 +8,7 @@ from django.http import JsonResponse
 
 @csrf_exempt
 def login_view(request):
+    logout(request)
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
