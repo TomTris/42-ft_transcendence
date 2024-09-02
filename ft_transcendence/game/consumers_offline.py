@@ -47,8 +47,6 @@ class BaseConsumer(WebsocketConsumer):
     def disconnect(self, code):
         with self.game_state_lock:
             self.game_state['left'] = 1
-        if self.periodic_task.is_alive():
-            self.periodic_task.join()
         self.close()
 
 
@@ -144,8 +142,7 @@ class BaseConsumer(WebsocketConsumer):
         while (1):
             with self.game_state_lock:
                 if self.game_state['left'] != 0:
-                    
-                    return
+                    break
                 self.update_playing()
                 if self.game_state['centered'] == 0:
                     self.position_center_random_move()
@@ -169,21 +166,21 @@ class BaseConsumer(WebsocketConsumer):
         return status
 
 
-    def move_up(self, player):
+    def move_up(self, player, default_time=0.25):
         if player == 1:
-            self.game_state['move_until1'] = time.time() + 0.25
+            self.game_state['move_until1'] = time.time() + default_time
             self.game_state['mov1'] = -1
         else:
-            self.game_state['move_until2'] = time.time() + 0.25
+            self.game_state['move_until2'] = time.time() + default_time
             self.game_state['mov2'] = -1
 
 
-    def move_down(self, player):
+    def move_down(self, player, default_time=0.25):
         if player == 1:
-            self.game_state['move_until1'] = time.time() + 0.25
+            self.game_state['move_until1'] = time.time() + default_time
             self.game_state['mov1'] = 1
         else:
-            self.game_state['move_until2'] = time.time() + 0.25
+            self.game_state['move_until2'] = time.time() + default_time
             self.game_state['mov2'] = 1
 
 
@@ -243,13 +240,46 @@ class OfflineConsumer(BaseConsumer):
 
 class AIConsumer(BaseConsumer):
 
+    def get_distance(self):
+        if self.game_state['vecx'] > 0:
+            return width - self.game_state['posx'] - distance - pwidth
+        else:
+            return self.game_state['posx'] - distance - pwidth + width - 2 * (pwidth + distance)
+
+    def get_y_cord(self, y_distance):
+        
+        if self.game_state['vecy'] > 0:
+            y_distance += self.game_state['posy']   
+        else:
+            y_distance += height - self.game_state['posy'] + height
+        
+        if int(y_distance // height) % 2 == 1:
+            return height - y_distance % height
+        else:
+            return y_distance % height
+
+    def get_best_move(self, y_cord):
+        top_pos = self.game_state['pos2'] + 10
+        bottom_pos = self.game_state['pos2'] + pheight - 10
+        if y_cord < top_pos:
+            return 1
+        if y_cord > bottom_pos:
+            return 2
+        return 0
+
 
     def best_ai(self):
-        i = random.randint(0, 2)
-        if i == 0:
-            self.move_up(2)
-        elif i == 1:
+        x_distance = self.get_distance()
+        if x_distance < 0:
+            return
+        y_distance = abs(x_distance / self.game_state['vecx'] * self.game_state['vecy'])
+        y_cord = self.get_y_cord(y_distance)
+        best_move = self.get_best_move(y_cord)
+        if best_move == 2:
             self.move_down(2)
+        if best_move == 1:
+            self.move_up(2)
+
 
     def start(self):
         counter = 0
