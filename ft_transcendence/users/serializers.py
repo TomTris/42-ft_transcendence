@@ -82,7 +82,6 @@ class VerifyLoginSerializer(serializers.Serializer):
 	def validate(self, attrs):
 		otpcode=attrs.get('otp', '')
 		email=attrs.get('email', '')
-		request=self.context.get('request')
 		if email == '' or otpcode == '':
 			raise AuthenticationFailed("Email and OTP are required")
 		try:
@@ -106,7 +105,6 @@ class VerifyLoginSerializer(serializers.Serializer):
 				'refresh_token': str(user_tokens.get('refresh')),
 				'redirect_url': reverse('home')
 				}
-		
 		if user_row.times == 2:
 			OneTimePasswordLogin.delete_for_user(user=user_row.user)
 			raise AuthenticationFailed("code is invalid. You tried already 3 times with the same Email.\n\

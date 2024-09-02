@@ -82,15 +82,31 @@ class RegisterUserView(GenericAPIView):
 
 	def post(self, request):
 		serializer=self.serializer_class(data=request.data)
-		if serializer.is_valid(raise_exception=True):
-			serializer.save()
-			user=serializer.data
-			send_code_to_user(user['email'])
-			return Response({
-				'data':user,
-				'message': f'hi thanks for signing up. Passcode has been sent to your email',
-			}, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		try:
+			email=request.data.get('email')
+			if email != '' and User.objects.filter(email=email).exists():
+				if not User.objects.get(email=email).is_active:
+					send_code_to_user(email)
+					return Response({
+						'message': f'Hi Thanks for signing up. A new Passcode hass been sent to your email'
+					}, status=status.HTTP_201_CREATED)
+				return Response({
+						'message': f'user with this Email Address already exists.'
+					}, status=status.HTTP_400_BAD_REQUEST)
+		except:
+			pass
+
+		try:
+			if serializer.is_valid(raise_exception=True):
+				serializer.save()
+				user=serializer.data
+				send_code_to_user(user['email'])
+				return Response({
+					'message': f'hi thanks for signing up. Passcode has been sent to your email'
+				}, status=status.HTTP_201_CREATED)
+			return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+		except Exception as e:
+			return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 	def get(self, request):
 		return render(request, "register.html")
@@ -100,13 +116,12 @@ class VerifyUserEmail(GenericAPIView):
 	def post(self, request):
 		otpcode=request.data.get('otp')
 		email=request.data.get('email')
-		print(OneTimePassword.objects)
 		if email is None or otpcode is None:
-			return Response({'message':'code or email is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message':'code or email is invalid'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
 			user_row = OneTimePassword.objects.get(email=email)
 		except OneTimePassword.DoesNotExist as e:
-			return Response({'message':'code or email is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'message':'code or email is invalid'}, status=status.HTTP_401_UNAUTHORIZED)
 		if user_row.code == otpcode:
 				user_row.user.is_verified = True
 				user_row.user.save()
@@ -118,19 +133,18 @@ class VerifyUserEmail(GenericAPIView):
 				}
 				send_normal_email(data)
 				return Response({
-					'message': 'account email verified successfully',
-					'redirect_url': reverse('login')}, status=status.HTTP_200_OK)
+					'message': f'hi thanks for signing up. Passcode has been sent to your email',
+				}, status=status.HTTP_201_CREATED)
 		if user_row.times == 2:
 			OneTimePassword.delete_for_user(user=user_row.user)
 			return Response({
 				'message':'code is invalid. You tried already 3 times.\n\
-					Please get the new Code for verifying and try again',
-				'redirect_url': reverse('register-send_OTP')},
-				status=status.HTTP_400_BAD_REQUEST)
+					Please get the new Code for verifying and try again'
+					}, status=status.HTTP_401_UNAUTHORIZED)
 		user_row.times += 1
 		user_row.save()
 		return Response({'message':'code or email is invalid.\n\
-				Please try again'}, status=status.HTTP_400_BAD_REQUEST)
+				Please try aga	in'}, status=status.HTTP_401_UNAUTHORIZED)
 
 	def get(self, request):
 		return render(request, "register-verify.html")
@@ -144,9 +158,7 @@ class SendRegisterCode(GenericAPIView):
 			return Response({'message':'email is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 		send_code_to_user(email)
 		return Response({
-			'data':user,
-			'message': f'Hi thanks for signing up. Passcode has been sent again to your email',
-			'redirect_url': reverse('register-verify')
+			'message': f'Hi thanks for signing up. Passcode has been sent again to your email'
 		}, status=status.HTTP_201_CREATED)
 
 
@@ -157,14 +169,15 @@ class LoginUserView(GenericAPIView):
 	serializer_class = LoginSerializer
 
 	def post(self, request):
-		print(request)
 		serializer = self.serializer_class(data=request.data, context={'request': request})
 		if serializer.is_valid():
 			send_code_to_user_login(serializer.validated_data)
 			return Response({
-				'message':"Please open your mail to get OTP to login",
-				'redirect_url': reverse('login-verify')}, status=status.HTTP_200_OK)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+				'message':"Please open your mail to get OTP to login"
+				}, status=status.HTTP_200_OK)
+		return Response({
+			"message": f"Login or Password is wrong"
+				}, status=status.HTTP_401_UNAUTHORIZED)
 
 	def get(self, request):
 		return render(request, "login.html")
@@ -174,16 +187,19 @@ class VerifyLoginUserView(GenericAPIView):
 
 	def post(self, request):
 		serializer = self.serializer_class(data=request.data, context={'request': request})
+		# try:
+		print(9)
 		if serializer.is_valid():
+			print(99)
 			response = Response({
 				'access_token': serializer.validated_data['access_token'],
 				'refresh_token': serializer.validated_data['refresh_token'],
-				'redirect_url': reverse('home')
+				"message" : "Login successful"
 			}, status=status.HTTP_200_OK)
 			response.set_cookie('access_token', serializer.validated_data['access_token'], httponly=True, secure=True, samesite='Strict', max_age=15 * 60, path='/')
 			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], httponly=True, secure=True, samesite='Strict', max_age=7 * 24 * 60 * 60, path='/accounts/refresh')
 			return response
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		return Response({"message": "code or email is invalid"}, status=status.HTTP_401_UNAUTHORIZED)	
 
 	def get(self, request):
 		return render(request, "login-verify.html")
@@ -213,17 +229,12 @@ class TokenRefreshView(APIView):
 
 
 
-class HomeView(GenericAPIView):
-	permission_classes = [IsAuthenticated]
-
-	def get(self, request):
-		return render(request, "home.html")
-
 class EmptyPath(GenericAPIView):
 
 	def get(self, request):
+		print(1)
 		if request.user.is_authenticated:
-			return render(request, "home.html")
+			return render(request, "partials/home.html")
 		return render(request, "login.html")
 
 

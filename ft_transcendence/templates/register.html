@@ -45,10 +45,6 @@ async function submitRegistrationForm() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
-        if (password !== password2) {
-            alert('Passwords do not match');
-            return;
-        }
         response = await fetch('/accounts/register/', {
             method: 'POST',
             headers: {
@@ -58,17 +54,15 @@ async function submitRegistrationForm() {
         })
         var success = response.ok;
         data = await response.json();
-        console.log(data.message);
+        alert(data.message);
         if (success) {
             document.getElementById('registration-form').classList.add('hidden');
             document.getElementById('otp-form').classList.remove('hidden');
-            alert(data.message);
-        } else {
-            alert(data.message);
         }
     }
     catch(error)
     {
+        alert('Error:', error);
         console.error('Error:', error);
     }
 }
@@ -96,25 +90,27 @@ async function submitOtpForm() {
         const email = document.getElementById('email').value;
         const otp = document.getElementById('otp').value;
 
-        // Make an AJAX request to submit the OTP
+        console.log(1);
         response = await fetch('/accounts/register-verify/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, firstName, lastName, password, password2, otp }),
+            body: JSON.stringify({ email, otp }),
         })
+        console.log(2);
+        var success = response.ok;
         data = await response.json();
-        if (data.success) {
+        if (success) {
             alert('Registration successful!');
-            await loadContent('/home/', defaultOption, true);
+            await loadContent('/login/', defaultOption, true);
         } else {
-            alert(data.message);
+            alert("Submit failed,", data.message);
         }
     }
     catch (error)
     {
-        alert(error);
+        alert("Error:", error);
         console.error('Error:', error);
     }
 }
