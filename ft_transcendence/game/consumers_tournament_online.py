@@ -5,20 +5,20 @@ from .models import GameSession, TournamentSession
 from asgiref.sync import async_to_sync
 import threading
 import time
-from users.models import MyUser
+from users.models import User
 from rest_framework import serializers
 from chat.models import Message
-from crypto.functions import add_tournament
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MyUser
+        model = User
         fields = ['id', 'username', 'avatar']
 
 
 class OnlineTournamentConsumer(WebsocketConsumer):
 
     def save_to_crypto(self, game=0):
+        from crypto.functions import add_tournament
         if game == 0:
             add_tournament(
                 str(self.tournament.player1.id),

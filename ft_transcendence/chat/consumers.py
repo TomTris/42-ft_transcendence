@@ -1,7 +1,7 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import get_messages, BlockList, Message
-from users.models import MyUser
+from users.models import User
 from .serializer import ChatMessageSerializer
 from asgiref.sync import async_to_sync
 
@@ -39,7 +39,7 @@ class ChatConsumer(WebsocketConsumer):
             message = message.lstrip()
             if reciver == 'all':
                 return 1, 'all', message
-            user = MyUser.objects.filter(username=reciver).first()
+            user = User.objects.filter(username=reciver).first()
             if not user:
                 return 0, 'a', 'a'
             return 1, reciver, message

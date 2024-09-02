@@ -2,7 +2,7 @@ from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import get_invites, Invite
 from .serializers import InviteSerializer
-from users.models import MyUser, Friendship
+from users.models import User, Friendship
 from asgiref.sync import async_to_sync
 
 

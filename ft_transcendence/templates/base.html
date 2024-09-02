@@ -4,21 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
     <title>Pong Ping</title>
 </head>
 <body>
-    <script src="{% static 'js/spa.js' %}"></script>
-    <script src="{% static 'js/three.js' %}"></script>
-    <script src="{% static 'js/play.js' %}"></script>
 
-    <div>
-        {% include "navbar.html" %}
-    </div>
+    {% comment %} {% include "navbar.html" %} {% endcomment %}
     <div id='app'>
-        
     </div>
-    {% comment %} {% include "chat.html" %} {% endcomment %}
 
+    <script>
+        var originalMethod = "{{ method|escapejs }}";
+    </script>
     <style>
         body {
             background-color: #f0f4f8;
@@ -26,5 +27,9 @@
             margin:0px;
         }
     </style>
+    <script src="{% static 'js/spa.js' %}"></script>
+    <script src="{% static 'js/three.js' %}"></script>
+    <script src="{% static 'js/play.js' %}"></script>
+    {% comment %} {% include "chat.html" %} {% endcomment %}
 </body>
 </html>

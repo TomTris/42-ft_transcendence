@@ -73,7 +73,7 @@
 			.then(data => {
 				if (data.success) {
 					alert('OTP verified successfully!');
-					loadContent('/home/', defaultOption);
+					loadContent('/home/', defaultOption, true);
 				} else {
 					alert(data.message);
 				}

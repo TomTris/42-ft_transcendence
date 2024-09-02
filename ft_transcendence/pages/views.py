@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
-from users.models import MyUser
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 from game.models import GameSession
 from crypto.functions import get_tournament_by_creator, get_tournament
 from chat.serializer import UserSerializer
-from users.models import MyUser, Friendship
+from users.models import User, Friendship
 from datetime import datetime, timedelta
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -38,14 +37,14 @@ def best_view(request):
     return render(request, "index.html")
 
 def users_view(request):
-    users = MyUser.objects.order_by("id")
+    users = User.objects.order_by("id")
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'partials/users.html', {'friends':users})
     return render(request, "users.html", {'friends':users})
 
 def user_view(request, id):
     curent_user = request.user
-    user = MyUser.objects.all().filter(id=id).first()
+    user = User.objects.all().filter(id=id).first()
     if not user:
         return render(request, "user_doesnt_exist.html")
     matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user))
@@ -77,7 +76,7 @@ def user_view(request, id):
 
 
 def friends_view(request, id):
-    user = MyUser.objects.all().filter(id=id).first()
+    user = User.objects.all().filter(id=id).first()
     if not user:
         return render(request, "user_doesnt_exist.html")
     friendships = Friendship.objects.filter(Q(person1=user) | Q(person2=user)).order_by('-id')
@@ -98,11 +97,11 @@ def modify_data_for_view():
     for tournament in all_tournaments:
         userId = tournament[0]
         try:
-            user = MyUser.objects.get(id=userId)
+            user = User.objects.get(id=userId)
             serializer = UserSerializer(user)
             user = serializer.data
 
-        except MyUser.DoesNotExist:
+        except User.DoesNotExist:
             user = {
                 'id':userId,
                 'username':'Deleted',
@@ -164,7 +163,7 @@ def vulnerable_view(request):
 def delete_friend(request, user_id):
     print('delte')
     sender = request.user
-    other =  MyUser.objects.filter(id=user_id).first()
+    other =  User.objects.filter(id=user_id).first()
     if other is None:
         return JsonResponse({'message': 'Not deleted'})
     Friendship.objects.filter(Q(person1=sender, person2=other) | Q(person1=other, person2=sender)).delete()
@@ -173,7 +172,7 @@ def delete_friend(request, user_id):
 @require_POST
 def add_friend(request, user_id):
     sender = request.user
-    send_to = MyUser.objects.filter(id=user_id).first()
+    send_to = User.objects.filter(id=user_id).first()
     if send_to is not None:
         Invite.objects.filter(sender=sender, send_to=send_to).delete()
         Invite.objects.create(
@@ -193,7 +192,7 @@ def add_friend(request, user_id):
 @require_POST
 def accept_friend(request, user_id):
     sender = request.user
-    send_to = MyUser.objects.filter(id=user_id).first()
+    send_to = User.objects.filter(id=user_id).first()
     if send_to is not None:
         Invite.objects.filter(sender=send_to, send_to=sender).delete()
         Friendship.objects.create(person1=sender, person2=send_to)
@@ -211,7 +210,7 @@ def accept_friend(request, user_id):
 def cancel_friend(request, user_id):
     print('asd')
     sender = request.user
-    send_to = MyUser.objects.filter(id=user_id).first()
+    send_to = User.objects.filter(id=user_id).first()
     if send_to is not None:
         Invite.objects.filter(sender=sender, send_to=send_to).delete()
     

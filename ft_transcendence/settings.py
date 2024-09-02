@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # ALLOWED_HOSTS = ['localhost']
 
@@ -32,16 +33,7 @@ with open('/localip/localip.txt', 'r') as file:
     localip = file.read().strip()
 with open('/domain_name.txt', 'r') as file:
     domain_name = file.read().strip()
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
 
 localip = "https://" + localip
@@ -55,6 +47,13 @@ CSRF_TRUSTED_ORIGINS = [
     # 'https://yourdomain.com',
 ]
 
+# Application definition
+# EMAIL_HOST = 'smtp.mailersend.net'
+# EMAIL_HOST_USER ='MS_YSH7sA@trial-zr6ke4nopvmlon12.mlsender.net'
+# EMAIL_HOST_PASSWORD ='xvEnjslkBmWt8ILv'
+# EMAIL_PORT = '587'
+# DEFAULT_FROM_EMAIL='QdoObrittneTiqinRmarquar'
+# EMAIL_USE_TLS=True
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_HOST_USER = 'f9d83291ab462e'
 EMAIL_HOST_PASSWORD = '34f63206296942'
@@ -62,22 +61,21 @@ EMAIL_PORT = '2525'
 DEFAULT_FROM_EMAIL="PingPong_QTOR@gmail.com"
 EMAIL_USE_TLS=True
 
-# Application definition
-
 
 INSTALLED_APPS = [
-    'channels',
+    # 'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'pages',
-    'users',
-    'game',
-    'chat',
-    'crypto',
+    # 'pages',
+    # 'users',
+    'accounts',
+    # 'game',
+    # 'chat',
+    # 'crypto',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 ]
@@ -93,9 +91,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'pages.middleware.CheckUserAuthorizationMiddleware',
-    'game.middleware.CleanupMiddleware',
+    # 'game.middleware.CleanupMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'users.middleware.CookieToAuthorizationMiddleware',
+    'accounts.middleware.CookieToAuthorizationMiddleware',
 ]
 
 ROOT_URLCONF = 'ft_transcendence.urls'
@@ -207,10 +205,11 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = 'media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
-AUTH_USER_MODEL = "users.User"
+# AUTH_USER_MODEL = "users.MyUser"
+AUTH_USER_MODEL = "accounts.User"
 
 # CHANNEL_LAYERS = {
 #     'default': {
@@ -253,6 +252,7 @@ CACHES = {
     }
 }
 
+
 REST_FRAMEWORK = {
     
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -266,8 +266,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
-
-INITIALIZED_1 = False
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 10

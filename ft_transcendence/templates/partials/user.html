@@ -102,7 +102,7 @@
                 console.log('Success:', data.message);
                 const userId = {{user.id}};
                 {% comment %} window.location.href = `/users/${userId}`; {% endcomment %}
-                loadContent(`/users/${userId}`)
+                loadContent(`/users/${userId}`, defaultOption, true)
             }
         })
         .catch(error => console.error('Error:', error));

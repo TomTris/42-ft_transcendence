@@ -65,6 +65,9 @@ def online_tournaments_view(request, session_id):
     tournament = TournamentSession.objects.filter(id=session_id).first()
     if tournament is None or user not in [tournament.player1, tournament.player2, tournament.player3, tournament.player4]:
         return render(request, "user_doesnt_exist.html")
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/online_tournaments.html', {'session_id':session_id})
     return render(request, 'online_tournaments.html', {'session_id': session_id})
 
 

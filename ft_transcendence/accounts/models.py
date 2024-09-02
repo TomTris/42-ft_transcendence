@@ -72,23 +72,6 @@ class OneTimePasswordLogin(models.Model):
         except cls.DoesNotExist:
             return True
 
-class OneTimePasswordLogin(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email=models.EmailField(max_length=255, unique=True, default='')
-    code=models.CharField(max_length=10, default='')
-    times=models.IntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.user.first_name}-passcode"
-
-    @classmethod
-    def delete_for_user(cls, user):
-        try:
-            otp = cls.objects.get(user=user)
-            otp.delete()
-            return True
-        except cls.DoesNotExist:
-            return True
 
 class OneTimePasswordReset(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

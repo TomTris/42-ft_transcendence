@@ -117,7 +117,7 @@ function submitOtpForm() {
     .then(data => {
         if (data.success) {
             alert('Registration successful!');
-			loadContent('/home/', defaultOption);
+			loadContent('/home/', defaultOption, true);
         } else {
             alert(data.message);
         }

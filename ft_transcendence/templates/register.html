@@ -1,11 +1,121 @@
-{% extends "base.html" %}
+<title>Registration Form</title>
+    <div id="registration-form">
+        <h2>Register</h2>
+		<form id="register-form">
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value="myemail@gmail.com" required><br><br>
 
+			<label for="first_name">First Name:</label>
+			<input type="text" id="first_name" name="first_name" value="first" required><br><br>
 
-{% block content %}
-<h1>Register</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit">
-</form>
-{% endblock  %}
+			<label for="last_name">Last Name:</label>
+			<input type="text" id="last_name" name="last_name" value="last" required><br><br>
+
+            <label for="username">Username:</label>
+			<input type="text" id="username" name="username" value="7Yearskilldragon" required><br><br>
+
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value="111111" required><br><br>
+
+			<label for="password2">Confirm Password:</label>
+			<input type="password" id="password2" name="password2" value="111111" required><br><br>
+
+			<button type="button" onclick="submitRegistrationForm()">Register</button>
+		</form>
+	</div>
+	
+	<div id="otp-form" class="hidden">
+		<h2>Enter OTP</h2>
+        <form id="otp-form-content">
+			<label for="otp">OTP:</label>
+            <input type="text" id="otp" name="otp" required><br><br>
+			
+            <button type="button" onclick="submitOtpForm()">Submit OTP</button>
+			<br><br>
+			<button type="button" onclick="sendAgain()">Send OTP again</button>
+        </form>
+    </div>
+
+    <script>
+async function submitRegistrationForm() {
+    try {
+        const email = document.getElementById('email').value;
+        const first_name = document.getElementById('first_name').value;
+        const last_name = document.getElementById('last_name').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const password2 = document.getElementById('password2').value;
+        if (password !== password2) {
+            alert('Passwords do not match');
+            return;
+        }
+        response = await fetch('/accounts/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, first_name, last_name, username, password, password2 }),
+        })
+        var success = response.ok;
+        data = await response.json();
+        console.log(data.message);
+        if (success) {
+            document.getElementById('registration-form').classList.add('hidden');
+            document.getElementById('otp-form').classList.remove('hidden');
+            alert(data.message);
+        } else {
+            alert(data.message);
+        }
+    }
+    catch(error)
+    {
+        console.error('Error:', error);
+    }
+}
+
+async function SendAgain() {
+	const email = document.getElementById('email').value;
+	await fetch('/accounts/register-send_OTP/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+    })
+    .then(response => response.json())
+    .then(data => {
+            alert(data.message);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+async function submitOtpForm() {
+    try {
+        const email = document.getElementById('email').value;
+        const otp = document.getElementById('otp').value;
+
+        // Make an AJAX request to submit the OTP
+        response = await fetch('/accounts/register-verify/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, firstName, lastName, password, password2, otp }),
+        })
+        data = await response.json();
+        if (data.success) {
+            alert('Registration successful!');
+            await loadContent('/home/', defaultOption, true);
+        } else {
+            alert(data.message);
+        }
+    }
+    catch (error)
+    {
+        alert(error);
+        console.error('Error:', error);
+    }
+}
+</script>

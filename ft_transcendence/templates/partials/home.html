@@ -217,19 +217,52 @@
 
     // Handle form submission in modals
     document.getElementById('createTournamentSubmit').onclick = function() {
-        var tournamentName = document.getElementById('tournamentName').value;
-        if (tournamentName) {
-            console.log("Tournament '" + tournamentName + "' created successfully!");
-            createTournamentModal.style.display = 'none';
-        }
+        console.log('asd')
+        var name = document.getElementById('tournamentName').value;
+        fetch('/game/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: 'name=' + encodeURIComponent(name)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to the created tournament page
+                link = '/game/online_tournament/' + data.id;
+                loadContent(link, defaultOption, true);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     };
 
     document.getElementById('joinTournamentSubmit').onclick = function() {
-        var tournamentCode = document.getElementById('tournamentCode').value;
-        if (tournamentCode) {
-            console.log("Joining tournament with code: " + tournamentCode);
-            joinTournamentModal.style.display = 'none';
-        }
+        var code = document.getElementById('tournamentCode').value;
+        fetch('/game/join/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: 'code=' + encodeURIComponent(code)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to the joined tournament page
+                link = '/game/online_tournament/' + data.id;
+                loadContent(link, defaultOption, true);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+
+
     };
 
     // Close modals when clicking outside of them
@@ -243,15 +276,30 @@
     };
 
     function playAgainstAI() {
-        loadContent("/game/bot/", true);
+        loadContent("/game/bot/", defaultOption, true);
     }
 
     function playAgainstFriend() {
-        loadContent("/game/offline/", true);
+        loadContent("/game/offline/", defaultOption, true);
     }
     
     function playTournamentOffline(){
-        loadContent("/game/tournament/", true);
+        loadContent("/game/tournament/", defaultOption, true);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 
 </script>
@@ -298,6 +346,6 @@ document.getElementById('join-game').onclick = function() {
         event.preventDefault(); // Prevent default button behavior
         const path = button.getAttribute('data-route');
         console.log('Navigating to:', path); // Log the path for debugging
-        loadContent(path, true); // Load content and push to history
+        loadContent(path, defaultOption, true);
     }
 }); {% endcomment %}

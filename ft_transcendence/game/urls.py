@@ -8,7 +8,6 @@ urlpatterns = [
     path('offline/', views.offline_view),
     path('bot/', views.bot_view),
     path('tournament/', views.tournament_view),
-    path('online_tournament/', views.online_tournament_view),
     path('online_tournament/<int:session_id>/', views.online_tournaments_view),
     path('create/', views.create_tournament),
     path('join/', views.join_tournament),
