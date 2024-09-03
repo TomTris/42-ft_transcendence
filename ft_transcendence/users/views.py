@@ -6,59 +6,6 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import datetime, timezone
 from django.shortcuts import render
-# from django.shortcuts import render, redirect
-# from .admin import UserCreationForm
-# from django.contrib.auth import authenticate, login, logout
-# from django.shortcuts import render, redirect
-# from django.contrib.auth.forms import AuthenticationForm
-# from django.views.decorators.csrf import csrf_exempt
-# from django.http import JsonResponse
-
-# @csrf_exempt
-# def login_view(request):
-#	 logout(request)
-#	 if request.method == 'POST':
-#		 form = AuthenticationForm(data=request.POST)
-#		 if form.is_valid():
-#			 username = form.cleaned_data.get('username')
-#			 password = form.cleaned_data.get('password')
-#			 user = authenticate(username=username, password=password)
-#			 if user is not None:
-#				 login(request, user)
-#				 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#			         return JsonResponse({'success': True, 'redirect': 'home'})  # Response for AJAX requests
-#                 else:
-#                     return redirect('home')  # Response for normal form submissions
-#             else:
-#                 # Invalid credentials
-#                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#                     return JsonResponse({'success': False, 'error': 'Invalid username or password'}, status=400)
-#                 else:
-#                     form.add_error(None, 'Invalid username or password')
-#         else:
-#             # Form is not valid
-#             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#                 return JsonResponse({'success': False, 'error': 'Form is not valid'}, status=400)
-#             else:
-#                 form.add_error(None, 'Form is not valid')
-#     else:
-#         form = AuthenticationForm()
-
-#     # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#     #     return render(request, 'partials/login.html', {'form': form})  # Partial template for AJAX requests
-#     return render(request, 'login.html', {'form': form})
-
-# @csrf_exempt
-# def register_view(request):
-#     logout(request)
-#     if request.method == "POST":
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("login")
-#     else:
-#         form = UserCreationForm()
-#     return render(request, "register.html", {"form":form})
 from rest_framework_simplejwt.tokens import RefreshToken, BlacklistedToken
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
@@ -79,30 +26,37 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 class RegisterUserView(GenericAPIView):
 	serializer_class=UserRegisterSerializer
 
+	def response_message(self, is_registered, account_active):
+		if account_active == 1:
+			msg = 'user with this Email Address already exists and is actived.'
+			return Response({"message" : msg}, status=status.HTTP_400_BAD_REQUEST)
+		if is_registered == 1:
+			msg = 'This account is already registered, but not verified. New code has been sent to your email. Please check and verify.'
+			return Response({"message" : msg}, status=status.HTTP_200_OK)
+		msg = 'Thanks for signing up. New Passcode has been sent to your mail'
+		return Response({"message" : msg}, status=status.HTTP_201_CREATED)
+
 	def post(self, request):
 		serializer=self.serializer_class(data=request.data)
+		is_registered = 0
+		account_active = 0
 		try:
-			email=request.data.get('email')
-			if email != '' and User.objects.filter(email=email).exists():
-				if not User.objects.get(email=email).is_account_active:
-					send_code_to_user(email)
-					return Response({
-						'message': f'Hi Thanks for signing up. A new Passcode hass been sent to your email'
-					}, status=status.HTTP_201_CREATED)
-				return Response({
-						'message': f'user with this Email Address already exists.'
-					}, status=status.HTTP_400_BAD_REQUEST)
-		except:
-			pass
-
-		try:
+			email=request.data.get('email', '')
+			if email and User.objects.filter(email=email).exists():
+				is_registered = 1
+				if User.objects.filter(email=email).first().is_verified:
+					account_active = 1
+			if account_active == 1:
+				return self.response_message(is_registered,account_active)
+			if is_registered == 1:
+				send_code_to_user(request.data['email'])
+				return self.response_message(is_registered,account_active)
+			
 			if serializer.is_valid(raise_exception=True):
 				serializer.save()
-				user=serializer.data
-				send_code_to_user(user['email'])
-				return Response({
-					'message': f'hi thanks for signing up. Passcode has been sent to your email'
-				}, status=status.HTTP_201_CREATED)
+				send_code_to_user(request.data['email'])
+				return self.response_message(is_registered,account_active)
+			
 			return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -291,6 +245,8 @@ class LogoutUserView(APIView):
 			response = render(request, "login.html", status=200)
 			response.delete_cookie('refresh_token', samesite='Strict', path='/refresh/')
 			response.delete_cookie('access_token', samesite='Strict', path='/')
+			old_refresh = RefreshToken(token=refresh_token)
+			old_refresh.blacklist()	
 			# user_id = refresh['user_id'] 
 			# user = User.objects.get(id=user_id)
 			# refresh.access_token.token_blacklist()

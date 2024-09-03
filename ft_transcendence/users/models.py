@@ -13,12 +13,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser=models.BooleanField(default=False)
     is_verified=models.BooleanField(default=False)
-    is_account_active=models.BooleanField(default=True)
     date_joined=models.DateTimeField(auto_now_add=True)
     last_login=models.DateTimeField(auto_now=True)
     twoFaEnable=models.BooleanField(default=True)
     token_reset_password=models.CharField(max_length=100, verbose_name=_("Last Name"), default='')
-
+    is_online=models.BooleanField(default=False)
     avatar = models.ImageField(upload_to='avatars/', default='default/default.png')
     elo = models.IntegerField(default=400)
     wins =  models.IntegerField(default=0)

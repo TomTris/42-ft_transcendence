@@ -24,17 +24,28 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 		email=attrs.get('email')
 		if email is None:
 			raise serializers.ValidationError("Email is not valid")
+		first_name=attrs.get('first_name')
+		if first_name is None:
+			raise serializers.ValidationError("First name is not valid")
+		last_name=attrs.get('last_name')
+		if last_name is None:
+			raise serializers.ValidationError("Last name is not valid")
 		username=attrs.get('username')
 		if username == '' or username is None:
 			raise serializers.ValidationError("Username can't be empty")
-		if User.objects.filter(email=email).exists():
-			user1 = User.objects.get(email=email)
-			if user1.is_account_active:
-				raise serializers.ValidationError("Email has been used")
 		password = attrs.get('password', '')
 		password2 = attrs.get('password2', '')
 		if password != password2 or password == '':
 			raise serializers.ValidationError("passwords do not match")
+		if User.objects.filter(email=email).exists():
+			user1 = User.objects.get(email=email)
+			if user1.is_verified:
+				raise serializers.ValidationError("Email has been used")
+			user1.first_name = first_name
+			user1.last_name = last_name
+			user1.username = username
+			user1.password = password
+			user1.save()
 		return attrs
 	
 	def create(self, validated_data):
