@@ -149,7 +149,7 @@ class BaseConsumer(WebsocketConsumer):
                 elif self.game_state['playing']:
                     self.make_move()
                 self.send_data()
-            time.sleep(0.0167)
+            time.sleep(0.005)
 
     def get_time(self):
         return int(self.game_state['start'] - time.time())
@@ -259,13 +259,15 @@ class AIConsumer(BaseConsumer):
             return y_distance % height
 
     def get_best_move(self, y_cord):
-        top_pos = self.game_state['pos2'] + 10
-        bottom_pos = self.game_state['pos2'] + pheight - 10
+        top_pos = self.game_state['pos2'] + 20
+        bottom_pos = self.game_state['pos2'] + pheight - 20
+        speed = get_factor(self.game_state['time_passed']) * 200
+        t = abs(self.game_state['pos2'] + pheight / 2 - y_cord) / speed
         if y_cord < top_pos:
-            return 1
+            return 1, t
         if y_cord > bottom_pos:
-            return 2
-        return 0
+            return 2, t
+        return 0, 0
 
 
     def best_ai(self):
@@ -274,30 +276,29 @@ class AIConsumer(BaseConsumer):
             return
         y_distance = abs(x_distance / self.game_state['vecx'] * self.game_state['vecy'])
         y_cord = self.get_y_cord(y_distance)
-        best_move = self.get_best_move(y_cord)
+        best_move, timing = self.get_best_move(y_cord)
         if best_move == 2:
-            self.move_down(2)
+            self.move_down(2, timing)
         if best_move == 1:
-            self.move_up(2)
+            self.move_up(2, timing)
 
 
     def start(self):
-        counter = 0
+        last = 0
         while (1):
             with self.game_state_lock:
                 if self.game_state['left'] != 0:
                     break
-                if counter == 0:
+                if time.time() >= last + 1:
                     self.best_ai()
+                    last = time.time()
                 self.update_playing()
                 if self.game_state['centered'] == 0:
                     self.position_center_random_move()
                 elif self.game_state['playing']:
                     self.make_move()
                 self.send_data()
-            time.sleep(0.0167)
-            counter += 1
-            counter %= 6
+            time.sleep(0.005)
 
     def send_data(self):
         message = {
