@@ -8,6 +8,7 @@
         justify-content: space-between; /* Space out items */
         align-items: center; /* Center items vertically */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+        position: relative; /* Ensure absolute positioning works within nav */
     }
     
     /* Navbar Links Styling */
@@ -27,16 +28,19 @@
     .invitation-container {
         display: flex; /* Flexbox for horizontal alignment */
         align-items: center; /* Center items vertically */
+        margin-left: auto;
+        margin-right: 25px;
     }
     
+    /* Ensure invitation icon is properly positioned */
     #invitation-icon {
         color: #ffffff; /* White color for icon */
         font-size: 24px; /* Larger icon size */
         text-decoration: none; /* Remove underline from link */
-        margin-right: 20px; /* Space between icon and badge */
         position: relative; /* Position for badge placement */
     }
     
+    /* Badge Styling */
     #invitation-icon .badge {
         background-color: #ff6f61; /* Red badge color */
         color: #ffffff; /* White text color */
@@ -51,12 +55,12 @@
         justify-content: center; /* Center text horizontally */
     }
     
-    /* Invitation List Styling */
+    {% comment %} /* Invitation List Styling */
     .invitation-list {
         display: none; /* Hidden by default */
         position: absolute; /* Position relative to icon */
         top: 40px; /* Position below icon */
-        right: 0; /* Align to the right */
+        right: 0; /* Align to the right of icon */
         background-color: #ffffff; /* Light background for dropdown */
         color: #333333; /* Dark text color for readability */
         border: 1px solid #dddddd; /* Light border for separation */
@@ -64,13 +68,119 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
         padding: 10px; /* Padding inside dropdown */
         width: 250px; /* Fixed width for dropdown */
+
         z-index: 10; /* Ensure dropdown is above other content */
+    } {% endcomment %}
+
+    .invitation-list {
+        display: none; /* Hidden by default */
+        position: absolute; /* Position relative to parent */
+        top: 40px; /* Position below the parent element */
+        right: 0; /* Align to the right edge of parent */
+        background-color: #ffffff; /* White background */
+        color: #333333; /* Dark text color for readability */
+        border: 1px solid #dddddd; /* Light border */
+        border-radius: 5px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+        padding: 10px; /* Padding inside the dropdown */
+        width: 300px; /* Fixed width for the dropdown */
+        max-height: 400px; /* Maximum height for scrolling */
+        overflow-y: auto; /* Scroll if content exceeds max height */
+        z-index: 10; /* Ensure dropdown is above other content */
+        margin-top:35px;
+        margin-right:25px;
     }
     
-    .invitation-list p {
-        margin: 0; /* Remove default margin */
+    .invitation-list ul {
+        list-style: none; /* Remove default list styles */
         padding: 0; /* Remove default padding */
-        text-align: center; /* Center text */
+        margin: 0; /* Remove default margin */
+    }
+    
+    .invitation-list li {
+        display: flex; /* Flexbox for alignment */
+        align-items: center; /* Center items vertically */
+        border-bottom: 1px solid #eeeeee; /* Border between items */
+        padding: 10px; /* Padding around each item */
+        margin-bottom: 10px; /* Space between items */
+        overflow: hidden; /* Ensure no overflow */
+        position: relative; /* For positioning buttons */
+    }
+
+    .invitation-list p{
+        text-align:center;
+    }
+    
+    .invitation-list li:last-child {
+        border-bottom: none; /* Remove border for the last item */
+    }
+    
+    .invitation-list img {
+        border-radius: 50%; /* Circular avatar */
+        margin-right: 10px; /* Space between avatar and text */
+    }
+    
+    .invitation-list .user-info {
+        flex: 1; /* Take up remaining space */
+        display: flex; /* Flexbox for alignment */
+        {% comment %} flex-direction: column; /* Stack elements vertically */ {% endcomment %}
+        margin-right: 50px; /* Space to make room for buttons */
+    }
+    
+    .invitation-list a {
+        color: #003366; /* Dark blue text color */
+        text-decoration: none; /* Remove underline */
+        font-weight: bold; /* Bold text for the username */
+        display: block; /* Block display for the username */
+        overflow: hidden; /* Hide overflowing text */
+        text-overflow: ellipsis; /* Ellipsis for overflowed text */
+        white-space: nowrap; /* Prevent line breaks */
+        margin-bottom: 5px; /* Space between username and text */
+    }
+    
+    .invitation-list span {
+        margin-left:auto;
+        margin-right: 70px;
+        color: #666666; /* Gray text color */
+        display: block; /* Ensure text appears on its own line */
+    }
+    
+    .invitation-buttons {
+        position: absolute; /* Position buttons to the right */
+        right: 10px; /* Space from the right edge */
+        top: 50%; /* Center vertically */
+        transform: translateY(-50%); /* Adjust vertical alignment */
+        display: flex; /* Flexbox for horizontal alignment */
+        gap: 5px; /* Space between buttons */
+    }
+    
+    .invitation-buttons button {
+        background-color: transparent; /* Transparent background */
+        color: #333333; /* Dark text color */
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners */
+        width: 30px; /* Fixed width for button */
+        height: 30px; /* Fixed height for button */
+        display: flex; /* Flexbox for centering content */
+        align-items: center; /* Center content vertically */
+        justify-content: center; /* Center content horizontally */
+        font-size: 18px; /* Font size for icons */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s ease; /* Smooth transition */
+    }
+    
+    .invitation-buttons button:hover {
+        background-color: #eeeeee; /* Light gray background on hover */
+    }
+    
+    .invitation-buttons button.accept::before {
+        content: '✓'; /* Check mark for accept */
+        color: #4CAF50; /* Green color for accept */
+    }
+    
+    .invitation-buttons button.deny::before {
+        content: '✗'; /* Cross for deny */
+        color: #f44336; /* Red color for deny */
     }
     
     /* Show invitation list on hover */
@@ -78,187 +188,68 @@
         display: block; /* Show list on hover */
     }
     
-    /* Responsive Navbar for smaller screens */
-    @media (max-width: 768px) {
-        nav {
-            flex-direction: column; /* Stack items vertically */
-            text-align: center; /* Center text */
-        }
-    
-        .navbar-left {
-            margin-bottom: 10px; /* Space below navbar links */
-        }
-    
-        .invitation-container {
-            margin-top: 10px; /* Space above invitation icon */
-        }
-    
-        .navbar-left a {
-            display: block; /* Stack links vertically */
-            margin: 10px 0; /* Space between links */
-        }
-    }
-
-
-
-
-
-
-
-
-
-    
-
-
-
     /* Dropdown Button Styling */
-.dropdown-container {
-    position: relative; /* Position relative to parent container */
-}
-
-#dropdown-button {
-    background-color: #ffffff; /* White background */
-    color: #003366; /* Dark blue text color */
-    border: none; /* No border */
-    padding: 10px 20px; /* Padding for button */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 16px; /* Font size */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-#dropdown-button:hover {
-    background-color: #cce0ff; /* Light blue background on hover */
-}
-
-/* Dropdown Menu Styling */
-.dropdown-menu {
-    display: none; /* Hidden by default */
-    position: absolute; /* Position relative to button */
-    top: 40px; /* Position below button */
-    right: 0; /* Align to the right */
-    background-color: #ffffff; /* Light background for dropdown */
-    color: #333333; /* Dark text color for readability */
-    border: 1px solid #dddddd; /* Light border for separation */
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
-    padding: 10px; /* Padding inside dropdown */
-    width: 150px; /* Fixed width for dropdown */
-    z-index: 10; /* Ensure dropdown is above other content */
-}
-
-.dropdown-menu a {
-    color: #003366; /* Dark blue text color */
-    text-decoration: none; /* Remove underline from links */
-    display: block; /* Block display for full width clickable */
-    padding: 10px; /* Padding for links */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.dropdown-menu a:hover {
-    background-color: #cce0ff; /* Light blue background on hover */
-}
-
-/* Show dropdown menu on button click */
-.dropdown-container.open .dropdown-menu {
-    display: block; /* Show menu when open */
-}
-
-/* Responsive Navbar for smaller screens */
-@media (max-width: 768px) {
-    nav {
-        flex-direction: column; /* Stack items vertically */
-        text-align: center; /* Center text */
+    .dropdown-container {
+        position: relative; /* Position relative to parent container */
     }
-
-    .navbar-left {
-        margin-bottom: 10px; /* Space below navbar links */
+    
+    #dropdown-button {
+        background-color: #ffffff; /* White background */
+        color: #003366; /* Dark blue text color */
+        border: none; /* No border */
+        padding: 10px 20px; /* Padding for button */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Font size */
+        transition: background-color 0.3s ease; /* Smooth transition */
+        margin-right: 30px;
     }
-
-    .invitation-container {
-        margin-top: 10px; /* Space above invitation icon */
+    
+    #dropdown-button:hover {
+        background-color: #cce0ff; /* Light blue background on hover */
     }
+    
+    /* Dropdown Menu Styling */
+    .dropdown-menu {
+        display: none; /* Hidden by default */
+        position: absolute; /* Position relative to button */
+        background-color: #ffffff; /* Light background for dropdown */
+        color: #333333; /* Dark text color for readability */
+        border: 1px solid #dddddd; /* Light border for separation */
+        border-radius: 5px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
+        padding: 10px; /* Padding inside dropdown */
+        width: 150px; /* Fixed width for dropdown */
+        z-index: 10; /* Ensure dropdown is above other content */
+        text-align:center;
 
-    .navbar-left a {
-        display: block; /* Stack links vertically */
-        margin: 10px 0; /* Space between links */
+        right:-5px;
+        margin-top:23px;
     }
-}
-/* Dropdown Button Styling */
-.dropdown-container {
-    position: relative; /* Position relative to parent container */
-}
-
-#dropdown-button {
-    background-color: #ffffff; /* White background */
-    color: #003366; /* Dark blue text color */
-    border: none; /* No border */
-    padding: 10px 20px; /* Padding for button */
-    border-radius: 5px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 16px; /* Font size */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-#dropdown-button:hover {
-    background-color: #cce0ff; /* Light blue background on hover */
-}
-
-/* Dropdown Menu Styling */
-.dropdown-menu {
-    display: none; /* Hidden by default */
-    position: absolute; /* Position relative to button */
-    top: 40px; /* Position below button */
-    right: 0; /* Align to the right */
-    background-color: #ffffff; /* Light background for dropdown */
-    color: #333333; /* Dark text color for readability */
-    border: 1px solid #dddddd; /* Light border for separation */
-    border-radius: 5px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
-    padding: 10px; /* Padding inside dropdown */
-    width: 150px; /* Fixed width for dropdown */
-    z-index: 10; /* Ensure dropdown is above other content */
-}
-
-.dropdown-menu a {
-    color: #003366; /* Dark blue text color */
-    text-decoration: none; /* Remove underline from links */
-    display: block; /* Block display for full width clickable */
-    padding: 10px; /* Padding for links */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.dropdown-menu a:hover {
-    background-color: #cce0ff; /* Light blue background on hover */
-}
-
-/* Show dropdown menu on button click */
-.dropdown-container.open .dropdown-menu {
-    display: block; /* Show menu when open */
-}
-
-/* Responsive Navbar for smaller screens */
-@media (max-width: 768px) {
-    nav {
-        flex-direction: column; /* Stack items vertically */
-        text-align: center; /* Center text */
+    
+    .dropdown-menu a {
+        color: #003366; /* Dark blue text color */
+        text-decoration: none; /* Remove underline from links */
+        display: block; /* Block display for full width clickable */
+        padding: 7px; /* Padding for links */
+        transition: background-color 0.3s ease; /* Smooth transition */
+        margin-top: 5px;
+        
     }
-
-    .navbar-left {
-        margin-bottom: 10px; /* Space below navbar links */
+    
+    .dropdown-menu a:hover {
+        background-color: #cce0ff; /* Light blue background on hover */
     }
-
-    .invitation-container {
-        margin-top: 10px; /* Space above invitation icon */
+    
+    /* Show dropdown menu on button click */
+    .dropdown-container.open .dropdown-menu {
+        display: block; /* Show menu when open */
     }
-
-    .navbar-left a {
-        display: block; /* Stack links vertically */
-        margin: 10px 0; /* Space between links */
-    }
-}
-
+    
+    
+    
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <nav>
     <div class="navbar-left">
@@ -269,6 +260,7 @@
     </div>
     <div class="invitation-container">
         <a href="#" id="invitation-icon" class="icon">
+            <i class="fas fa-bell"></i> <!-- Font Awesome bell icon -->
             <span id="invite-count" class="badge">0</span> <!-- Default count -->
         </a>
         <div id="invitation-list" class="invitation-list">
@@ -284,12 +276,11 @@
         </div>
     </div>
 </nav>
-
 <script>
     invitationIcon = document.getElementById('invitation-icon');
     invitationList = document.getElementById('invitation-list');
     inviteCountElement = document.getElementById('invite-count');
-
+    
     // Connect to WebSocket
     InviteSocket = new WebSocket(`wss://${window.location.host}/wss/invitations/`);
 
@@ -313,7 +304,7 @@
                 const li = document.createElement('li');
                 
                 const avatar = document.createElement('img');
-                avatar.src = invite.sender.avatar; // Default avatar if missing
+                avatar.src = invite.sender.avatar || 'default-avatar.png'; // Default avatar if missing
                 avatar.width = 30; // Adjust size as needed
                 avatar.height = 30; // Adjust size as needed
     
@@ -329,12 +320,10 @@
                 buttonContainer.className = 'invitation-buttons';
     
                 const acceptButton = document.createElement('button');
-                acceptButton.textContent = 'Accept';
                 acceptButton.className = 'accept'; // Added class for acceptance
                 acceptButton.dataset.inviteId = invite.id; // Store the invite ID
     
                 const denyButton = document.createElement('button');
-                denyButton.textContent = 'Deny';
                 denyButton.className = 'deny';
                 denyButton.dataset.inviteId = invite.id; // Store the invite ID
     
@@ -354,22 +343,17 @@
         }
     };
     
-    // Handle click events for Accept and Deny buttons
+    // Handle Accept and Deny button clicks
     invitationList.addEventListener('click', function(event) {
         if (event.target.matches('.accept')) {
-            // Handle accept logic
             const inviteId = event.target.dataset.inviteId;
-            // Send WebSocket message to accept the invitation
             InviteSocket.send(JSON.stringify({
                 type: 'friendship',
                 result: 'accept',
                 id: inviteId
             }));
         } else if (event.target.matches('.deny')) {
-            // Handle deny logic
             const inviteId = event.target.dataset.inviteId;
-    
-            // Send WebSocket message to deny the invitation
             InviteSocket.send(JSON.stringify({
                 type: 'friendship',
                 result: 'deny',
@@ -378,43 +362,32 @@
         }
     });
     
-    // Toggle the visibility of the invitation list
+    // Toggle visibility of invitation list
     invitationIcon.addEventListener('click', function (event) {
         event.preventDefault();
         invitationList.style.display = invitationList.style.display === 'none' ? 'block' : 'none';
     });
     
+    // Click outside to close invitation list
     document.addEventListener('click', function (event) {
         if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
             invitationList.style.display = 'none';
         }
     });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // Toggle dropdown menu
     document.getElementById('dropdown-button').addEventListener('click', function() {
         document.querySelector('.dropdown-container').classList.toggle('open');
     });
     
-    // Optional: Click outside to close the dropdown
+    // Click outside to close dropdown menu
     document.addEventListener('click', function(event) {
         const dropdownContainer = document.querySelector('.dropdown-container');
         if (!dropdownContainer.contains(event.target)) {
             dropdownContainer.classList.remove('open');
         }
     });
+
 </script>
 
 

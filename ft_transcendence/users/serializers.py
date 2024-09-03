@@ -1,6 +1,6 @@
 from .models import User, OneTimePasswordReset, OneTimePasswordLogin
 from rest_framework import serializers
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -97,6 +97,11 @@ class VerifyLoginSerializer(serializers.Serializer):
 			}
 			send_normal_email(data)
 			user=User.objects.get(email=email)
+
+			request = self.context.get('request')
+			if request is not None:
+				login(request, user)
+
 			user_tokens=user.tokens()
 			return {
 				'email': user.email,
@@ -104,6 +109,7 @@ class VerifyLoginSerializer(serializers.Serializer):
 				'access_token': str(user_tokens.get('access')),
 				'refresh_token': str(user_tokens.get('refresh')),
 				}
+
 		if user_row.times == 2:
 			OneTimePasswordLogin.delete_for_user(user=user_row.user)
 			raise AuthenticationFailed("code is invalid. You tried already 3 times with the same Email.\n\

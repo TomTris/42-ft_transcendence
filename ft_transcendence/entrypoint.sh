@@ -14,6 +14,8 @@ done
 echo "Script is going to finish"
 sleep 3
 python manage.py makemigrations users
+python manage.py makemigrations pages
+python manage.py makemigrations chat
 python manage.py makemigrations game
 python manage.py makemigrations 
 python manage.py migrate

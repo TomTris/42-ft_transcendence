@@ -1,0 +1,65 @@
+
+<style>
+    #game-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+    canvas {
+        border: 1px solid black;
+        background: #eee;
+        display: block;
+        margin: 0 auto;
+    }
+</style>    
+<div id="game-container">
+    <h1>Game Session: {{ session_id }}</h1>
+    <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
+    <p>Player 1: <span id="player1">{{ player1 }}</span></p>
+    <p>Player 2: <span id="player2">{{ player2 }}</span></p>
+    <div><div id="score1"></div> <div id="score2"></div></div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+</div>
+
+<script>
+    // JavaScript to connect to WebSocket and update player list
+    sessionId = "{{ session_id }}";
+    socket1 = new WebSocket(`wss://${window.location.host}/wss/game/${sessionId}/`);
+    init();
+
+    socket1.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        document.getElementById('status').textContent = data.status;
+        document.getElementById('player1').textContent = data.player1;
+        document.getElementById('player2').textContent = data.player2;
+        document.getElementById('time').textContent = data.time
+        document.getElementById('score1').textContent = data.score1
+        document.getElementById('score2').textContent = data.score2
+        updateGameCanvas(data);
+    };
+
+    function updateGameCanvas(data) {
+        //ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas`
+        //console.log(data.posx, data.posy, data.vecx, data.vecy)
+        // Draw the paddles and ball
+        //ctx.fillStyle = 'black';
+        //ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
+        //ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
+        //ctx.beginPath();
+        //ctx.arc(data.posx, data.posy, data.radius, 0, 2 * Math.PI); // Ball
+        //ctx.fill();
+        animate(data.posx, data.posy, data.pos1, data.pos2);
+    };
+
+    document.addEventListener('keydown', function(event) {
+        const key = event.key;
+        if ((key == 'f' || key== 'F') && event.repeat) {
+            return;
+        }
+        const message = {
+            type: 'keydown',
+            key: key
+        };
+        socket1.send(JSON.stringify(message));
+    });
+
+</script>

@@ -17,8 +17,12 @@ from rest_framework.generics import GenericAPIView
 def get_friend_status(current_user, user):
     if user == current_user:
         return 0
+    print(user, current_user)
+    print('friend1')
     f = Friendship.objects.filter(Q(person1=current_user, person2=user) | Q(person1=user, person2=current_user)).first()
+    print('friend2')
     if f is None:
+        print('friend3')
         f = Invite.objects.filter(sender=user, send_to=current_user).first()
         if f is not None:
             return 3
@@ -26,6 +30,7 @@ def get_friend_status(current_user, user):
         if f is not None:
             return 4
         return 1
+    print('friend8')
     return 2
 
 def home_view(request):
@@ -47,11 +52,15 @@ def users_view(request):
 
 def user_view(request, id):
     curent_user = request.user
+    print(curent_user, request.user.is_authenticated)
+    print('user1')
     user = User.objects.all().filter(id=id).first()
     if not user:
         return render(request, "user_doesnt_exist.html")
+    print('user2')
     matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user))
     matches_with_ids = []
+    print('user3')
     for match in matches:
         if match.player1 == user:
             match_data = {
@@ -71,8 +80,9 @@ def user_view(request, id):
         winrate = 0
     else:
         winrate = "%.2f" % (user.wins / user.total)
-
+    print('user4')
     friend=get_friend_status(curent_user, user)
+    print('user5')
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})
     return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend})

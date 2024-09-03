@@ -89,6 +89,7 @@
         padding-top: 60px;
     }
     .modal-content {
+        text-align:center;
         background-color: #fefefe;
         margin: 5% auto;
         padding: 30px; /* Increased padding for modal content */
@@ -98,21 +99,14 @@
         display: flex;
         flex-direction: column; /* Column layout for modal content */
         gap: 30px; /* Increased gap between elements in modal */
+        
     }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 32px; /* Increased font size for close button */
-        font-weight: bold;
-    }
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
+
     .modal-input {
-        width: 100%;
+        text-align:center;
+        align:center;
+        width: 94%;
+        left: 10%;
         padding: 15px; /* Further increased padding for input */
         margin-bottom: 15px; /* Increased margin-bottom */
         font-size: 20px; /* Match font size of larger buttons */
@@ -121,11 +115,12 @@
         display: flex;
         flex-direction: column; /* Vertical button alignment */
         gap: 15px; /* Increased space between buttons */
-        align-items: flex-end; /* Align buttons to the right */
+        align-items: center; /* Align buttons to the right */
     }
     .modal-buttons button {
-        width: 100%; /* Full width for buttons */
-        font-size: 20px; /* Match font size of larger buttons */
+    
+        width: 60%; /* Full width for buttons */
+        font-size: 30px; /* Match font size of larger buttons */
         padding: 15px; /* Further increased padding */
     }
 </style>
@@ -142,7 +137,7 @@
     <button id="revealButton2" class="reveal-button button">Play Online</button>
 
     <div id="buttonContainer2" class="hidden-buttons button-container">
-        <button class="menu-button button">Matchmaking</button>
+        <button id="matchmakingButton" class="menu-button button">Matchmaking</button>
         <button id="createTournamentButton" class="menu-button button">Create Tournament</button>
         <button id="joinTournamentButton" class="menu-button button">Join Tournament</button>
     </div>
@@ -152,8 +147,7 @@
 <!-- Create Tournament Modal -->
 <div id="createTournamentModal" class="modal">
     <div class="modal-content">
-        <span class="close" id="closeCreateModal">&times;</span>
-        <h2>Create Tournament</h2>
+        <h1>Create Tournament</h1>
         <input type="text" id="tournamentName" class="modal-input" placeholder="Enter the tournament name">
         <div class="modal-buttons">
             <button id="createTournamentSubmit" class="menu-button button">Create</button>
@@ -165,8 +159,7 @@
 <!-- Join Tournament Modal -->
 <div id="joinTournamentModal" class="modal">
     <div class="modal-content">
-        <span class="close" id="closeJoinModal">&times;</span>
-        <h2>Join Tournament</h2>
+        <h1>Join Tournament</h1>
         <input type="text" id="tournamentCode" class="modal-input" placeholder="Enter the tournament code">
         <div class="modal-buttons">
             <button id="joinTournamentSubmit" class="menu-button button">Join</button>
@@ -199,13 +192,6 @@
         joinTournamentModal.style.display = 'block';
     };
 
-    document.getElementById('closeCreateModal').onclick = function() {
-        createTournamentModal.style.display = 'none';
-    };
-
-    document.getElementById('closeJoinModal').onclick = function() {
-        joinTournamentModal.style.display = 'none';
-    };
 
     document.getElementById('createTournamentCancel').onclick = function() {
         createTournamentModal.style.display = 'none';
@@ -264,6 +250,35 @@
 
 
     };
+
+
+    document.getElementById("matchmakingButton").onclick = function(){
+        fetch('/game/join-game-session/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.session_id) {
+                // Redirect to the new game page with the session ID
+                link = `/game/${data.session_id}/`;
+                loadContent(link, defaultOption, true);
+            } else {
+                console.error('Failed to join game session:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
 
     // Close modals when clicking outside of them
     window.onclick = function(event) {

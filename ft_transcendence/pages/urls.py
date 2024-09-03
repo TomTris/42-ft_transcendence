@@ -20,7 +20,8 @@ urlpatterns = [
     path('', EmptyPath.as_view(), name='empty'),
 	path('home/', EmptyPath.as_view(), name='empty'),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 print(987654)
 handler404 = views.handle_404_view
 handler500 = views.handle_500_view
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

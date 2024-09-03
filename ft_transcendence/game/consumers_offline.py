@@ -295,7 +295,7 @@ class AIConsumer(BaseConsumer):
                 elif self.game_state['playing']:
                     self.make_move()
                 self.send_data()
-                time.sleep(0.0167)
+            time.sleep(0.0167)
             counter += 1
             counter %= 6
 
