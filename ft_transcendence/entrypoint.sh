@@ -10,9 +10,9 @@ while [ ! -e /vault/file/created ] && [ $i -lt 60 ]; do
   echo "Script is running"
   i=$(($i + 1))
 done
-
-echo "Script is going to finish"
+echo "Script is running"
 sleep 3
+echo "Script is going to finish"
 python manage.py makemigrations users
 python manage.py makemigrations pages
 python manage.py makemigrations chat

@@ -29,7 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("Username can't be empty")
 		if User.objects.filter(email=email).exists():
 			user1 = User.objects.get(email=email)
-			if user1.is_active:
+			if user1.is_account_active:
 				raise serializers.ValidationError("Email has been used")
 		password = attrs.get('password', '')
 		password2 = attrs.get('password2', '')

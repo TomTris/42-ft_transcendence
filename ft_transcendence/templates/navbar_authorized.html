@@ -276,6 +276,7 @@
         </div>
     </div>
 </nav>
+
 <script>
     invitationIcon = document.getElementById('invitation-icon');
     invitationList = document.getElementById('invitation-list');
@@ -344,7 +345,7 @@
     };
     
     // Handle Accept and Deny button clicks
-    invitationList.addEventListener('click', function(event) {
+    function handleInvitationClick(event) {
         if (event.target.matches('.accept')) {
             const inviteId = event.target.dataset.inviteId;
             InviteSocket.send(JSON.stringify({
@@ -360,33 +361,49 @@
                 id: inviteId
             }));
         }
-    });
+    }
     
     // Toggle visibility of invitation list
-    invitationIcon.addEventListener('click', function (event) {
+    function handleInvitationIconClick (event) {
         event.preventDefault();
         invitationList.style.display = invitationList.style.display === 'none' ? 'block' : 'none';
-    });
+    }
     
     // Click outside to close invitation list
-    document.addEventListener('click', function (event) {
-        if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
+    function handleInvitationNotClick (event) {
+    if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
             invitationList.style.display = 'none';
         }
-    });
-
+    };
     // Toggle dropdown menu
-    document.getElementById('dropdown-button').addEventListener('click', function() {
+    function dropdownButtonClick() {
         document.querySelector('.dropdown-container').classList.toggle('open');
-    });
-    
+    }
     // Click outside to close dropdown menu
-    document.addEventListener('click', function(event) {
+    function dropdownButtonNotClick (event) {
         const dropdownContainer = document.querySelector('.dropdown-container');
-        if (!dropdownContainer.contains(event.target)) {
+        if (dropdownContainer && !dropdownContainer.contains(event.target)) {
             dropdownContainer.classList.remove('open');
         }
-    });
+    }
+
+    invitationList.addEventListener('click', handleInvitationClick)
+    invitationIcon.addEventListener('click', handleInvitationIconClick)
+    document.addEventListener('click', handleInvitationNotClick)
+    if (document.getElementById('dropdown-button'))
+        document.getElementById('dropdown-button').addEventListener('click', dropdownButtonClick)
+    document.addEventListener('click', dropdownButtonNotClick)
+    
+
+    function cleanup_navbar_authorized() {
+        invitationList.removeEventListener('click', handleInvitationClick);
+        invitationIcon.removeEventListener('click', handleInvitationIconClick);
+        
+        document.removeEventListener('click', handleInvitationNotClick);
+        
+        document.getElementById('dropdown-button').removeEventListener('click', dropdownButtonClick);
+        document.removeEventListener('click', dropdownButtonNotClick);
+    }
 
 </script>
 

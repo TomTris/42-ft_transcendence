@@ -16,7 +16,7 @@ from django.utils.deprecation import MiddlewareMixin
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import get_authorization_header
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.tokens import RefreshToken,  Token
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CustomJWTAuthentication(JWTAuthentication):
@@ -25,9 +25,8 @@ class CustomJWTAuthentication(JWTAuthentication):
 
 def valid_access_token(request):
     access_token = request.COOKIES.get('access_token', '')
-    if access_token and access_token != '':
+    if access_token:
         jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-        AccessToken(access_token)
         request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
         checker = CustomJWTAuthentication()
         checker.authenticate(request)
@@ -42,14 +41,15 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         print()
+        print(request.path, "with", request.method, "Method")
         if request.method == 'GET':
             if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
                 context = {
                     'method': 'GET'
                 }
+                print("New Request")
                 return render(request, 'base.html', context, status=status.HTTP_307_TEMPORARY_REDIRECT)
             
-            print(request.path)
             try:
                 valid_access_token(request)
                 print("HTTP_AUTHORIZATION GET set")
@@ -64,8 +64,6 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                     return render(request, "login.html")
             
         if request.method == 'POST':
-            print()
-            print(request.path)
             try:
                 valid_access_token(request)
                 print("HTTP_AUTHORIZATION POST set")
