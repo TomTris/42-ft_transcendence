@@ -17,6 +17,6 @@ class CheckUserAuthorizationMiddleware(MiddlewareMixin):
         if not request.user.is_authenticated:
             if request.path not in ['/login/', '/register/', '/inactive/', '/admin/']:
                 return redirect('/login/')
-        elif not request.user.is_active:
+        elif not request.user.is_account_active:
             logout(request)
             return redirect('/inactive/')

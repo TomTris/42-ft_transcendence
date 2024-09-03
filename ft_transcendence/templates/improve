@@ -1,0 +1,112 @@
+
+<script id="script1">
+    // Define all your variables
+    invitationIcon = document.getElementById('invitation-icon');
+    invitationList = document.getElementById('invitation-list');
+    inviteCountElement = document.getElementById('invite-count');
+    InviteSocket = new WebSocket(`wss://${window.location.host}/wss/invitations/`);
+
+    // Initialize WebSocket and Event Listeners
+    function initialize() {
+        InviteSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            updateInvitationList(data);
+        };
+
+        invitationList.addEventListener('click', handleInvitationClick);
+        invitationIcon.addEventListener('click', toggleInvitationList);
+        document.addEventListener('click', handleDocumentClick);
+        document.getElementById('dropdown-button').addEventListener('click', toggleDropdown);
+    }
+
+    function updateInvitationList(data) {
+        const invites = data.invites || [];
+        const inviteCount = invites.length;
+        inviteCountElement.textContent = inviteCount;
+        inviteCountElement.style.display = inviteCount > 0 ? 'inline' : 'none';
+
+        invitationList.innerHTML = '';
+        if (inviteCount > 0) {
+            const ul = document.createElement('ul');
+            invites.forEach(invite => {
+                const li = document.createElement('li');
+                const avatar = document.createElement('img');
+                avatar.src = invite.sender.avatar || 'default-avatar.png';
+                avatar.width = 30;
+                avatar.height = 30;
+
+                const userLink = document.createElement('a');
+                userLink.href = `/users/${invite.sender.id}`;
+                userLink.textContent = invite.sender.username || 'Unknown';
+
+                const text = document.createElement('span');
+                text.textContent = ' wants to be friends';
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'invitation-buttons';
+
+                const acceptButton = document.createElement('button');
+                acceptButton.className = 'accept';
+                acceptButton.dataset.inviteId = invite.id;
+
+                const denyButton = document.createElement('button');
+                denyButton.className = 'deny';
+                denyButton.dataset.inviteId = invite.id;
+
+                buttonContainer.appendChild(acceptButton);
+                buttonContainer.appendChild(denyButton);
+
+                li.appendChild(avatar);
+                li.appendChild(userLink);
+                li.appendChild(text);
+                li.appendChild(buttonContainer);
+
+                ul.appendChild(li);
+            });
+            invitationList.appendChild(ul);
+        } else {
+            invitationList.innerHTML = '<p>No invitations</p>';
+        }
+    }
+
+    function handleInvitationClick(event) {
+        if (event.target.matches('.accept')) {
+            const inviteId = event.target.dataset.inviteId;
+            InviteSocket.send(JSON.stringify({
+                type: 'friendship',
+                result: 'accept',
+                id: inviteId
+            }));
+        } else if (event.target.matches('.deny')) {
+            const inviteId = event.target.dataset.inviteId;
+            InviteSocket.send(JSON.stringify({
+                type: 'friendship',
+                result: 'deny',
+                id: inviteId
+            }));
+        }
+    }
+
+    function toggleInvitationList(event) {
+        event.preventDefault();
+        invitationList.style.display = invitationList.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function handleDocumentClick(event) {
+        if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
+            invitationList.style.display = 'none';
+        }
+        if (!dropdownContainer.contains(event.target)) {
+            dropdownContainer.classList.remove('open');
+        }
+    }
+
+    function toggleDropdown() {
+        document.querySelector('.dropdown-container').classList.toggle('open');
+    }
+
+    // Initialize on load
+    initialize();
+
+</script>
+
