@@ -84,7 +84,7 @@ class RegisterUserView(GenericAPIView):
 		try:
 			email=request.data.get('email')
 			if email != '' and User.objects.filter(email=email).exists():
-				if not User.objects.get(email=email).is_active:
+				if not User.objects.get(email=email).is_account_active:
 					send_code_to_user(email)
 					return Response({
 						'message': f'Hi Thanks for signing up. A new Passcode hass been sent to your email'
@@ -214,6 +214,13 @@ class NavbarAuthorizedView(APIView):
 
 class TokenRefreshView(APIView):
 	def post(self, request):
+		print("---")
+		print("---")
+		print("---")
+		print(request.COOKIES)
+		print("---")
+		print("---")
+		print("---")
 		refresh_token = request.COOKIES.get('refresh_token')
 		if refresh_token is None:
 			return Response({
@@ -286,20 +293,33 @@ class LogoutUserView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
+		# print("he IS authenticated!")
 		refresh_token = request.COOKIES.get('refresh_token', '')
-
+		# print()
+		# print(refresh_token)
+		# print()
+		# print()
+		# print()
+		# print()
+		# print()
+		# print(request.COOKIES)
+		# print()
+		# print()
+		# print()
+		# print()
 		if not refresh_token:
 			return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 		try:
-			refresh = RefreshToken(refresh_token)  # Decode the token
+			# refresh = RefreshToken(refresh_token)  # Decode the token
 			response = render(request, "login.html", status=200)
-			response.delete_cookie('access_cookie')
-			response.delete_cookie('refresh_cookie')
-			user_id = refresh['user_id'] 
-			user = User.objects.get(id=user_id)
-			refresh.blacklist()
-			user.tokens()
+			response.set_cookie('cde', '456', httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
+			response.delete_cookie('refresh_token')
+			response.delete_cookie('access_token')
+			# user_id = refresh['user_id'] 
+			# user = User.objects.get(id=user_id)
+			# refresh.access_token.token_blacklist()
+			# refresh.token_blacklist()
 			return response
 
 		except Exception as e:
