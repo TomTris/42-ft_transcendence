@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const hideButton = document.getElementById('hide-button');
 
     // Create a WebSocket connection
-    const socket = new WebSocket('ws://' + window.location.host + '/wss/chat/');
+    const socket = new WebSocket('wss://' + window.location.host + '/wss/chat/');
 
     // Handle incoming messages
     socket.onmessage = function(event) {

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 from game.models import GameSession
@@ -10,6 +10,9 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import Invite
 from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+
 
 def get_friend_status(current_user, user):
     if user == current_user:
@@ -26,7 +29,7 @@ def get_friend_status(current_user, user):
     return 2
 
 def home_view(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    if request.user.is_authenticated:
         return render(request, 'partials/home.html')
     return render(request, "home.html")
 
@@ -222,3 +225,20 @@ def cancel_friend(request, user_id):
         }
     )
     return JsonResponse({'message': 'Friend request sent'})
+
+class EmptyPath(GenericAPIView):
+
+	def get(self, request):
+		if request.user.is_authenticated:
+			print("Empty path, user authenticated")
+			return render(request, "partials/home.html")
+		print("Empty path, user not authenticated")
+		return render(request, "login.html")
+
+
+
+def handle_404_view(request, exception):
+    return render(request, '404.html', status=404)
+
+def handle_500_view(request):
+    return render(request, '500.html', status=500)

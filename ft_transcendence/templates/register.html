@@ -45,7 +45,7 @@ async function submitRegistrationForm() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
-        response = await fetch('/accounts/register/', {
+        response = await fetch('/register/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ async function submitRegistrationForm() {
 
 async function SendAgain() {
 	const email = document.getElementById('email').value;
-	await fetch('/accounts/register-send_OTP/', {
+	await fetch('/register-send_OTP/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ async function submitOtpForm() {
         const otp = document.getElementById('otp').value;
 
         console.log(1);
-        response = await fetch('/accounts/register-verify/', {
+        response = await fetch('/register-verify/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

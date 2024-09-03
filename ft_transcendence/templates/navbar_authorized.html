@@ -98,7 +98,166 @@
             margin: 10px 0; /* Space between links */
         }
     }
+
+
+
+
+
+
+
+
+
     
+
+
+
+    /* Dropdown Button Styling */
+.dropdown-container {
+    position: relative; /* Position relative to parent container */
+}
+
+#dropdown-button {
+    background-color: #ffffff; /* White background */
+    color: #003366; /* Dark blue text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding for button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+#dropdown-button:hover {
+    background-color: #cce0ff; /* Light blue background on hover */
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute; /* Position relative to button */
+    top: 40px; /* Position below button */
+    right: 0; /* Align to the right */
+    background-color: #ffffff; /* Light background for dropdown */
+    color: #333333; /* Dark text color for readability */
+    border: 1px solid #dddddd; /* Light border for separation */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
+    padding: 10px; /* Padding inside dropdown */
+    width: 150px; /* Fixed width for dropdown */
+    z-index: 10; /* Ensure dropdown is above other content */
+}
+
+.dropdown-menu a {
+    color: #003366; /* Dark blue text color */
+    text-decoration: none; /* Remove underline from links */
+    display: block; /* Block display for full width clickable */
+    padding: 10px; /* Padding for links */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.dropdown-menu a:hover {
+    background-color: #cce0ff; /* Light blue background on hover */
+}
+
+/* Show dropdown menu on button click */
+.dropdown-container.open .dropdown-menu {
+    display: block; /* Show menu when open */
+}
+
+/* Responsive Navbar for smaller screens */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column; /* Stack items vertically */
+        text-align: center; /* Center text */
+    }
+
+    .navbar-left {
+        margin-bottom: 10px; /* Space below navbar links */
+    }
+
+    .invitation-container {
+        margin-top: 10px; /* Space above invitation icon */
+    }
+
+    .navbar-left a {
+        display: block; /* Stack links vertically */
+        margin: 10px 0; /* Space between links */
+    }
+}
+/* Dropdown Button Styling */
+.dropdown-container {
+    position: relative; /* Position relative to parent container */
+}
+
+#dropdown-button {
+    background-color: #ffffff; /* White background */
+    color: #003366; /* Dark blue text color */
+    border: none; /* No border */
+    padding: 10px 20px; /* Padding for button */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+#dropdown-button:hover {
+    background-color: #cce0ff; /* Light blue background on hover */
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute; /* Position relative to button */
+    top: 40px; /* Position below button */
+    right: 0; /* Align to the right */
+    background-color: #ffffff; /* Light background for dropdown */
+    color: #333333; /* Dark text color for readability */
+    border: 1px solid #dddddd; /* Light border for separation */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
+    padding: 10px; /* Padding inside dropdown */
+    width: 150px; /* Fixed width for dropdown */
+    z-index: 10; /* Ensure dropdown is above other content */
+}
+
+.dropdown-menu a {
+    color: #003366; /* Dark blue text color */
+    text-decoration: none; /* Remove underline from links */
+    display: block; /* Block display for full width clickable */
+    padding: 10px; /* Padding for links */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.dropdown-menu a:hover {
+    background-color: #cce0ff; /* Light blue background on hover */
+}
+
+/* Show dropdown menu on button click */
+.dropdown-container.open .dropdown-menu {
+    display: block; /* Show menu when open */
+}
+
+/* Responsive Navbar for smaller screens */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column; /* Stack items vertically */
+        text-align: center; /* Center text */
+    }
+
+    .navbar-left {
+        margin-bottom: 10px; /* Space below navbar links */
+    }
+
+    .invitation-container {
+        margin-top: 10px; /* Space above invitation icon */
+    }
+
+    .navbar-left a {
+        display: block; /* Stack links vertically */
+        margin: 10px 0; /* Space between links */
+    }
+}
+
 </style>
 
 <nav>
@@ -110,11 +269,18 @@
     </div>
     <div class="invitation-container">
         <a href="#" id="invitation-icon" class="icon">
-            📨 <span id="invite-count" class="badge">0</span> <!-- Default count -->
+            <span id="invite-count" class="badge">0</span> <!-- Default count -->
         </a>
         <div id="invitation-list" class="invitation-list">
             <!-- Invitation list items will be inserted here -->
             <p>No invitations</p>
+        </div>
+    </div>
+    <div class="dropdown-container">
+        <button id="dropdown-button">Account</button>
+        <div class="dropdown-menu">
+            <a href="/settings/" data-route="/settings/">Settings</a>
+            <a href="/refresh/logout/" data-route="/refresh/logout/">Logout</a>
         </div>
     </div>
 </nav>
@@ -125,7 +291,7 @@
     const inviteCountElement = document.getElementById('invite-count');
 
     // Connect to WebSocket
-    const InviteSocket = new WebSocket(`ws://${window.location.host}/wss/invitations/`);
+    const InviteSocket = new WebSocket(`wss://${window.location.host}/wss/invitations/`);
 
     // Listen for messages from the WebSocket
     InviteSocket.onmessage = function (e) {
@@ -218,11 +384,37 @@
         invitationList.style.display = invitationList.style.display === 'none' ? 'block' : 'none';
     });
     
-    // Optional: Click outside to close the list
     document.addEventListener('click', function (event) {
         if (!invitationIcon.contains(event.target) && !invitationList.contains(event.target)) {
             invitationList.style.display = 'none';
         }
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    document.getElementById('dropdown-button').addEventListener('click', function() {
+        document.querySelector('.dropdown-container').classList.toggle('open');
+    });
+    
+    // Optional: Click outside to close the dropdown
+    document.addEventListener('click', function(event) {
+        const dropdownContainer = document.querySelector('.dropdown-container');
+        if (!dropdownContainer.contains(event.target)) {
+            dropdownContainer.classList.remove('open');
+        }
+    });
 </script>
+
 

@@ -16,13 +16,13 @@ from django.shortcuts import render
 
 # @csrf_exempt
 # def login_view(request):
-#     logout(request)
-#     if request.method == 'POST':
-#         form = AuthenticationForm(data=request.POST)
-#         if form.is_valid():
-#             username = form.cleaned_data.get('username')
-#             password = form.cleaned_data.get('password')
-#             user = authenticate(username=username, password=password)
+#	 logout(request)
+#	 if request.method == 'POST':
+#		 form = AuthenticationForm(data=request.POST)
+#		 if form.is_valid():
+#			 username = form.cleaned_data.get('username')
+#			 password = form.cleaned_data.get('password')
+#	         user = authenticate(username=username, password=password)
 #             if user is not None:
 #                 login(request, user)
 #                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -65,7 +65,6 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from .serializers import (UserRegisterSerializer, LoginSerializer, PasswordResetRequestSerializer,
 						  SetNewPasswordSerializer, LogoutUserSeriallizer, TrashSerializer, VerifyLoginSerializer)
-from django.urls import reverse
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -187,17 +186,12 @@ class VerifyLoginUserView(GenericAPIView):
 
 	def post(self, request):
 		serializer = self.serializer_class(data=request.data, context={'request': request})
-		# try:
-		print(9)
 		if serializer.is_valid():
-			print(99)
 			response = Response({
-				'access_token': serializer.validated_data['access_token'],
-				'refresh_token': serializer.validated_data['refresh_token'],
 				"message" : "Login successful"
 			}, status=status.HTTP_200_OK)
-			response.set_cookie('access_token', serializer.validated_data['access_token'], httponly=True, secure=True, samesite='Strict', max_age=15 * 60, path='/')
-			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], httponly=True, secure=True, samesite='Strict', max_age=7 * 24 * 60 * 60, path='/accounts/refresh')
+			response.set_cookie('access_token', serializer.validated_data['access_token'], httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
+			response.set_cookie('refresh_token', serializer.validated_data['refresh_token'], httponly=True, secure=True, samesite='Strict', max_age=24*60*60, path='/refresh/')
 			return response
 		return Response({"message": "code or email is invalid"}, status=status.HTTP_401_UNAUTHORIZED)	
 
@@ -206,36 +200,35 @@ class VerifyLoginUserView(GenericAPIView):
 
 
 
+class IsAuthorizedView(APIView):
+	def post(self, request):
+		if request.user.is_authenticated:
+			return Response({}, status=status.HTTP_200_OK)
+		return Response({}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
 
+class NavbarAuthorizedView(APIView):
+	def post(self, request):
+		if request.user.is_authenticated:
+			return render(request, "navbar_authorized.html", status=200)
+		return render(request, "navbar_unauthorized.html", status=200)
 
 class TokenRefreshView(APIView):
-	def get(self, request):
+	def post(self, request):
 		refresh_token = request.COOKIES.get('refresh_token')
 		if refresh_token is None:
 			return Response({
-				'detail': 'Refresh token not provided',
-				'redirect_url': reverse('login')
+				'detail': 'Refresh token not provided'
 				}, status=status.HTTP_401_UNAUTHORIZED)
 
 		try:
 			refresh = RefreshToken(refresh_token)
 			new_access_token = str(refresh.access_token)
-			response = Response({'access_token': new_access_token}, status=status.HTTP_200_OK)
-			response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict', max_age=15 * 60)
+			response = Response({}, status=status.HTTP_200_OK)
+			response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict', max_age=20 * 60)
 			return response
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
-
-
-
-class EmptyPath(GenericAPIView):
-
-	def get(self, request):
-		print(1)
-		if request.user.is_authenticated:
-			return render(request, "partials/home.html")
-		return render(request, "login.html")
 
 
 
@@ -260,23 +253,21 @@ class PasswordResetConfirm(GenericAPIView):
 			user=User.objects.get(id=user_id)
 			user_row = OneTimePasswordReset.objects.get(user=user)
 			if user_row.reset_token != token or user_row.times != 0:
-				return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+				return Response({'message':'token is invalid or has expired'}, status=status.HTTP_400_BAD_REQUEST)
 			user_row.reset_token=PasswordResetTokenGenerator().make_token(user)
 			user_row.times = 1
 			user_row.save()
-			return Response({
-				'success': True,
-				'message': 'Credentials are valid',
+			context = {
 				'uidb64': uidb64,
 				'token': user_row.reset_token
-				# 'redirect_url': reverse('password_reset-set_new')
-				}, status=status.HTTP_200_OK)
+				}
+			return render(request, "password_reset-set_new.html", context, status=200)
 		except User.DoesNotExist:
-			return Response({'message':'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+			return render (request, "login.html", {'message':'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 		except OneTimePasswordReset.DoesNotExist:
-			return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+			return render (request, "login.html", {'message':'token is invalid or has expired'}, status=status.HTTP_400_BAD_REQUEST)
 		except DjangoUnicodeDecodeError:
-			return Response({'message':'token is invalid or has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+			return render (request, "login.html", {'message':'token is invalid or has expired'}, status=status.HTTP_400_BAD_REQUEST)
 
 class SetNewPassword(GenericAPIView):
 	serializer_class=SetNewPasswordSerializer
@@ -285,11 +276,7 @@ class SetNewPassword(GenericAPIView):
 		serializer.is_valid(raise_exception=True)
 		return Response({
 			'message':'passwort reset successfull',
-			# 'redirect_url': reverse('login')
 			}, status=status.HTTP_200_OK)
-	
-	def get(self, request):
-		return render(request, 'password_reset-set_new.html')
 
 
 
@@ -297,11 +284,14 @@ class SetNewPassword(GenericAPIView):
 
 class LogoutUserView(GenericAPIView):
 	serializer_class=LogoutUserSeriallizer
-	permission_classes=[IsAuthenticated]
 
-	def post(self, request):
-		serializer=self.serializer_class(data=request.data)
-		serializer.is_valid(raise_exception=True)
-		serializer.save()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+	def get(self, request):
+		refresh_token = request.COOKIES.get('refresh_token', '')
+		if not refresh_token and refresh_token != '':
+			return Response({'error': 'Refresh token is required'}, status=400)
+		
+		serializer = self.serializer_class(data={'refresh_token': refresh_token})
+		if serializer.is_valid(raise_exception=True):
+			serializer.save()
+		return render(request, "login.html", status=204)
 

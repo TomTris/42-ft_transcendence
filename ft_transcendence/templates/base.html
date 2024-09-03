@@ -10,16 +10,6 @@
         }
     </style>
     <title>Pong Ping</title>
-</head>
-<body>
-
-    {% comment %} {% include "navbar.html" %} {% endcomment %}
-    <div id='app'>
-    </div>
-
-    <script>
-        var originalMethod = "{{ method|escapejs }}";
-    </script>
     <style>
         body {
             background-color: #f0f4f8;
@@ -27,6 +17,19 @@
             margin:0px;
         }
     </style>
+</head>
+<body>
+
+    {% comment %} {% include "navbar.html" %} {% endcomment %}
+    <div id='navbar'>
+    </div>
+
+    <div id='app'>
+    </div>
+
+    <script>
+        var originalMethod = "{{ method|escapejs }}";
+    </script>
     <script src="{% static 'js/spa.js' %}"></script>
     <script src="{% static 'js/three.js' %}"></script>
     <script src="{% static 'js/play.js' %}"></script>

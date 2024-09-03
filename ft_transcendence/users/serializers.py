@@ -103,7 +103,6 @@ class VerifyLoginSerializer(serializers.Serializer):
 				'full_name': user.get_full_name,
 				'access_token': str(user_tokens.get('access')),
 				'refresh_token': str(user_tokens.get('refresh')),
-				'redirect_url': reverse('home')
 				}
 		if user_row.times == 2:
 			OneTimePasswordLogin.delete_for_user(user=user_row.user)
@@ -166,33 +165,34 @@ class SetNewPasswordSerializer(serializers.Serializer):
 			uidb64=attrs.get('uidb64', '')
 			password=attrs.get('password', '')
 			confirm_password=attrs.get('confirm_password', '')
-
 			user_id=force_str(urlsafe_base64_decode(uidb64))
 			user=User.objects.get(id=user_id)
 			user_OneTimePasswordReset = OneTimePasswordReset.objects.get(user=user)
 			if not PasswordResetTokenGenerator().check_token(user, token) \
 				or user_OneTimePasswordReset.reset_token != token:
-				raise AuthenticationFailed("reset link is invalid or has expired", 401)
+				raise AuthenticationFailed("reset link is invalid or has expired", 400)
 			if password != confirm_password or password == '':
-				raise AuthenticationFailed("Passwords don't match", 401)
+				raise AuthenticationFailed("Passwords don't match", 400)
 			user.set_password(password)
 			user.save()
-			user_OneTimePasswordReset.delete_for_user()
+			user_OneTimePasswordReset.delete_for_user(user=user)
 			return user
 		except User.DoesNotExist:
-			raise AuthenticationFailed("Reset link is invalid or has expired", 401)
+			raise AuthenticationFailed("Reset link is invalid or has expired", 400)
 		except OneTimePasswordReset.DoesNotExist:
-			raise AuthenticationFailed("Reset link is invalid or has expired", 401)
+			raise AuthenticationFailed("Reset link is invalid or has expired", 400)
 
 
 
 class LogoutUserSeriallizer(serializers.Serializer):
 	refresh_token=serializers.CharField()
-	default_error_messages={
-		'bad_token':('Token is Invalid or has expired')
-	}
+	# default_error_messages={
+	# 	'bad_token':('Token is Invalid or has expired')
+	# }
 	
 	def validate(self, attrs):
+		print(1)
+		print(attrs)
 		self.token=attrs.get('refresh_token')
 		return attrs
 

@@ -94,7 +94,7 @@
 
 <script>
     sessionId = "{{ session_id }}";
-    socket1 = new WebSocket(`ws://${window.location.host}/wss/game/tournament/${sessionId}/`);
+    socket1 = new WebSocket(`wss://${window.location.host}/wss/game/tournament/${sessionId}/`);
 
     statusDiv = document.getElementById('status');
     playersDiv = document.getElementById('players');

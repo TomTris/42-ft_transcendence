@@ -16,12 +16,13 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,16 +33,6 @@ with open('/localip/localip.txt', 'r') as file:
     localip = file.read().strip()
 with open('/domain_name.txt', 'r') as file:
     domain_name = file.read().strip()
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
-print(11111)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
 
 localip = "https://" + localip
@@ -56,8 +47,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '2095e318ae8d3a'
-EMAIL_HOST_PASSWORD = '235ad67a8fd409'
+EMAIL_HOST_USER = 'adbf16f4006d83'
+EMAIL_HOST_PASSWORD = '6e53f711c85aaa'
 EMAIL_PORT = '2525'
 DEFAULT_FROM_EMAIL="PingPong_QTOR@gmail.com"
 EMAIL_USE_TLS=True
@@ -92,7 +83,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'pages.middleware.CheckUserAuthorizationMiddleware',
     'game.middleware.CleanupMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.CookieToAuthorizationMiddleware',
@@ -262,9 +252,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "AUTH_HEADER_TYPES": ("Bearer",),
+    'ALGORITHM': 'HS256',
 }
 
 INITIALIZED_1 = False

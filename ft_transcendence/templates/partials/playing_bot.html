@@ -15,7 +15,7 @@
     console.log('yessssss   ');
     init();
     // JavaScript to connect to WebSocket and update player list
-    socket1 = new WebSocket(`ws://${window.location.host}/wss/game/bot/`);
+    socket1 = new WebSocket(`wss://${window.location.host}/wss/game/bot/`);
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
 

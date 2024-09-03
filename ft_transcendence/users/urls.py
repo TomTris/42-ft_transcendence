@@ -1,8 +1,9 @@
+from django.urls import path, include
 from django.urls import path
 from .views import (RegisterUserView, VerifyUserEmail, SendRegisterCode,
 					LoginUserView, VerifyLoginUserView,
 					PasswordResetRequestView, PasswordResetConfirm, SetNewPassword,
-					LogoutUserView,  TokenRefreshView, EmptyPath)
+					LogoutUserView,  TokenRefreshView, IsAuthorizedView, NavbarAuthorizedView)
 
 urlpatterns=[
 	path('register/', RegisterUserView.as_view(), name='register'),
@@ -19,6 +20,7 @@ urlpatterns=[
 	
 	path('refresh/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('refresh/logout/', LogoutUserView.as_view(), name='logout'),
-	path('home/', EmptyPath.as_view(), name='home'),
-    path('', EmptyPath.as_view(), name='home'),
+	path('is_authorized/', IsAuthorizedView.as_view(), name='isAuthorized'),
+	path('navbar_authorized/', NavbarAuthorizedView.as_view(), name='navbarAuthorized'),
+	path('', include('pages.urls')),
 ]

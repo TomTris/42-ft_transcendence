@@ -1,8 +1,9 @@
 from django.urls import path
 from . import views
+from .views import EmptyPath
 from django.conf.urls.static import static
 from django.conf import settings
-
+print('asdasdas')
 urlpatterns = [
     path('users/', views.users_view),
     path('users/<int:id>/', views.user_view),
@@ -15,7 +16,11 @@ urlpatterns = [
     path('accept_friend/<int:user_id>/', views.accept_friend, name='accept_friend'),
     path('cancel_friend/<int:user_id>/', views.cancel_friend, name='cancel_friend'),
     #for test modsecurity
-    path('vulnerable/', views.vulnerable_view),
+	path('vulnerable/', views.vulnerable_view),
+    path('', EmptyPath.as_view(), name='empty'),
+	path('home/', EmptyPath.as_view(), name='empty'),
 ]
-
+print(987654)
+handler404 = views.handle_404_view
+handler500 = views.handle_500_view
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

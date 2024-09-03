@@ -1,0 +1,110 @@
+<style>
+    /* General Navbar Styling */
+    nav {
+        background-color: #003366; /* Dark Blue background for navbar */
+        color: #ffffff; /* White text color for contrast */
+        padding: 15px 20px; /* Padding for spacing */
+        display: flex; /* Flexbox for alignment */
+        justify-content: space-between; /* Space out items */
+        align-items: center; /* Center items vertically */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+    }
+    
+    /* Navbar Links Styling */
+    .navbar-left a {
+        color: #ffffff; /* White text for links */
+        text-decoration: none; /* Remove underline from links */
+        font-size: 18px; /* Font size for links */
+        margin: 0 15px; /* Space between links */
+        transition: color 0.3s ease; /* Smooth transition for hover effect */
+    }
+    
+    .navbar-left a:hover {
+        color: #cce0ff; /* Light blue color on hover */
+    }
+    
+    /* Invitation Container Styling */
+    .invitation-container {
+        display: flex; /* Flexbox for horizontal alignment */
+        align-items: center; /* Center items vertically */
+    }
+    
+    #invitation-icon {
+        color: #ffffff; /* White color for icon */
+        font-size: 24px; /* Larger icon size */
+        text-decoration: none; /* Remove underline from link */
+        margin-right: 20px; /* Space between icon and badge */
+        position: relative; /* Position for badge placement */
+    }
+    
+    #invitation-icon .badge {
+        background-color: #ff6f61; /* Red badge color */
+        color: #ffffff; /* White text color */
+        border-radius: 50%; /* Circular badge */
+        padding: 5px 10px; /* Padding inside badge */
+        font-size: 14px; /* Font size for badge text */
+        position: absolute; /* Absolute positioning */
+        top: -10px; /* Position badge above icon */
+        right: -10px; /* Position badge to the right of icon */
+        display: flex; /* Center text in badge */
+        align-items: center; /* Center text vertically */
+        justify-content: center; /* Center text horizontally */
+    }
+    
+    /* Invitation List Styling */
+    .invitation-list {
+        display: none; /* Hidden by default */
+        position: absolute; /* Position relative to icon */
+        top: 40px; /* Position below icon */
+        right: 0; /* Align to the right */
+        background-color: #ffffff; /* Light background for dropdown */
+        color: #333333; /* Dark text color for readability */
+        border: 1px solid #dddddd; /* Light border for separation */
+        border-radius: 5px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for dropdown */
+        padding: 10px; /* Padding inside dropdown */
+        width: 250px; /* Fixed width for dropdown */
+        z-index: 10; /* Ensure dropdown is above other content */
+    }
+    
+    .invitation-list p {
+        margin: 0; /* Remove default margin */
+        padding: 0; /* Remove default padding */
+        text-align: center; /* Center text */
+    }
+    
+    /* Show invitation list on hover */
+    #invitation-icon:hover + .invitation-list {
+        display: block; /* Show list on hover */
+    }
+    
+    /* Responsive Navbar for smaller screens */
+    @media (max-width: 768px) {
+        nav {
+            flex-direction: column; /* Stack items vertically */
+            text-align: center; /* Center text */
+        }
+    
+        .navbar-left {
+            margin-bottom: 10px; /* Space below navbar links */
+        }
+    
+        .invitation-container {
+            margin-top: 10px; /* Space above invitation icon */
+        }
+    
+        .navbar-left a {
+            display: block; /* Stack links vertically */
+            margin: 10px 0; /* Space between links */
+        }
+    }
+    
+</style>
+
+<nav>
+    <div class="navbar-left">
+        <a href="/" data-route="/">Login</a>
+        <a href="/register/" data-route="/register/">Register</a>
+        <a href="/password_reset-request/" data-route="/password_reset-request/">Forget Password</a>
+    </div>
+</nav>

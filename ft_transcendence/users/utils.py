@@ -15,8 +15,7 @@ def send_code_to_user(email):
 	otp_code=generateOtp()
 
 	user=User.objects.get(email=email)
-	email_body=f"Hi {user.first_name} thanks for signing up on our Pingpong\n\
-		Please verify your email with the following one time passcode {otp_code}"
+	email_body=f"Hi {user.first_name} thanks for signing up on our Pingpong\nPlease verify your email with the following one time passcode {otp_code}"
 	from_email=settings.DEFAULT_FROM_EMAIL
 
 	if OneTimePassword.objects.filter(user=user).exists():

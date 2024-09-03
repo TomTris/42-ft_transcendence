@@ -21,9 +21,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('users.urls')),
-	path('home/', include('users.urls')),
-    path('', include('users.urls')),
     path('game/', include('game.urls')),
     path('loop_detect/', views.loop_detect_view),
+    path('', include('users.urls')),
 ]
 
