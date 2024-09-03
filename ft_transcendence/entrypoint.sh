@@ -7,7 +7,7 @@ sleep 2
 i=0
 while [ ! -e /vault/file/created ] && [ $i -lt 60 ]; do
   sleep 2
-  echo "Script is running $(i)"
+  echo "Script is running"
   i=$(($i + 1))
 done
 

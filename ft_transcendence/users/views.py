@@ -22,11 +22,11 @@ from django.shortcuts import render
 #		 if form.is_valid():
 #			 username = form.cleaned_data.get('username')
 #			 password = form.cleaned_data.get('password')
-#	         user = authenticate(username=username, password=password)
-#             if user is not None:
-#                 login(request, user)
-#                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-#                     return JsonResponse({'success': True, 'redirect': 'home'})  # Response for AJAX requests
+#			 user = authenticate(username=username, password=password)
+#			 if user is not None:
+#				 login(request, user)
+#				 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+#			         return JsonResponse({'success': True, 'redirect': 'home'})  # Response for AJAX requests
 #                 else:
 #                     return redirect('home')  # Response for normal form submissions
 #             else:
@@ -59,12 +59,12 @@ from django.shortcuts import render
 #     else:
 #         form = UserCreationForm()
 #     return render(request, "register.html", {"form":form})
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, BlacklistedToken
 from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from .serializers import (UserRegisterSerializer, LoginSerializer, PasswordResetRequestSerializer,
-						  SetNewPasswordSerializer, LogoutUserSeriallizer, TrashSerializer, VerifyLoginSerializer)
+						  SetNewPasswordSerializer, TrashSerializer, VerifyLoginSerializer)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -282,16 +282,34 @@ class SetNewPassword(GenericAPIView):
 
 
 
-class LogoutUserView(GenericAPIView):
-	serializer_class=LogoutUserSeriallizer
+class LogoutUserView(APIView):
+	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
 		refresh_token = request.COOKIES.get('refresh_token', '')
-		if not refresh_token and refresh_token != '':
-			return Response({'error': 'Refresh token is required'}, status=400)
-		
-		serializer = self.serializer_class(data={'refresh_token': refresh_token})
-		if serializer.is_valid(raise_exception=True):
-			serializer.save()
-		return render(request, "login.html", status=204)
 
+		if not refresh_token:
+			return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+		try:
+			print(1)
+			refresh = RefreshToken(refresh_token)
+			print(1)
+			print(1)
+			BlacklistedToken.objects.create(token=str(refresh))
+			print(2)
+			access_token = str(refresh.access_token)
+			BlacklistedToken.objects.create(token=access_token)
+			print(1)
+
+			response = Response({'message': 'Logged out successfully'}, status=status.HTTP_204_NO_CONTENT)
+			print(1)
+			response.delete_cookie('access_token')
+			print(1)
+			response.delete_cookie('refresh_token')
+			print(1)
+			return response
+
+		except Exception as e:
+			print(e)
+			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

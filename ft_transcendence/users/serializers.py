@@ -184,27 +184,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
 
 
-class LogoutUserSeriallizer(serializers.Serializer):
-	refresh_token=serializers.CharField()
-	# default_error_messages={
-	# 	'bad_token':('Token is Invalid or has expired')
-	# }
-	
-	def validate(self, attrs):
-		print(1)
-		print(attrs)
-		self.token=attrs.get('refresh_token')
-		return attrs
-
-	def save(self, **kwargs):
-		try:
-			token=RefreshToken(self.token)
-			token.blacklist()
-		except TokenError:
-			return self.fail('bad_token')
-
-
-
 
 class TrashSerializer(serializers.ModelSerializer):
 	otp=serializers.CharField(max_length=68, min_length=6, write_only=True)

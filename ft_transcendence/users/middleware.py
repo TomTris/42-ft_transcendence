@@ -16,15 +16,23 @@ from django.utils.deprecation import MiddlewareMixin
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import get_authorization_header
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-def valid_access_token(access_token):
-    try:
-        if access_token and access_token != '':
-            jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            return True
-        return False
-    except:
-        return False
+class CustomJWTAuthentication(JWTAuthentication):
+    def authenticate(self, request):
+        return super().authenticate(request)
+
+def valid_access_token(request):
+    access_token = request.COOKIES.get('access_token', '')
+    if access_token and access_token != '':
+        jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+        AccessToken(access_token)
+        request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
+        checker = CustomJWTAuthentication()
+        checker.authenticate(request)
+    else:
+        raise Exception("")
     
 
 class CookieToAuthorizationMiddleware(MiddlewareMixin):
@@ -33,30 +41,34 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                  '/password_reset-request/']
 
     def process_request(self, request):
+        print()
         if request.method == 'GET':
             if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
                 context = {
                     'method': 'GET'
                 }
                 return render(request, 'base.html', context, status=status.HTTP_307_TEMPORARY_REDIRECT)
-            print()
-            print("process_request GET partial")
-            access_token = request.COOKIES.get('access_token', '')
-            if valid_access_token(access_token):
-                request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
-                print("HTTP_AUTHORIZATION set")
+            
+            print(request.path)
+            try:
+                valid_access_token(request)
+                print("HTTP_AUTHORIZATION GET set")
                 if request.path in self.non_login:
-                    print("redirect to home")
+                    print("redirect to home.html")
                     return render(request, "home.html")
-            else:
-                print("HTTP_AUTHORIZATION not set")
+                print("redirect to request.path")
+            except:
+                print("HTTP_AUTHORIZATION POST unset")
+                request.META.pop('HTTP_AUTHORIZATION', None)
                 if request.path not in self.non_login and not request.path.startswith('/password-reset-confirm/'):
-                    print("redirect to login")
                     return render(request, "login.html")
+            
         if request.method == 'POST':
-            access_token = request.COOKIES.get('access_token', '')
-            print("HTTP_AUTHORIZATION POST set")
-            if valid_access_token(access_token):
-                request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
-            else:
+            print(request.path)
+            try:
+                valid_access_token(request)
+                print("HTTP_AUTHORIZATION POST set")
+            except:
+                pass
+                request.META.pop('HTTP_AUTHORIZATION', None)
                 print("HTTP_AUTHORIZATION POST not set")
