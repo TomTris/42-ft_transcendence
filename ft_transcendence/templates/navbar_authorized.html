@@ -286,12 +286,12 @@
 </nav>
 
 <script>
-    const invitationIcon = document.getElementById('invitation-icon');
-    const invitationList = document.getElementById('invitation-list');
-    const inviteCountElement = document.getElementById('invite-count');
+    invitationIcon = document.getElementById('invitation-icon');
+    invitationList = document.getElementById('invitation-list');
+    inviteCountElement = document.getElementById('invite-count');
 
     // Connect to WebSocket
-    const InviteSocket = new WebSocket(`wss://${window.location.host}/wss/invitations/`);
+    InviteSocket = new WebSocket(`wss://${window.location.host}/wss/invitations/`);
 
     // Listen for messages from the WebSocket
     InviteSocket.onmessage = function (e) {

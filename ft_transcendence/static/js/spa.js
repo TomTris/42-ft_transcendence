@@ -1,3 +1,10 @@
+//wss/invitations/`
+var invitationIcon
+var invitationList
+var inviteCountElement
+var InviteSocket = null
+
+
 // online tournaments
 let statusDiv;
 let playersDiv;
@@ -55,6 +62,10 @@ function removeScripts() {
     if (socket1) {
         socket1.close();
         socket1 = null;
+    }
+    if (InviteSocket) {
+        InviteSocket.close();
+        InviteSocket = null;
     }
 
     for (let i = 1; i <= scriptCounter - 1; i++) {

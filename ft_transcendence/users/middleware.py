@@ -56,7 +56,7 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                 if request.path in self.non_login:
                     print("redirect to home.html")
                     return render(request, "home.html")
-                print("redirect to request.path")
+                print("redirect to", request.path)
             except:
                 print("HTTP_AUTHORIZATION POST unset")
                 request.META.pop('HTTP_AUTHORIZATION', None)
@@ -64,6 +64,7 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                     return render(request, "login.html")
             
         if request.method == 'POST':
+            print()
             print(request.path)
             try:
                 valid_access_token(request)

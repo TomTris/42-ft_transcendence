@@ -292,22 +292,14 @@ class LogoutUserView(APIView):
 			return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
 		try:
-			print(1)
-			refresh = RefreshToken(refresh_token)
-			print(1)
-			print(1)
-			BlacklistedToken.objects.create(token=str(refresh))
-			print(2)
-			access_token = str(refresh.access_token)
-			BlacklistedToken.objects.create(token=access_token)
-			print(1)
-
-			response = Response({'message': 'Logged out successfully'}, status=status.HTTP_204_NO_CONTENT)
-			print(1)
-			response.delete_cookie('access_token')
-			print(1)
-			response.delete_cookie('refresh_token')
-			print(1)
+			refresh = RefreshToken(refresh_token)  # Decode the token
+			response = render(request, "login.html", status=200)
+			response.delete_cookie('access_cookie')
+			response.delete_cookie('refresh_cookie')
+			user_id = refresh['user_id'] 
+			user = User.objects.get(id=user_id)
+			refresh.blacklist()
+			user.tokens()
 			return response
 
 		except Exception as e:
