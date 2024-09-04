@@ -20,12 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
 
+# SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
+SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
 
 # ALLOWED_HOSTS = ['localhost']
 
@@ -72,6 +74,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'debug_toolbar',
 ]
 
 ASGI_APPLICATION = 'ft_transcendence.asgi.application'
@@ -87,6 +90,7 @@ MIDDLEWARE = [
     'game.middleware.CleanupMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.CookieToAuthorizationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'ft_transcendence.urls'
@@ -264,6 +268,12 @@ SIMPLE_JWT = {
 
 INITIALIZED_1 = False
 
+
+
+INTERNAL_IPS = [
+    # Include your local IP address here
+    '127.0.0.1',
+]
 
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # SESSION_COOKIE_AGE = 10

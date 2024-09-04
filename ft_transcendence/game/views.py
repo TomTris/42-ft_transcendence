@@ -84,10 +84,11 @@ def generate_unique_code():
 
 @require_POST
 def create_tournament(request):
+    print(1)
     name = request.POST.get('name')
+    print(name)
     if not name:
         return JsonResponse({'error': 'Tournament name is required'}, status=400)
-
     code = generate_unique_code()
     tournament = TournamentSession.objects.create(name=name, code=code)
     tournament.init_tournament_state()

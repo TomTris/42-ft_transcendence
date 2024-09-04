@@ -109,10 +109,6 @@ class VerifyLoginSerializer(serializers.Serializer):
 			send_normal_email(data)
 			user=User.objects.get(email=email)
 
-			request = self.context.get('request')
-			if request is not None:
-				login(request, user)
-
 			user_tokens=user.tokens()
 			return {
 				'email': user.email,

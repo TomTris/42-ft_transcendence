@@ -60,7 +60,7 @@ clean1:
 	rm ngrok_running
 
 re1:
-	make clean1; make
+	rm -rf */*/migrations; make clean1; make
 
 clean_volumes:
 	@docker volume rm $$(docker volume ls -q);

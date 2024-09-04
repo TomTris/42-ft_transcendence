@@ -36,10 +36,7 @@ def get_friend_status(current_user, user):
 def home_view(request):
     if request.user.is_authenticated:
         return render(request, 'partials/home.html')
-    return render(request, "home.html")
 
-def inactive_view(request):
-    return render(request, "inactive.html")
 
 def best_view(request):
     return render(request, "index.html")

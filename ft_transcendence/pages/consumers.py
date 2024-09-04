@@ -1,10 +1,12 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import get_invites, Invite
 from .serializers import InviteSerializer
 from users.models import User, Friendship
 from asgiref.sync import async_to_sync
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class InviteConsumer(WebsocketConsumer):
 
@@ -50,12 +52,17 @@ class InviteConsumer(WebsocketConsumer):
 
 
     def invite_message(self, event):
-
+        print("invite_message called")
+        print(self.user)
+        print("invite_message called")
+        user = self.user.user if hasattr(self.user, 'user') else self.user
+        print(user.is_verified)
+        print("invite_message called")
         messages = Invite.objects.filter(send_to=self.user)[::-1]
+        print("invite_message called done")
         print(messages)
         serializer = InviteSerializer(messages, many=True)
         invite_data = serializer.data
-    
         response_data = {
             'invites': invite_data,
         }

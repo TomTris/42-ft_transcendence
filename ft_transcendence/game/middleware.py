@@ -21,3 +21,4 @@ class CleanupMiddleware(MiddlewareMixin):
         un_finished = TournamentSession.objects.filter(is_active=True)
         un_finished.delete()
         print('Cleanup complete.')
+
