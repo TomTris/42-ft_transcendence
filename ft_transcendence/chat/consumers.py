@@ -38,13 +38,13 @@ class ChatConsumer(WebsocketConsumer):
             message = message[len(reciver):]
             message = message.lstrip()
             if reciver == 'all':
-                return 1, 'all', message
+                return 1, None, message
             user = User.objects.filter(username=reciver).first()
             if not user:
                 return 0, 'a', 'a'
-            return 1, reciver, message
+            return 1, user, message
         else:
-            return 1, 'all', message
+            return 1, None, message
 
 
     def receive(self, text_data):
