@@ -16,11 +16,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined=models.DateTimeField(auto_now_add=True)
     last_login=models.DateTimeField(auto_now=True)
     twoFaEnable=models.BooleanField(default=True)
-<<<<<<< HEAD
     token_reset_password=models.CharField(max_length=100, verbose_name=_("Last Name"), default='')
 
-=======
->>>>>>> d958c49d2fce6d9825c1cf80f4e6878b0d3fb425
     is_online=models.BooleanField(default=False)
     online_check=models.BooleanField(default=True)
     avatar = models.ImageField(upload_to='avatars/', default='default/default.png')
