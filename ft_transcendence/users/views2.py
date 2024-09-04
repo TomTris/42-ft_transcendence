@@ -78,9 +78,7 @@ class SettingView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		try:
-			print(77777)
 			user = request.user
-			print(77777)
 			context = {
 				'email': user.email,
 				'first_name': user.first_name,
@@ -91,7 +89,6 @@ class SettingView(APIView):
 				'twoFaEnable': user.twoFaEnable,
 				'avatar': user.avatar,
 				}
-			print(77777)
 			return render(request, "settings.html", context, status=200)
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_204_NO_CONTENT)
@@ -103,6 +100,7 @@ class SettingView(APIView):
 				form.save()  # This will save the updated data including the avatar
 				return Response({'message': 'Profile updated successfully!'}, status=status.HTTP_200_OK)
 			else:
+				print(form.errors)
 				return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
