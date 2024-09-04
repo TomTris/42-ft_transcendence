@@ -39,6 +39,8 @@ class GameSession(models.Model):
     def is_full(self):
         return self.player1 and self.player2
 
+
+
     def delete_second(self):
         self.player2 = None
         self.save()

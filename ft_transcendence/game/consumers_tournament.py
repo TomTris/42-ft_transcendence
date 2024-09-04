@@ -23,10 +23,11 @@ class TournamentConsumer(BaseConsumer):
         return cache.get(self.get_cache_key(), default={})
 
     def connect(self):
+        
+        self.accept()
+        self.user = self.scope['user']
         self.user.is_playing = True
         self.user.save()
-        self.accept()
-        self.user = self.scope['user'] 
         data = self.get_game_state()
         if data:
             self.game_state = data
@@ -253,7 +254,7 @@ class TournamentConsumer(BaseConsumer):
 
                 if self.game_state['send'] == 1:
                     self.send_data()
-            time.sleep(0.0167)
+            time.sleep(0.005)
 
 
 

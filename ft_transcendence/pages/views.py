@@ -188,6 +188,16 @@ def delete_friend(request, user_id):
     if other is None:
         return JsonResponse({'message': 'Not deleted'})
     Friendship.objects.filter(Q(person1=sender, person2=other) | Q(person1=other, person2=sender)).delete()
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'invite',
+        {
+            'type': 'invite_message',
+            'id1':sender.id,
+            'id2':other.id,
+            'update':2,
+        }
+    )
     return JsonResponse({'message': 'Deleted'})
 
 @require_POST
@@ -206,6 +216,9 @@ def add_friend(request, user_id):
         'invite',
         {
             'type': 'invite_message',
+            'id1':sender.id,
+            'id2':send_to.id,
+            'update':2,
         }
     )
     return JsonResponse({'message': 'Friend request sent'})
@@ -223,6 +236,9 @@ def accept_friend(request, user_id):
         'invite',
         {
             'type': 'invite_message',
+            'id1':sender.id,
+            'id2':send_to.id,
+            'update':2,
         }
     )
     return JsonResponse({'message': 'Friend request sent'})
@@ -239,6 +255,9 @@ def cancel_friend(request, user_id):
         'invite',
         {
             'type': 'invite_message',
+            'id1':sender.id,
+            'id2':send_to.id,
+            'update':2,
         }
     )
     return JsonResponse({'message': 'Friend request sent'})
@@ -260,6 +279,9 @@ def add_invite(request, user_id):
         'invite',
         {
             'type': 'invite_message',
+            'id1':sender.id,
+            'id2':send_to.id,
+            'update':2,
         }
     )
     return JsonResponse({'message': 'Friend request sent'})
@@ -269,9 +291,7 @@ def accept_invite(request, user_id):
     sender = request.user
     send_to = User.objects.filter(id=user_id).first()
     if send_to is not None:
-        print(send_to.is_playing, send_to.is_playing)
         if sender.is_playing == False and send_to.is_playing == False:
-            print('sending')
             Invite.objects.filter(sender=send_to, send_to=sender, invite_type=2).delete()
             game = GameSession.objects.create(
                 player1=sender,
@@ -298,8 +318,48 @@ def accept_invite(request, user_id):
                     'update':0,
                 }
             )
-    
+    return JsonResponse({'message': 'Friend request sent'})
 
+@require_POST
+def play_invite(request, user_id):
+    sender = request.user
+    send_to = User.objects.filter(id=user_id).first()
+    if send_to is not None:
+        game = GameSession.objects.filter(Q(player1=sender, player2=send_to) | Q(player1=send_to, player2=sender), is_active=True).first()
+        print("blablablanla")
+        if game:
+            print("blablablanla")
+            channel_layer = get_channel_layer()
+            link = f'/game/{game.id}/'
+            async_to_sync(channel_layer.group_send)(
+                'invite',
+                {
+                    'type': 'invite_accept',
+                    'id1': sender.id,
+                    'id2': -1,
+                    'link': link
+                }
+            )
+    return JsonResponse({'message': 'Friend request sent'})
+
+
+
+@require_POST
+def cancel_invite(request, user_id):
+    sender = request.user
+    send_to = User.objects.filter(id=user_id).first()
+    if send_to is not None:
+        Invite.objects.filter(sender=sender, send_to=send_to, invite_type=2).delete()
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'invite',
+            {
+                'type': 'invite_message',
+                'id1':sender.id,
+                'id2':send_to.id,
+                'update':2,
+            }
+        )
     return JsonResponse({'message': 'Friend request sent'})
 
 

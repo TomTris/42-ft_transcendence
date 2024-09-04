@@ -172,14 +172,15 @@
     if (playInviteButton){
         playInviteButton.addEventListener('click', function() {
             const userId = playInviteButton.getAttribute('data-user-id');
-            handleAction(`/cancel_friend/${userId}/`, 'POST');
+            console.log('asd');
+            handleAction(`/play_invite/${userId}/`, 'POST', 0);
         });
     }
 
     if (cancelInviteButton){
         cancelInviteButton.addEventListener('click', function() {
-            const userId = cancelFriendButton.getAttribute('data-user-id');
-            handleAction(`/cancel_friend/${userId}/`, 'POST');
+            const userId = cancelInviteButton.getAttribute('data-user-id');
+            handleAction(`/cancel_invite/${userId}/`, 'POST', 1);
         });
     }
 

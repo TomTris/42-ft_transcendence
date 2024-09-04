@@ -16,6 +16,8 @@ urlpatterns = [
     path('cancel_friend/<int:user_id>/', views.cancel_friend, name='cancel_friend'),
     path("add_invite/<int:user_id>/", views.add_invite, name="add_invite"),
     path('accept_invite/<int:user_id>/', views.accept_invite, name='accept_invite'),
+    path('play_invite/<int:user_id>/', views.play_invite, name="play_invite"),
+    path('cancel_invite/<int:user_id>/', views.cancel_invite, name="cancel_invite"),
     #for test modsecurity
 	path('vulnerable/', views.vulnerable_view),
     path('', EmptyPath.as_view(), name='empty'),

@@ -1,97 +1,372 @@
-<!-- templates/chat.html -->
 {% load static %}
-{% if user.is_authenticated %}
 
 <div id="chat-wrapper">
     <div id="chat-header">
         <button id="hide-button">Hide Chat</button>
     </div>
-    <div id="chat-box"></div>
-    <div style="display: flex; padding: 10px; box-sizing: border-box;">
+    <div id="chat-box" class="chat-box"></div>
+    <div class="chat-input-container">
         <input type="text" id="message-input" placeholder="Type a message...">
         <button id="send-button">Send</button>
     </div>
 </div>
-<button id="toggle-button" style="display: none;">Show Chat</button> 
+<button id="toggle-button" class="toggle-button">Show Chat</button>
 
-{% endif %}
-<link rel="stylesheet" href="{% static 'css/chat.css' %}">
-
-{% comment %} <script src="{% static 'js/chat.js' %}"></script> {% endcomment %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const chatWrapper = document.getElementById('chat-wrapper');
-    const chatBox = document.getElementById('chat-box');
-    const messageInput = document.getElementById('message-input');
-    const sendButton = document.getElementById('send-button');
-    const toggleButton = document.getElementById('toggle-button');
-    const hideButton = document.getElementById('hide-button');
-
-    // Create a WebSocket connection
-    const socket = new WebSocket('wss://' + window.location.host + '/wss/chat/');
-
-    // Handle incoming messages
-    socket.onmessage = function(event) {
-        const data_all = JSON.parse(event.data);
-        console.log(data_all)
-        const data = data_all.messages;
-        chatBox.innerHTML = '';
-        console.log(data)
-        if (Array.isArray(data)) {
-            data.forEach(function(message) {
-                console.log(message)
-                displayMessage(message);
-            });
-        } else {
-            console.error('Unexpected data format:', data);
+        const chatWrapper = document.getElementById('chat-wrapper');
+        const chatBox = document.getElementById('chat-box');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const toggleButton = document.getElementById('toggle-button');
+        const hideButton = document.getElementById('hide-button');
+    
+        // Create a WebSocket connection
+        const socket = new WebSocket('wss://' + window.location.host + '/wss/chat/');
+    
+        // Handle incoming messages
+        socket.onmessage = function(event) {
+            const data_all = JSON.parse(event.data);
+            console.log(data_all);
+            const messages = data_all.messages;
+            const currentUser = data_all.current_user;
+            chatBox.innerHTML = '';
+    
+            if (Array.isArray(messages)) {
+                messages.forEach(function(message) {
+                    displayMessage(message, currentUser);
+                });
+            } else {
+                console.error('Unexpected data format:', messages);
+            }
+        };
+    
+        // Handle sending a new message
+        sendButton.addEventListener('click', function() {
+            const messageContent = messageInput.value.trim();
+            if (messageContent) {
+                socket.send(JSON.stringify({
+                    'type': 'message',
+                    'content': messageContent
+                }));
+                messageInput.value = '';
+            }
+        });
+    
+        function displayMessage(message, current_user) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message-element';
+        
+            // Handle avatar and username
+            const avatarElement = document.createElement('img');
+            avatarElement.src = message.sender ? message.sender.avatar : '/path/to/default-avatar.png'; // Placeholder if no avatar
+            avatarElement.className = 'avatar';
+        
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'message-content-wrapper';
+        
+            const usernameElement = document.createElement('div');
+            usernameElement.className = 'username';
+            usernameElement.textContent = message.sender ? message.sender.username : 'System'; // Default username if no sender
+        
+            const contentElement = document.createElement('div');
+            contentElement.className = 'message-content';
+            contentElement.textContent = message.content;
+        
+            contentWrapper.appendChild(usernameElement);
+            contentWrapper.appendChild(contentElement);
+        
+            // Determine message alignment based on sender
+            if (message.sender) {
+                if (message.sender.username === current_user) {
+                    messageElement.classList.add('current-user');
+                    messageElement.style.textAlign = 'right'; // Align text to the right for current user
+                } else {
+                    messageElement.style.textAlign = 'left'; // Align text to the left for others
+                }
+            } else {
+                messageElement.classList.add('centered');
+                messageElement.style.textAlign = 'center'; // Center align if sender is null
+                avatarElement.style.display = 'none'; // Hide avatar for centered messages
+            }
+        
+            messageElement.appendChild(avatarElement);
+            messageElement.appendChild(contentWrapper);
+        
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+    
+            if (messageElement.className == 'message-element')
+            {
+                messageElement.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent default context menu
+                    
+                    // Remove any existing context menu
+                    const existingMenu = document.querySelector('.context-menu');
+                    if (existingMenu) {
+                        document.body.removeChild(existingMenu);
+                    }
+                    
+                    // Create new context menu
+                    const contextMenu = document.createElement('div');
+                    contextMenu.classList.add('context-menu');
+                    contextMenu.style.top = `${event.clientY}px`;
+                    contextMenu.style.left = `${event.clientX}px`;
+            
+                    const blockButton = document.createElement('button');
+                    blockButton.textContent = 'Block';
+                    blockButton.onclick = function() {
+                        alert('Blocking user!');
+                        document.body.removeChild(contextMenu);
+                    };
+            
+                    const inviteButton = document.createElement('button');
+                    inviteButton.textContent = 'Invite to Play';
+                    inviteButton.onclick = function() {
+                        alert(`Inviting ${message.sender.username} to play!`);
+                        document.body.removeChild(contextMenu);
+                    };
+            
+                    const friendButton = document.createElement('button');
+                    friendButton.textContent = 'Become Friends';
+                    friendButton.onclick = function() {
+                        alert(`Sending friend request to ${message.sender.username}!`);
+                        document.body.removeChild(contextMenu);
+                    };
+            
+                    contextMenu.appendChild(blockButton);
+                    contextMenu.appendChild(inviteButton);
+                    contextMenu.appendChild(friendButton);
+            
+                    // Remove context menu on click outside
+                    function removeMenu() {
+                        if (document.body.contains(contextMenu)) {
+                            document.body.removeChild(contextMenu);
+                        }
+                        document.removeEventListener('click', removeMenu);
+                    }
+                    document.addEventListener('click', removeMenu);
+            
+                    document.body.appendChild(contextMenu);
+                });
+            }
         }
-    };
-
-    // Handle sending a new message
-    sendButton.addEventListener('click', function() {
-        const messageContent = messageInput.value.trim();
-        if (messageContent) {
-            socket.send(JSON.stringify({
-                'type': 'message',
-                'content': messageContent
-            }));
-            messageInput.value = '';
-        }
-    });
-
-    // Function to display a message in the chat box
-    function displayMessage(message) {
-        const messageElement = document.createElement('div');
-        const imageElement = document.createElement('img');
-        imageElement.src = message.sender.avatar;
-        imageElement.style.width = '20px'; // Set desired width
-        imageElement.style.height = '20px';
-
-        const contentElement = document.createElement('div');
-        contentElement.textContent = `${message.sender.username}: ${message.content}`;
-
-        messageElement.appendChild(imageElement);
-        messageElement.appendChild(contentElement);
-
-        chatBox.appendChild(messageElement);
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
-    }
-
-    // Toggle chat box visibility
-    toggleButton.addEventListener('click', function() {
-        if (chatWrapper.style.display === 'none') {
-            chatWrapper.style.display = 'flex';
-            toggleButton.style.display = 'none';
-        } else {
+    
+        // Toggle chat box visibility
+        toggleButton.addEventListener('click', function() {
+            if (chatWrapper.style.display === 'none') {
+                chatWrapper.style.display = 'flex';
+                toggleButton.style.display = 'none';
+            } else {
+                chatWrapper.style.display = 'none';
+                toggleButton.style.display = 'block';
+            }
+        });
+    
+        // Hide chat container
+        hideButton.addEventListener('click', function() {
             chatWrapper.style.display = 'none';
-            toggleButton.style.display = 'block';
-        }
+            toggleButton.style.display = 'block'; // Show the toggle button when chat is hidden
+        });
     });
-
-    // Hide chat container
-    hideButton.addEventListener('click', function() {
-        chatWrapper.style.display = 'none';
-        toggleButton.style.display = 'block'; // Show the toggle button when chat is hidden
-    });
-});
+    
+    
 </script>
+
+
+<style>
+    #chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 400px; /* Adjust the width as needed */
+        height: 500px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+        position: fixed;
+        bottom: 10px;
+        left: 10px; /* Positioning in the bottom-left corner */
+    }
+    
+    #chat-header {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+    
+    #chat-box {
+        flex-grow: 1;
+        padding: 10px;
+        overflow-y: auto;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Default alignment to the left */
+    }
+    
+    .chat-input-container {
+        display: flex;
+        padding: 10px;
+        box-sizing: border-box;
+        border-top: 1px solid #ddd;
+    }
+    
+    #message-input {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    #send-button {
+        margin-left: 5px;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+    
+    #send-button:hover {
+        background-color: #45a049;
+    }
+    
+    #hide-button {
+        background: linear-gradient(135deg, #4CAF50, #45a049); /* Gradient background */
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    }
+    
+    #hide-button:hover {
+        background: linear-gradient(135deg, #45a049, #4CAF50); /* Reversed gradient on hover */
+        transform: scale(1.05); /* Slight zoom effect */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+    }
+    
+    #hide-button:active {
+        background: linear-gradient(135deg, #3e8e41, #4CAF50); /* Darker gradient on click */
+        transform: scale(1); /* Reset zoom effect */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Reset shadow */
+    }
+    
+    .toggle-button {
+        display: none;
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .message-element {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        padding: 5px;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        max-width: 80%;
+        background-color: #a3e07d;
+        box-sizing: border-box;
+        min-width: 30%;
+    }
+    
+    .message-element.current-user {
+        align-self: flex-end;
+        background-color: #e1ffc7;
+        text-align: right;
+    }
+    
+    .message-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 80%;
+        min-width: 30%;
+        text-align:left;
+    }
+    
+    .message-element.current-user .message-content-wrapper {
+        align-items: flex-end; /* Align content to the right for current user's messages */
+    }
+    
+    .avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        margin-right: 10px;
+        border: 2px solid #ddd;
+    }
+    
+    .username {
+        font-weight: bold;
+        margin-bottom: 2px;
+        font-size: 0.9em;
+    }
+    
+    .message-content {
+        background-color: #f1f1f1;
+        padding: 5px 10px;
+        border-radius: 10px;
+        max-width: 100%; /* Ensure messages fit within the chat box */
+        word-wrap: break-word; /* Ensure long words break and wrap */
+        overflow-wrap: break-word; /* Ensure long words break and wrap */
+        font-size: 0.9em;
+        box-sizing: border-box; /* Include padding in width calculation */
+    }
+    
+    .message-element.current-user .message-content {
+        background-color: #d4edda; /* Different background for current user's messages */
+    }
+    
+
+
+    .context-menu {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        padding: 5px;
+        z-index: 1000;
+        box-sizing: border-box;
+    }
+    
+    .context-menu button {
+        display: block;
+        width: 100%;
+        padding: 5px;
+        border: none;
+        background-color: transparent;
+        text-align: left;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+    
+    .context-menu button:hover {
+        background-color: #f1f1f1;
+    }
+    
+    .context-menu button:active {
+        background-color: #e1e1e1;
+    }
+</style>

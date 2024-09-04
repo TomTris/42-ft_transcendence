@@ -82,7 +82,7 @@ function removeScriptsNavbar() {
     if (InviteSocket) {
         InviteSocket.close();
         InviteSocket = null;
-        cleanup_navbar_authorized();
+        // cleanup_navbar_authorized();
     }
     for (let i = 1; i <= scriptCounterNavbar - 1; i++) {
         const scriptElement = document.getElementById(`navbar_script_inserted${i}`);
@@ -110,6 +110,7 @@ async function loadNavbar() {
         })
         var html = await response.text();
         var navbarDiv = document.getElementById('navbar');
+        removeScriptsNavbar();
         navbarDiv.innerHTML = html;
         var scripts = navbarDiv.querySelectorAll('script');
         for (let i = 0; i < scripts.length; i++) 
@@ -156,7 +157,6 @@ async function loadContent2(url, option, pushToHistory)
 
 async function loadContent(url, option, pushToHistory = false) {
     try {
-        
         await get_new_access_token();
         await loadContent2(url, option, pushToHistory);
         await get_new_access_token();
