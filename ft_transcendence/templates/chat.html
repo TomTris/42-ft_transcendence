@@ -58,39 +58,66 @@
             messageElement.className = 'message-element';
         
             // Handle avatar and username
-            const avatarElement = document.createElement('img');
-            avatarElement.src = message.sender ? message.sender.avatar : '/path/to/default-avatar.png'; // Placeholder if no avatar
-            avatarElement.className = 'avatar';
+            
         
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'message-content-wrapper';
         
             const usernameElement = document.createElement('div');
             usernameElement.className = 'username';
-            usernameElement.textContent = message.sender ? message.sender.username : 'System'; // Default username if no sender
-        
+            
             const contentElement = document.createElement('div');
             contentElement.className = 'message-content';
-            contentElement.textContent = message.content;
-        
-            contentWrapper.appendChild(usernameElement);
-            contentWrapper.appendChild(contentElement);
-        
-            // Determine message alignment based on sender
-            if (message.sender) {
+            
+            if (message.sender)
+            {
+                const linkToProfile = document.createElement('a');
+                linkToProfile.className = 'link-player';
+                linkToProfile.href = '/users/' + message.sender.id + '/';
+                linkToProfile.setAttribute('data-route' ,'/users/' + message.sender.id + '/');
+                linkToProfile.textContent = message.sender.username;
+
+                const avatarElement = document.createElement('img');
+                avatarElement.src = message.sender.avatar
+                avatarElement.className = 'avatar';
+
+                usernameElement.appendChild(linkToProfile);
+                messageElement.appendChild(avatarElement);
+
                 if (message.sender.username === current_user) {
                     messageElement.classList.add('current-user');
                     messageElement.style.textAlign = 'right'; // Align text to the right for current user
                 } else {
                     messageElement.style.textAlign = 'left'; // Align text to the left for others
                 }
-            } else {
-                messageElement.classList.add('centered');
-                messageElement.style.textAlign = 'center'; // Center align if sender is null
-                avatarElement.style.display = 'none'; // Hide avatar for centered messages
+                contentElement.textContent = message.content;
             }
+            else
+            {
+                usernameElement.textContent = 'System';
+                messageElement.classList.add('centered');
+                messageElement.style.textAlign = 'center';
+                console.log(message.game_id); 
+                if (message.game_id){
+                    const linkToGame = document.createElement('a');
+                    linkToGame.className = 'link-system';
+                    linkToGame.textContent = message.content;
+                    linkToGame.href = '/game/' + message.game_id + '/';
+                    linkToGame.setAttribute('data-route' ,'/game/' + message.game_id + '/');
+                    contentElement.appendChild(linkToGame);
+                }
+                else
+                {
+                    contentElement.textContent = message.content;
+                }
+            }
+            
         
-            messageElement.appendChild(avatarElement);
+            contentWrapper.appendChild(usernameElement);
+            contentWrapper.appendChild(contentElement);
+    
+        
+            
             messageElement.appendChild(contentWrapper);
         
             chatBox.appendChild(messageElement);
@@ -295,7 +322,30 @@
         background-color: #e1ffc7;
         text-align: right;
     }
+
+    .message-element.centered {
+        align-self: center;
+        align-items: center;
+        background-color: #c4f3a3;
+        text-align: center;
+        min-width: 75%;
+    }
     
+    .message-element.centered .message-content-wrapper
+    {
+        align-self: center;
+        align-items: center;
+        min-width: 100%;
+    }
+
+    .message-element.centered .message-content
+    {
+        align-items: center;
+        align-self: center;
+        text-align: center;
+        min-width: 100%;
+    }
+
     .message-content-wrapper {
         display: flex;
         flex-direction: column;
@@ -323,6 +373,18 @@
         font-size: 0.9em;
     }
     
+    .username a{
+        cursor: pointer;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .message-element.centered a {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: none;
+    }
+
     .message-content {
         background-color: #f1f1f1;
         padding: 5px 10px;
