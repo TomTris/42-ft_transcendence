@@ -107,7 +107,7 @@
     <ul class="friends-list">
         {% for friend in friends %}
         <li class="friend-item">
-            <span class="status-dot {% if friend.is_active %}active{% else %}inactive{% endif %}"></span>
+            <span class="status-dot {% if friend.is_online %}active{% else %}inactive{% endif %}"></span>
             <img src="{{friend.avatar.url}}" class="friend-avatar" alt="{{ friend.username }}'s avatar">
             <div class="friend-info">
                 <a href="/users/{{friend.id}}/" class="friend-link" data-route="/users/{{friend.id}}/">{{ friend.username }}</a>

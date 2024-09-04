@@ -91,7 +91,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'pages.middleware.CheckUserAuthorizationMiddleware',
-    # 'game.middleware.CleanupMiddleware',
+    'game.middleware.CleanupMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'accounts.middleware.CookieToAuthorizationMiddleware',
 ]

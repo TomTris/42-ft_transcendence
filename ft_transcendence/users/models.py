@@ -17,7 +17,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login=models.DateTimeField(auto_now=True)
     twoFaEnable=models.BooleanField(default=True)
     token_reset_password=models.CharField(max_length=100, verbose_name=_("Last Name"), default='')
+
     is_online=models.BooleanField(default=False)
+    online_check=models.BooleanField(default=True)
     avatar = models.ImageField(upload_to='avatars/', default='default/default.png')
     elo = models.IntegerField(default=400)
     wins =  models.IntegerField(default=0)

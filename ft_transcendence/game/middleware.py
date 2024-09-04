@@ -4,6 +4,7 @@ from django.utils.deprecation import MiddlewareMixin
 from game.models import GameSession
 from game.models import TournamentSession
 from django.conf import settings
+from users.models import User
 
 
 class CleanupMiddleware(MiddlewareMixin):
@@ -20,4 +21,8 @@ class CleanupMiddleware(MiddlewareMixin):
         un_finished.delete()
         un_finished = TournamentSession.objects.filter(is_active=True)
         un_finished.delete()
+        users = User.objects.all()
+        for user in users:
+            user.is_online = False
+            user.save()
         print('Cleanup complete.')
