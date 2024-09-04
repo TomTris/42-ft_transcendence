@@ -21,6 +21,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .forms import UserSettingsForm 
 
 class LogoutUserView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -77,7 +78,9 @@ class SettingView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request):
 		try:
+			print(77777)
 			user = request.user
+			print(77777)
 			context = {
 				'email': user.email,
 				'first_name': user.first_name,
@@ -88,18 +91,18 @@ class SettingView(APIView):
 				'twoFaEnable': user.twoFaEnable,
 				'avatar': user.avatar,
 				}
-			return render(request, "setting.html", context, status=200)
+			print(77777)
+			return render(request, "settings.html", context, status=200)
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_204_NO_CONTENT)
+	
 	def post(self, request):
 		try:
-			user = request.user
-			data = request.data
-			user['first_name'] = data['first_name']
-			user['last_name'] = data['last_name']
-			user['username'] = data['username']
-			user['twoFaEnable'] = data['twoFaEnable']
-			user['avatar'] = data['avatar']
-			user.save()
+			form = UserSettingsForm(request.POST, request.FILES, instance=request.user)
+			if form.is_valid():  # This will perform the validation
+				form.save()  # This will save the updated data including the avatar
+				return Response({'message': 'Profile updated successfully!'}, status=status.HTTP_200_OK)
+			else:
+				return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)

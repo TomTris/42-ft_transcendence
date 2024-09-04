@@ -1,5 +1,5 @@
-<form method="POST" action="/update-profile/" enctype="multipart/form-data">
-    
+<form id="profileForm" method="POST" action="/settings/" enctype="multipart/form-data">
+
     <div>
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" value="{{ user.email }}" readonly>
@@ -17,7 +17,7 @@
 
     <div>
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" value="{{ user.username }}" required>
+        <input type="text" id="username" name="username" value="{{ user.username }}" readonly>
     </div>
 
     <div>
@@ -37,8 +37,51 @@
 
     <div>
         <label for="avatar">Avatar:</label>
-        <input type="file" id="avatar" name="avatar">
+        <img id="avatarPreview" src="{{ user.avatar.url }}" alt="Avatar" width="150" height="150"/>
+        <input type="file" id="avatar" name="avatar" accept="image/*">
     </div>
 
-    <button type="submit">Update Profile</button>
+    <button type="button" onclick="submitSetting()">Update Profile</button>
 </form>
+
+<script>
+    document.getElementById('avatar').addEventListener('change', function(event) {
+        const avatarInput = event.target;
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (avatarInput.files && avatarInput.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                avatarPreview.src = e.target.result;
+            }
+
+            reader.readAsDataURL(avatarInput.files[0]);
+        }
+    });
+
+    async function submitSetting() {   
+        try {
+            const form = document.getElementById('profileForm');
+            const formData = new FormData(form);
+
+            const twoFaEnable = document.getElementById('twoFaEnable').checked;
+            formData.set('twoFaEnable', twoFaEnable ? 'true' : 'false');
+            console.log(3)
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            if (data.message) {
+                alert(data.message);
+            } else {
+                alert(data.detail);
+            }
+
+        } catch (error) {
+            alert('An error occurred while updating the profile: ' + error.message);
+            console.error('Error:', error);
+        }
+    }
+</script>

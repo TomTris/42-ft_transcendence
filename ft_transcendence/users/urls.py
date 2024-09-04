@@ -4,7 +4,9 @@ from .views import (RegisterUserView, VerifyUserEmail, SendRegisterCode,
 					LoginUserView, VerifyLoginUserView,
 					PasswordResetRequestView, PasswordResetConfirm, SetNewPassword)
 
-from .views2 import (LogoutUserView,  TokenRefreshView, IsAuthorizedView, NavbarAuthorizedView)
+from .views2 import (LogoutUserView,  TokenRefreshView,
+					 IsAuthorizedView, NavbarAuthorizedView,
+					 SettingView)
 
 urlpatterns=[
 	path('register/', RegisterUserView.as_view(), name='register'),
@@ -21,7 +23,9 @@ urlpatterns=[
 	
 	path('refresh/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 	path('refresh/logout/', LogoutUserView.as_view(), name='logout'),
+
 	path('is_authorized/', IsAuthorizedView.as_view(), name='isAuthorized'),
 	path('navbar_authorized/', NavbarAuthorizedView.as_view(), name='navbarAuthorized'),
+	path('settings/', SettingView.as_view(), name='settings'),
 	path('', include('pages.urls')),
 ]
