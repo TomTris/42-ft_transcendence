@@ -36,7 +36,8 @@ class InviteConsumer(WebsocketConsumer):
         id = self.user.id
         def checking(id):
             time.sleep(5)
-            if User.objects.get(id=id).online_check == False:
+            self.user = User.objects.get(id=self.user.id)
+            if self.user.online_check == False:
                 self.user.is_online = False
                 self.user.save()
                 self.send_to_all(-1, -1, 1)
@@ -53,6 +54,7 @@ class InviteConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.user.online_check = False
+        self.user = User.objects.get(id=self.user.id)
         self.user.save()
         self.disconnecting()
 
