@@ -2,8 +2,9 @@ from django.urls import path, include
 from django.urls import path
 from .views import (RegisterUserView, VerifyUserEmail, SendRegisterCode,
 					LoginUserView, VerifyLoginUserView,
-					PasswordResetRequestView, PasswordResetConfirm, SetNewPassword,
-					LogoutUserView,  TokenRefreshView, IsAuthorizedView, NavbarAuthorizedView)
+					PasswordResetRequestView, PasswordResetConfirm, SetNewPassword)
+
+from .views2 import (LogoutUserView,  TokenRefreshView, IsAuthorizedView, NavbarAuthorizedView)
 
 urlpatterns=[
 	path('register/', RegisterUserView.as_view(), name='register'),

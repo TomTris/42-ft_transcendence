@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+=======
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from channels.generic.websocket import WebsocketConsumer
+>>>>>>> d958c49d2fce6d9825c1cf80f4e6878b0d3fb425
 import json
 from .models import get_invites, Invite
 from .serializers import InviteSerializer
 from users.models import User, Friendship
 from asgiref.sync import async_to_sync
+<<<<<<< HEAD
 from channels.db import database_sync_to_async
 import threading
 import time
 import asyncio
 
+=======
+from rest_framework_simplejwt.authentication import JWTAuthentication
+>>>>>>> d958c49d2fce6d9825c1cf80f4e6878b0d3fb425
 
 class InviteConsumer(WebsocketConsumer):
 
@@ -71,9 +81,23 @@ class InviteConsumer(WebsocketConsumer):
 
 
     def invite_message(self, event):
+<<<<<<< HEAD
         messages = Invite.objects.filter(send_to=self.user).order_by('-id')
         invite_data = self.serialize_invites(messages)
         # print(invite_data)
+=======
+        print("invite_message called")
+        print(self.user)
+        print("invite_message called")
+        user = self.user.user if hasattr(self.user, 'user') else self.user
+        print(user.is_verified)
+        print("invite_message called")
+        messages = Invite.objects.filter(send_to=self.user)[::-1]
+        print("invite_message called done")
+        print(messages)
+        serializer = InviteSerializer(messages, many=True)
+        invite_data = serializer.data
+>>>>>>> d958c49d2fce6d9825c1cf80f4e6878b0d3fb425
         response_data = {
             'type': 'invites',
             'invites': invite_data,

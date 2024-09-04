@@ -31,15 +31,21 @@
 				},
 				body: JSON.stringify({ email, password })
 			})
-			var success = response.ok
+			var success = response.ok;
+			var code = response.status;
 			data = await response.json();
 			if (data.message)
 				alert(data.message);
 			else
 				alert(data.detail);
 			if (success) {
-				document.getElementById('loginForm').classList.add('hidden');
-				document.getElementById('loginOtp').classList.remove('hidden');
+				if (code == 200) {
+					document.getElementById('loginForm').classList.add('hidden');
+					document.getElementById('loginOtp').classList.remove('hidden');
+				}
+				if (code == 202) {
+					await loadContent('/home/', defaultOption, true);
+				}
 			}
 		}
 		catch (error) {
@@ -50,7 +56,6 @@
 		try{
 			const email = document.getElementById('email').value;
 			const otp = document.getElementById('otp').value;
-			console.log(11);
 			response = await fetch('/login-verify/', {
 				method: 'POST',
 				headers: {

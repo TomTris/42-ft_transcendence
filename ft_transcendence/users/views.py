@@ -97,7 +97,7 @@ class VerifyUserEmail(GenericAPIView):
 		user_row.times += 1
 		user_row.save()
 		return Response({'message':'code or email is invalid.\n\
-				Please try aga	in'}, status=status.HTTP_401_UNAUTHORIZED)
+				Please try again'}, status=status.HTTP_401_UNAUTHORIZED)
 
 	def get(self, request):
 		return render(request, "register-verify.html")
@@ -116,14 +116,30 @@ class SendRegisterCode(GenericAPIView):
 
 
 
-
-
+# request = self.context.get('request')
+# if request is not None:
+# 	login(request, user)
 class LoginUserView(GenericAPIView):
 	serializer_class = LoginSerializer
 
 	def post(self, request):
 		serializer = self.serializer_class(data=request.data, context={'request': request})
 		if serializer.is_valid():
+			user = User.objects.get(email=serializer.validated_data)
+			if user.twoFaEnable == False:
+				data={
+				'email_body':"You have just loggined",
+				'email_subject':"Your Login",
+				'to_email':serializer.validated_data
+				}
+				send_normal_email(data)
+				user_tokens=user.tokens()
+				response = Response({
+				"message" : "Login successful"
+					}, status=status.HTTP_202_ACCEPTED)
+				response.set_cookie('access_token', str(user_tokens.get('access')), httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
+				response.set_cookie('refresh_token', str(user_tokens.get('refresh')), httponly=True, secure=True, samesite='Strict', max_age=24*60*60, path='/refresh/')
+				return response
 			send_code_to_user_login(serializer.validated_data)
 			return Response({
 				'message':"Please open your mail to get OTP to login"
@@ -153,35 +169,6 @@ class VerifyLoginUserView(GenericAPIView):
 		return render(request, "login-verify.html")
 
 
-
-class IsAuthorizedView(APIView):
-	def post(self, request):
-		if request.user.is_authenticated:
-			return Response({}, status=status.HTTP_200_OK)
-		return Response({}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
-
-class NavbarAuthorizedView(APIView):
-	def post(self, request):
-		if request.user.is_authenticated:
-			return render(request, "navbar_authorized.html", status=200)
-		return render(request, "navbar_unauthorized.html", status=200)
-
-class TokenRefreshView(APIView):
-	def post(self, request):
-		refresh_token = request.COOKIES.get('refresh_token')
-		if refresh_token is None:
-			return Response({
-				'detail': 'Refresh token not provided'
-				}, status=status.HTTP_204_NO_CONTENT)
-
-		try:
-			refresh = RefreshToken(refresh_token)
-			new_access_token = str(refresh.access_token)
-			response = Response({}, status=status.HTTP_200_OK)
-			response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
-			return response
-		except Exception as e:
-			return Response({'detail': str(e)}, status=status.HTTP_204_NO_CONTENT)
 
 
 class PasswordResetRequestView(GenericAPIView):
@@ -231,28 +218,3 @@ class SetNewPassword(GenericAPIView):
 			'message':'passwort reset successfull',
 			}, status=status.HTTP_200_OK)
 
-
-class LogoutUserView(APIView):
-	permission_classes = [IsAuthenticated]
-
-	def get(self, request):
-		refresh_token = request.COOKIES.get('refresh_token', '')
-		
-		if not refresh_token:
-			return Response({'error': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-		try:
-			response = render(request, "login.html", status=200)
-			response.delete_cookie('refresh_token', samesite='Strict', path='/refresh/')
-			response.delete_cookie('access_token', samesite='Strict', path='/')
-			old_refresh = RefreshToken(token=refresh_token)
-			old_refresh.blacklist()	
-			# user_id = refresh['user_id'] 
-			# user = User.objects.get(id=user_id)
-			# refresh.access_token.token_blacklist()
-			# refresh.token_blacklist()
-			return response
-
-		except Exception as e:
-			print(e)
-			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

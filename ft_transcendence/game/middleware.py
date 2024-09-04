@@ -21,6 +21,7 @@ class CleanupMiddleware(MiddlewareMixin):
         un_finished.delete()
         un_finished = TournamentSession.objects.filter(is_active=True)
         un_finished.delete()
+<<<<<<< HEAD
         users = User.objects.all()
         for user in users:
             user.is_online = False
@@ -29,3 +30,7 @@ class CleanupMiddleware(MiddlewareMixin):
         print('Cleanup complete.')
 
         
+=======
+        print('Cleanup complete.')
+
+>>>>>>> d958c49d2fce6d9825c1cf80f4e6878b0d3fb425

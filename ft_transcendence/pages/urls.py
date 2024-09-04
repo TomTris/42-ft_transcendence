@@ -8,7 +8,6 @@ urlpatterns = [
     path('users/', views.users_view),
     path('users/<int:id>/', views.user_view),
     path('users/<int:id>/friends/', views.friends_view),
-    path('inactive/', views.inactive_view),
     path('tournaments/', views.tournaments_view),
     path('best/', views.best_view),
     path('add_friend/<int:user_id>/', views.add_friend, name='add_friend'),

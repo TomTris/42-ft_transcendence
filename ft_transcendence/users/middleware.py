@@ -18,6 +18,7 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken,  Token
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .models import User
 
 class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
@@ -26,10 +27,18 @@ class CustomJWTAuthentication(JWTAuthentication):
 def valid_access_token(request):
     access_token = request.COOKIES.get('access_token', '')
     if access_token:
-        jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-        request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
-        checker = CustomJWTAuthentication()
-        checker.authenticate(request)
+        try:
+            decoded_data = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            request.META['HTTP_AUTHORIZATION'] = f'Bearer {access_token}'
+            checker = CustomJWTAuthentication()
+            user_id = decoded_data.get('user_id')
+            user = User.objects.get(id=user_id)
+            checker.authenticate(request)
+            request.user = user
+            print (request.user.is_authenticated)
+        except Exception as e:
+            print(e)
+            raise Exception("")
     else:
         raise Exception("")
     
@@ -42,9 +51,15 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         print()
+        print()
+        print()
+        print()
+        print(request.COOKIES)
+        print()
+        print(request)
         print(request.path, "with", request.method, "Method")
         if request.method == 'GET':
-            if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+            if request.headers.get('X-Requested-With') != 'XMLHttpRequest' and not request.path.startswith('/media/'):
                 context = {
                     'method': 'GET'
                 }
@@ -56,7 +71,9 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                 print("HTTP_AUTHORIZATION GET set")
                 if request.path in self.non_login:
                     print("redirect to home.html")
-                    return render(request, "home.html")
+                    response = render(request, "home.html")
+                    response.delete_cookie('access_token', samesite='Strict', path='/')
+                    return response
                 print("redirect to", request.path)
             except:
                 print("HTTP_AUTHORIZATION POST unset")
@@ -72,3 +89,55 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                 pass
                 request.META.pop('HTTP_AUTHORIZATION', None)
                 print("HTTP_AUTHORIZATION POST not set")
+
+
+
+# users/middleware.py
+
+import jwt
+from channels.auth import AuthMiddleware
+from channels.exceptions import DenyConnection
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import get_user_model
+from channels.db import database_sync_to_async
+
+class JWTAuthMiddleware:
+    def __init__(self, inner):
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send):
+        # Process WebSocket requests
+        if scope['type'] == 'websocket':
+            token = self._get_token_from_cookies(scope)
+            user = await self._authenticate(token)
+            scope['user'] = user
+        
+        # Pass control to the next middleware or consumer
+        return await self.inner(scope, receive, send)
+
+    def _get_token_from_cookies(self, scope):
+        cookies_header = dict(scope.get('headers', []))
+        cookie_header = cookies_header.get(b'cookie', b'')
+        cookies = cookie_header.decode().split('; ')
+
+        for cookie in cookies:
+            if '=' in cookie:
+                key, value = cookie.split('=', 1)
+                if key == 'access_token':
+                    return value
+        return None
+
+    @database_sync_to_async
+    def _authenticate(self, token):
+        if token is None:
+            return AnonymousUser()
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = payload.get('user_id')
+            if user_id:
+                User = get_user_model()
+                return User.objects.get(id=user_id)
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
+            pass
+        return AnonymousUser()
