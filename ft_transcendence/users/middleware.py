@@ -35,7 +35,7 @@ def valid_access_token(request):
             user = User.objects.get(id=user_id)
             checker.authenticate(request)
             request.user = user
-            print (request.user.is_authenticated)
+            # print (request.user.is_authenticated)
         except Exception as e:
             print(e)
             raise Exception("")
@@ -51,12 +51,8 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         print()
-        print()
-        print()
-        print()
         print(request.COOKIES)
-        print()
-        print(request)
+        # print(request)
         print(request.path, "with", request.method, "Method")
         if request.method == 'GET':
             if request.headers.get('X-Requested-With') != 'XMLHttpRequest' and not request.path.startswith('/media/'):

@@ -49,6 +49,10 @@
         if ((key == 'f' || key== 'F') && event.repeat) {
             return;
         }
+        if ((key == 'v' || key== 'V')) {
+            cameraView += 1;
+            return;
+        }
         const message = {
             type: 'keydown',
             key: key

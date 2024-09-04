@@ -28,6 +28,7 @@ let acceptInviteButton;
 let playInviteButton;
 let cancelInviteButton;
 
+let cameraView;
 
 let socket1 = null;
 let canvas;
@@ -135,8 +136,8 @@ async function get_new_access_token()
 async function loadContent2(url, option, pushToHistory)
 {
     var response = await fetch(url, option)
-    var html = await response.text();
     if (option.method == 'GET') {
+        var html = await response.text();
         removeScripts();
         var appDiv = document.getElementById('app');
         appDiv.innerHTML = html;
@@ -153,6 +154,7 @@ async function loadContent2(url, option, pushToHistory)
             window.history.pushState({ url: url }, '', url);
         }
     }
+
 }
 
 async function loadContent(url, option, pushToHistory = false) {
