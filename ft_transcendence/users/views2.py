@@ -96,8 +96,12 @@ class SettingView(APIView):
 	def post(self, request):
 		try:
 			form = UserSettingsForm(request.POST, request.FILES, instance=request.user)
+			print(request.user.twoFaEnable)
+			print(form.data['twoFaEnable']) 
 			if form.is_valid():  # This will perform the validation
-				form.save()  # This will save the updated data including the avatar
+				form.save()
+				print(request.user.twoFaEnable)
+				print(form.data['twoFaEnable'])  # This will save the updated data including the avatar
 				return Response({'message': 'Profile updated successfully!'}, status=status.HTTP_200_OK)
 			else:
 				print(form.errors)

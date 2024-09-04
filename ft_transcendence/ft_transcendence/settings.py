@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+
 from pathlib import Path
 from datetime import timedelta
 import os
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
-SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm6'
+SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0n123ay334#q3f+a0-dm6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
