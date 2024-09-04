@@ -34,6 +34,7 @@ def valid_access_token(request):
         raise Exception("")
     
 
+
 class CookieToAuthorizationMiddleware(MiddlewareMixin):
     non_login = ['/login/', '/login', '/register', '/register/',\
                  '/inactive/', '/admin/',

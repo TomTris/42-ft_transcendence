@@ -290,57 +290,80 @@
         const data = JSON.parse(e.data);
         console.log(data);
     
-        // Update count and show/hide badge
-        const invites = data.invites || [];
-        const inviteCount = invites.length;
-        inviteCountElement.textContent = inviteCount;
-        inviteCountElement.style.display = inviteCount > 0 ? 'inline' : 'none';
-    
-        // Clear the current list
-        invitationList.innerHTML = '';
-    
-        if (inviteCount > 0) {
-            const ul = document.createElement('ul');
-            invites.forEach(invite => {
-                const li = document.createElement('li');
+        if (data.type == 'invites')
+        {
+            const invites = data.invites || [];
+            const inviteCount = invites.length;
+            inviteCountElement.textContent = inviteCount;
+            inviteCountElement.style.display = inviteCount > 0 ? 'inline' : 'none';
+        
+            // Clear the current list
+            invitationList.innerHTML = '';
+        
+            if (inviteCount > 0) {
+                const ul = document.createElement('ul');
+                invites.forEach(invite => {
+                    const li = document.createElement('li');
+                    
+                    const avatar = document.createElement('img');
+                    avatar.src = invite.sender.avatar || 'default-avatar.png'; // Default avatar if missing
+                    avatar.width = 30; // Adjust size as needed
+                    avatar.height = 30; // Adjust size as needed
+        
+                    const userLink = document.createElement('a');
+                    userLink.href = `/users/${invite.sender.id}`; // Link to user profile
+                    userLink.dataset.route = `/users/${invite.sender.id}/`; // Add data-route attribute
+                    userLink.textContent = invite.sender.username || 'Unknown'; // Display username
+        
+                    const text = document.createElement('span');
+                    text.textContent = ' wants to be friends'; // Adjust as needed
+                    
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'invitation-buttons';
+        
+                    const acceptButton = document.createElement('button');
+                    acceptButton.className = 'accept'; // Added class for acceptance
+                    acceptButton.dataset.inviteId = invite.id; // Store the invite ID
+        
+                    const denyButton = document.createElement('button');
+                    denyButton.className = 'deny';
+                    denyButton.dataset.inviteId = invite.id; // Store the invite ID
+        
+                    buttonContainer.appendChild(acceptButton);
+                    buttonContainer.appendChild(denyButton);
+        
+                    li.appendChild(avatar);
+                    li.appendChild(userLink);
+                    li.appendChild(text);
+                    li.appendChild(buttonContainer);
+        
+                    ul.appendChild(li);
+                });
+                invitationList.appendChild(ul);
                 
-                const avatar = document.createElement('img');
-                avatar.src = invite.sender.avatar || 'default-avatar.png'; // Default avatar if missing
-                avatar.width = 30; // Adjust size as needed
-                avatar.height = 30; // Adjust size as needed
-    
-                const userLink = document.createElement('a');
-                userLink.href = `/users/${invite.sender.id}`; // Link to user profile
-                userLink.dataset.route = `/users/${invite.sender.id}/`; // Add data-route attribute
-                userLink.textContent = invite.sender.username || 'Unknown'; // Display username
-    
-                const text = document.createElement('span');
-                text.textContent = ' wants to be friends'; // Adjust as needed
-                
-                const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'invitation-buttons';
-    
-                const acceptButton = document.createElement('button');
-                acceptButton.className = 'accept'; // Added class for acceptance
-                acceptButton.dataset.inviteId = invite.id; // Store the invite ID
-    
-                const denyButton = document.createElement('button');
-                denyButton.className = 'deny';
-                denyButton.dataset.inviteId = invite.id; // Store the invite ID
-    
-                buttonContainer.appendChild(acceptButton);
-                buttonContainer.appendChild(denyButton);
-    
-                li.appendChild(avatar);
-                li.appendChild(userLink);
-                li.appendChild(text);
-                li.appendChild(buttonContainer);
-    
-                ul.appendChild(li);
-            });
-            invitationList.appendChild(ul);
-        } else {
-            invitationList.innerHTML = '<p>No invitations</p>';
+                //if (window.location.href )
+            } else {
+                invitationList.innerHTML = '<p>No invitations</p>';
+            }
+            console.log(window.location.href);
+            let start = 'https://localhost/users/';
+            let location = window.location.href;
+            if (location.startsWith(start) &&  location.length > start.length && data.update == 2)
+            {
+                let link = location.substring(start.length - 7);
+                console.log(link);
+                loadContent(link, defaultOption, false);
+            }
+            else if (location == start && data.update == 1)
+            {
+                let link = '/users/';
+                console.log(link);
+                loadContent(link, defaultOption, false);
+            }
+        }
+        else if (data.type == 'redirect')
+        {
+            loadContent(data.link, defaultOption, true);
         }
     };
     

@@ -26,7 +26,9 @@ class GameConsumer(WebsocketConsumer):
         
         self.user = self.scope['user']
         if self.user in [self.game_session.player1, self.game_session.player2]:
-            
+            if not self.game_session.is_tournament:
+                self.user.is_playing = True
+                self.user.save()
             self.accept()
             async_to_sync(self.channel_layer.group_add)(
                 self.group_name,
@@ -88,10 +90,14 @@ class GameConsumer(WebsocketConsumer):
             game_state = self.game_session.get_game_state()
             if game_state['online'] == self.count and game_state['disc1'] == 1:
                 self.game_session.delete()
+                if not self.game_session.is_tournament:
+                    self.user.is_playing = False
+                    self.user.save()
             else:
                 if self.game_session.player1 == self.game_session.player2:
                     self.game_session.delete_second()
                 game_state['online'] = 0
+       
         self.game_session.set_game_state(game_state)
         self.update_game_session()
 
@@ -353,6 +359,11 @@ class GameConsumer(WebsocketConsumer):
                     game_state["won"] = 1
                     self.game_session.set_game_state(game_state)
                     self.save_to_data_base()
+                    if not self.game_session.is_tournament:
+                        self.game_session.player1.is_playing=False
+                        self.game_session.player2.is_playing=False
+                        self.game_session.player1.save()
+                        self.game_session.player2.save()
                     self.update_game_session()
                     self.send_data_to_group()
                 else:
@@ -366,6 +377,12 @@ class GameConsumer(WebsocketConsumer):
                     game_state["start"] = time.time() + 1000000
                     self.game_session.set_game_state(game_state)
                     self.save_to_data_base()
+                    if not self.game_session.is_tournament:
+                        self.game_session.player1.is_playing=False
+                        self.game_session.player2.is_playing=False
+                        self.game_session.player1.save()
+                        self.game_session.player2.save()
+
                     self.update_game_session()
                     self.send_data_to_group()
                 else:

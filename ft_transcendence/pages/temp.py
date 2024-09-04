@@ -23,7 +23,7 @@ class InviteConsumer(WebsocketConsumer):
         self.user.is_online = True
         self.user.online_check = True
         self.user.save()
-        self.send_to_all()
+        self.send_to_all(1)
 
     def disconnecting(self):
         id = self.user.id
@@ -56,27 +56,56 @@ class InviteConsumer(WebsocketConsumer):
                 if data['result'] == 'accept':
                     Friendship.objects.create(person1=invite.sender, person2=invite.send_to)
                 invite.delete()
-
+                self.send_to_two(invite.send_to.id, invite.sender.id, 2)
 
         self.send_to_all()
-        
+    
+    def invite_message2(self, event):
+        id1 = event['id1']
+        id2 = event['id2']
+        update = event['update']
+        if self.user.id == id1 or self.user.id == id2:
+            messages = Invite.objects.filter(send_to=self.user).order_by('-id')
+            invite_data = self.serialize_invites(messages)
+            response_data = {
+                'type': 'invites',
+                'invites': invite_data,
+                'update': update,
+            }
+            self.send(text_data=json.dumps(response_data))
 
-    def send_to_all(self):
+
+    def send_to_two(self, id1, id2, update):
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
-                'type': 'invite_message',
+                'type': 'invite_message2',
+                'update':update,
+                'id1':id1,
+                'id2':id2
             }
         )
 
 
-    def invite_message(self, event):
+    def send_to_all(self, id1, id2, update=0):
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'invite_message',
+                'update':update,
+            }
+        )
+
+
+    def invite_message(self, event={'update':0}):
+        update = event['update']
         messages = Invite.objects.filter(send_to=self.user).order_by('-id')
         invite_data = self.serialize_invites(messages)
         # print(invite_data)
         response_data = {
             'type': 'invites',
             'invites': invite_data,
+            # 'update': update,
         }
         self.send(text_data=json.dumps(response_data))
 
@@ -84,12 +113,11 @@ class InviteConsumer(WebsocketConsumer):
         id1 = event['id1']
         id2 = event['id2']
         link = event['link']
-        print(self.user.id, id1, id2)
         if self.user.id == id1 or self.user.id == id2:
-            print('inside')
             response_data = {
                 'type': 'redirect',
                 'link': link,
+                'update':0,
             }
             self.send(text_data=json.dumps(response_data))
 

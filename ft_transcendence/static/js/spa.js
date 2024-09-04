@@ -14,14 +14,19 @@ let notificationPopup;
 let popupTitle;
 let popupMessage;
 
-
 let countdownInterval;
 let countdownTime;
 
+// user
 var addFriendButton;
 var acceptFriendButton;
 var deleteFriendButton;
 var cancelFriendButton;
+
+let addInviteButton;
+let acceptInviteButton;
+let playInviteButton;
+let cancelInviteButton;
 
 
 let socket1 = null;

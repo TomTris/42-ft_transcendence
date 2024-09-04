@@ -23,6 +23,8 @@ class TournamentConsumer(BaseConsumer):
         return cache.get(self.get_cache_key(), default={})
 
     def connect(self):
+        self.user.is_playing = True
+        self.user.save()
         self.accept()
         self.user = self.scope['user'] 
         data = self.get_game_state()
@@ -84,6 +86,8 @@ class TournamentConsumer(BaseConsumer):
 
     def disconnect(self, code):
         with self.game_state_lock:
+            self.user.is_playing = False
+            self.user.save()
             self.game_state['paused'] = 1
             self.game_state['disconected'] = 1
             self.set_game_state(self.game_state)

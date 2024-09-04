@@ -24,5 +24,8 @@ class CleanupMiddleware(MiddlewareMixin):
         users = User.objects.all()
         for user in users:
             user.is_online = False
+            user.is_playing = False
             user.save()
         print('Cleanup complete.')
+
+        

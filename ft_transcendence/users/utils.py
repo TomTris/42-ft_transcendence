@@ -24,7 +24,7 @@ def send_code_to_user(email):
 	OneTimePassword.objects.create(user=user, code=otp_code, email=email, times=0)
 	send_email=EmailMessage(subject=Subject, body=email_body,
 					from_email=from_email, to=[email])
-	send_email.send(fail_silently=False)
+	# send_email.send(fail_silently=False)
 
 
 
@@ -44,7 +44,7 @@ def send_code_to_user_login(email):
 	OneTimePasswordLogin.objects.create(user=user, code=otp_code, email=email, times=0)
 	send_email=EmailMessage(subject=Subject, body=email_body,
 					from_email=from_email, to=[email])
-	send_email.send(fail_silently=False)
+	# send_email.send(fail_silently=False)
 
 
 
@@ -55,4 +55,4 @@ def send_normal_email(data):
 		from_email=settings.EMAIL_HOST_USER,
 		to=[data['to_email']]
 	)
-	email.send(fail_silently=False)
+	# email.send(fail_silently=False)

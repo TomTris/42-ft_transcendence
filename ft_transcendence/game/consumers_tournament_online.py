@@ -82,6 +82,8 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             return
         self.user = self.scope['user']
         if self.user in [self.tournament.player1, self.tournament.player2, self.tournament.player3, self.tournament.player4]:
+            self.user.is_playing = True
+            self.user.save()
             self.accept()
             async_to_sync(self.channel_layer.group_add)(
                     self.group_name,
@@ -102,7 +104,10 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         )
 
 
+
     def force_disconect(self, event):
+        self.user.is_playing = False
+        self.user.save()
         self.close()
 
 
@@ -116,6 +121,8 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def kick(self, event):
+        self.user.is_playing = False
+        self.user.save()
         message = event['message']
         message['status'] = 'Kick'
         if message['player'] == self.get_player():
@@ -150,6 +157,8 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             'status': "Cancel"
         }
         self.send(text_data=json.dumps(message))
+        self.user.is_playing = False
+        self.user.save()
         self.close()
 
 
@@ -165,6 +174,8 @@ class OnlineTournamentConsumer(WebsocketConsumer):
     def quit(self, event):
         message = event['message']
         if message['player'] == self.get_player():
+            self.user.is_playing = False
+            self.user.save()
             self.close()
     
 

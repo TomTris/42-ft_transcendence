@@ -59,6 +59,16 @@
     <button id="cancel-friend-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Friend Request</button>
 {% endif %}
 
+{% if invite == 1 %}
+    <button id="add-invite-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Invite to play</button>
+{% elif invite == 2 %}
+    <button id="play-invite-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Already Playing</button>
+{% elif invite == 3 %}
+    <button id="accept-invite-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Invite Request</button>
+{% elif invite == 4 %}
+    <button id="cancel-invite-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Invite Request</button>
+{% endif %}
+
 <h2>Stats</h2>
 <p>Total Matches: {{ user.total }} Wins: {{ user.wins }} Loses: {{ user.loses }} Winrate: {{ winrate }}</p>
 <p>Elo: {{ user.elo }}</p>
@@ -85,7 +95,14 @@
     deleteFriendButton = document.getElementById('delete-friend-btn');
     cancelFriendButton = document.getElementById('cancel-friend-btn');
 
-    function handleAction(url, method) {
+
+    addInviteButton = document.getElementById('add-invite-btn');
+    acceptInviteButton = document.getElementById('accept-invite-btn');
+    playInviteButton = document.getElementById('play-invite-btn');
+    cancelInviteButton = document.getElementById('cancel-invite-btn');
+
+
+    function handleAction(url, method, reload) {
         fetch(url, {
             method: method,
             headers: {
@@ -99,10 +116,11 @@
             if (data.error) {
                 console.error('Error:', data.error);
             } else {
-                console.log('Success:', data.message);
-                const userId = {{user.id}};
-                {% comment %} window.location.href = `/users/${userId}`; {% endcomment %}
-                loadContent(`/users/${userId}`, defaultOption, true)
+                if (reload == 1)
+                {
+                    const userId = {{user.id}};
+                    loadContent(`/users/${userId}`, defaultOption, true);
+                }
             }
         })
         .catch(error => console.error('Error:', error));
@@ -112,26 +130,54 @@
         addFriendButton.addEventListener('click', function() {
             const userId = addFriendButton.getAttribute('data-user-id');
             console.log(userId);
-            handleAction(`/add_friend/${userId}/`, 'POST');
+            handleAction(`/add_friend/${userId}/`, 'POST', 1);
         });
     }
 
     if (acceptFriendButton) {
         acceptFriendButton.addEventListener('click', function() {
             const userId = acceptFriendButton.getAttribute('data-user-id');
-            handleAction(`/accept_friend/${userId}/`, 'POST');
+            handleAction(`/accept_friend/${userId}/`, 'POST', 1);
         });
     }
 
     if (deleteFriendButton) {
         deleteFriendButton.addEventListener('click', function() {
             const userId = deleteFriendButton.getAttribute('data-user-id');
-            handleAction(`/delete_friend/${userId}/`, 'POST');
+            handleAction(`/delete_friend/${userId}/`, 'POST', 1);
         });
     }
 
     if (cancelFriendButton) {
         cancelFriendButton.addEventListener('click', function() {
+            const userId = cancelFriendButton.getAttribute('data-user-id');
+            handleAction(`/cancel_friend/${userId}/`, 'POST', 1);
+        });
+    }
+
+    if (addInviteButton){
+        addInviteButton.addEventListener('click', function() {
+            const userId = addInviteButton.getAttribute('data-user-id');
+            handleAction(`/add_invite/${userId}/`, 'POST', 1);
+        });
+    }
+
+    if (acceptInviteButton){
+        acceptInviteButton.addEventListener('click', function() {
+            const userId = acceptInviteButton.getAttribute('data-user-id');
+            handleAction(`/accept_invite/${userId}/`, 'POST', 0);
+        });
+    }
+
+    if (playInviteButton){
+        playInviteButton.addEventListener('click', function() {
+            const userId = playInviteButton.getAttribute('data-user-id');
+            handleAction(`/cancel_friend/${userId}/`, 'POST');
+        });
+    }
+
+    if (cancelInviteButton){
+        cancelInviteButton.addEventListener('click', function() {
             const userId = cancelFriendButton.getAttribute('data-user-id');
             handleAction(`/cancel_friend/${userId}/`, 'POST');
         });

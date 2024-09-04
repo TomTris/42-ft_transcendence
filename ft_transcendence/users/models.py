@@ -26,6 +26,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     loses = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
     username = models.CharField(max_length=40)
+    is_playing = models.BooleanField(default=False)
 
     USERNAME_FIELD="email"
     REQUIRED_FIELDS= ["first_name", "last_name"]

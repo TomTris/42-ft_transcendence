@@ -42,6 +42,7 @@ class BaseConsumer(WebsocketConsumer):
         self.game_state_lock = threading.Lock()
         self.periodic_task = threading.Thread(target=self.start, daemon=True)
         self.periodic_task.start()
+        
 
 
     def disconnect(self, code):
