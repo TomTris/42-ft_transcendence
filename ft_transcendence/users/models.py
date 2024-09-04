@@ -17,7 +17,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login=models.DateTimeField(auto_now=True)
     twoFaEnable=models.BooleanField(default=True)
 
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', default='/default/default.png', blank=True, null=True)
     # is_subscribe = models.BooleanField(default=True)
 
     is_online=models.BooleanField(default=False)

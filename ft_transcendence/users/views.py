@@ -82,7 +82,6 @@ class VerifyUserEmail(GenericAPIView):
 				data={
 					'email_body':"Your Email was actived successfully",
 					'email_subject':"Account Activation",
-					'from'
 					'to_email':email
 				}
 				send_normal_email(data)

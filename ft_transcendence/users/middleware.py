@@ -132,7 +132,6 @@ class JWTAuthMiddleware:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             user_id = payload.get('user_id')
             if user_id:
-                User = get_user_model()
                 return User.objects.get(id=user_id)
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
             pass
