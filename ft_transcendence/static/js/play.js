@@ -1,19 +1,43 @@
 "use strict";
 
-var camera, scene, renderer;
+var camera, camera1, camera2, scene, renderer;
 var mesh, sliderL, sliderR, table, ball, plate, trimU, trimD;
 
 // init();
 // animate();
 
 function init() {
+  cameraView = 0;
   renderer = new THREE.WebGLRenderer({canvas: document.querySelector("#gameCanvas")});
+
   camera = new THREE.PerspectiveCamera(60, 1, 1, 1000);
   camera.position.z = 300;
   camera.position.y = -200;
   camera.rotation.x = 0.5;
   camera.aspect = 16/10;
   camera.updateProjectionMatrix();
+
+
+  camera1 = new THREE.PerspectiveCamera(60, 1, 1, 1000);
+  camera1.position.z = 200;
+  camera1.position.y = 0;
+  camera1.position.x = 310;
+  camera1.rotation.z = 1.57079632679;
+  camera1.rotation.y = 0.75;
+  camera1.aspect = 16/10;
+  camera1.updateProjectionMatrix();
+
+
+  camera2 = new THREE.PerspectiveCamera(60, 1, 1, 1000);
+  camera2.position.z = 200;
+  camera2.position.x = -310;
+  camera2.position.y = 0;
+  camera2.rotation.z = -1.57079632679;
+  camera2.rotation.y = -0.75;
+  camera2.aspect = 16/10;
+  camera2.updateProjectionMatrix();
+
+
   scene = new THREE.Scene();
 
   var width = (1000 - 80) / 2
@@ -126,5 +150,11 @@ function animate(px, py, p1, p2) {
   ball.position.y = -py / 2 + 150;
   sliderL.position.y = -p1 / 2 + 120;
   sliderR.position.y = -p2 / 2 + 120;
-  renderer.render(scene, camera);
+  if (cameraView % 3 === 0) {
+    renderer.render(scene, camera);
+  } else if (cameraView % 3 === 1) {
+    renderer.render(scene, camera1);
+  } else {
+    renderer.render(scene, camera2);
+  }
 }

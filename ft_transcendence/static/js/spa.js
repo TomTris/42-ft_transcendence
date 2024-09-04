@@ -28,6 +28,7 @@ let acceptInviteButton;
 let playInviteButton;
 let cancelInviteButton;
 
+let cameraView;
 
 let socket1 = null;
 let canvas;
