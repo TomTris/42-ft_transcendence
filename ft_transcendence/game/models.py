@@ -85,6 +85,9 @@ class GameSession(models.Model):
             "connected1":0,
             "connected2":0,
             "time_passed":0,
+            'started':0,
+            'm1':-1,
+            'm2':-1
         }
         self.set_game_state(game_state)
 

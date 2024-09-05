@@ -10,6 +10,7 @@ import math
 import random
 from .models import width, height, pwidth, pheight, radius, distance, speed
 from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
+from chat.models import Message
 
 class GameConsumer(WebsocketConsumer):
     def connect(self):
@@ -52,6 +53,7 @@ class GameConsumer(WebsocketConsumer):
                         game_state['connected1'] = 1
                 else:
                     game_state['start'] = time.time() + 4
+                    game_state['started'] = 1
                 game_state['playing'] = 0
             self.game_session.set_game_state(game_state)
         else:
@@ -236,20 +238,64 @@ class GameConsumer(WebsocketConsumer):
         self.game_session.set_game_state(game_state)
 
 
+    def create_messages(self, game_state):
+        m1 = Message.objects.create(
+            sender=None,
+            send_to=self.game_session.player1,
+            content="Press here to go to Match",
+            game_id=self.session_id
+        )
+        m2 = Message.objects.create(
+            sender=None,
+            send_to=self.game_session.player2,
+            content="Press here to go to Match",
+            game_id=self.session_id
+        )
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'sending_to_two',
+                'id1': self.game_session.player1.id,
+                'id2': self.game_session.player2.id
+            }
+        )
+        game_state['m1'] = m1.id
+        game_state['m2'] = m2.id
+
+
+    def delete_messages(self, game_state):
+        if game_state['m1'] != -1:
+            Message.objects.get(id=game_state['m1']).delete()
+        if game_state['m2'] != -1:
+            Message.objects.get(id=game_state['m2']).delete()
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'sending_to_two',
+                'id1': self.game_session.player1.id,
+                'id2': self.game_session.player2.id
+            }
+        )
 
     def send_data(self):
+        seen = 0
         while(self.game_session and self.game_session.is_active):
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
                 if not game_state:
                     return
+                if seen == 0 and self.game_session.player1 and self.game_session.player2 and self.game_session.is_tournament == False:
+                    seen = 1
+                    self.create_messages(game_state)
+                    self.game_session.set_game_state(game_state)
+
                 self.update_playing()
                 if game_state['centered'] == 0:
                     self.position_center_random_move()
                 elif game_state['playing']:
                     self.make_move()
                 self.send_data_to_group()
-            time.sleep(0.012)
+            time.sleep(0.005)
     
     def pause(self, ind):
        
@@ -306,10 +352,6 @@ class GameConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps(response))
 
 
-
-
-
-
     def make_move(self):
         game_state = self.game_session.get_game_state()
         update_time = time.time()
@@ -364,6 +406,7 @@ class GameConsumer(WebsocketConsumer):
                         self.game_session.player2.is_playing=False
                         self.game_session.player1.save()
                         self.game_session.player2.save()
+                        self.delete_messages(game_state)
                     self.update_game_session()
                     self.send_data_to_group()
                 else:
@@ -382,7 +425,7 @@ class GameConsumer(WebsocketConsumer):
                         self.game_session.player2.is_playing=False
                         self.game_session.player1.save()
                         self.game_session.player2.save()
-
+                        self.delete_messages(game_state)
                     self.update_game_session()
                     self.send_data_to_group()
                 else:

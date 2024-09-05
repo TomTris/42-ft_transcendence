@@ -617,7 +617,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             'pos2': game_state['pos2'],
             'pos3_1': game_state['pos3_1'],
             'pos3_2': game_state['pos3_2'],
-
         }
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,

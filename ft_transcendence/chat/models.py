@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from django.db.models import Q
+from itertools import chain
+
 
 # Create your models here.
 
@@ -19,8 +21,7 @@ class BlockList(models.Model):
 
 def get_messages(user):
     blocked = BlockList.objects.filter(blocker=user).values_list('blocked', flat=True)
-    messages = Message.objects.filter(Q(send_to=user) | Q(send_to=None) | Q(sender=user))
-    not_blocked = messages.exclude(sender__in=blocked).order_by('-id')[:50][::-1]
-    for i in not_blocked:
-        print(i.sender, i.send_to, i.content)
-    return not_blocked
+    messages = Message.objects.filter(Q(send_to=user) | Q(send_to=None) | Q(sender=user)).exclude(sender__isnull=True).exclude(sender__in=blocked)
+    system_messages = Message.objects.filter(sender=None, send_to=user)
+    combined_messages = list(chain(messages[:50], system_messages))
+    return combined_messages
