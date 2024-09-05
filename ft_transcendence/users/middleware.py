@@ -51,7 +51,7 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         print()
-        print(request.COOKIES)
+        # print(request.COOKIES)
         # print(request)
         print(request.path, "with", request.method, "Method")
         if request.method == 'GET':
