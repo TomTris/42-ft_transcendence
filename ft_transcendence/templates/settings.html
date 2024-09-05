@@ -178,6 +178,14 @@
         </label>
     </div>
 
+    <div>
+        <label for="is_subscribe">Subscribe:</label>
+        <label class="switch">
+            <input type="checkbox" id="is_subscribe" name="is_subscribe" {% if user.is_subscribe %}checked{% endif %}>
+            <span class="slider round"></span>
+        </label>
+    </div>
+
     <button type="button" onclick="submitSetting()">Update Profile</button>
 </form>
 
@@ -210,10 +218,18 @@
 
             const twoFaEnable = document.getElementById('twoFaEnable').checked;
             formData.set('twoFaEnable', twoFaEnable ? 'true' : 'false');
+
+            const is_subscribe = document.getElementById('is_subscribe').checked;
+            formData.set('is_subscribe', is_subscribe ? 'true' : 'false');
             const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
             });
+            
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+
             if (response.status == 413)
                 alert("Request Entity Too Large, please upload under 5MB")
             else {

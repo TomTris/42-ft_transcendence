@@ -27,6 +27,8 @@ down:
 	@printf "Stopping configuration $(NAME) ... \n"
 	@docker-compose down
 
+send_email:
+	cd ft_trancendence 
 re:
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down

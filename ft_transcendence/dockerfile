@@ -16,7 +16,6 @@ RUN pip install djangorestframework
 
 
 
-RUN pip install django-debug-toolbar
 # Copy the rest of the application code
 COPY . .
 
