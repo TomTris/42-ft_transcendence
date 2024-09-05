@@ -8,9 +8,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'avatar']
 
 
-
 class ChatMessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer()
+    send_to = UserSerializer()
     class Meta:
         model = Message
         fields = ['sender', 'send_to', 'content', 'game_id']

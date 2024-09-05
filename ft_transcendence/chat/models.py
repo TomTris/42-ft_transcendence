@@ -19,7 +19,7 @@ class BlockList(models.Model):
 
 def get_messages(user):
     blocked = BlockList.objects.filter(blocker=user).values_list('blocked', flat=True)
-    messages = Message.objects.filter(Q(send_to=user.username) | Q(send_to=None) | Q(sender=user))
+    messages = Message.objects.filter(Q(send_to=user) | Q(send_to=None) | Q(sender=user))
     not_blocked = messages.exclude(sender__in=blocked).order_by('-id')[:50][::-1]
     for i in not_blocked:
         print(i.sender, i.send_to, i.content)

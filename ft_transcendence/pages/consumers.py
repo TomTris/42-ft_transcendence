@@ -63,6 +63,7 @@ class InviteConsumer(WebsocketConsumer):
         data = json.loads(text_data)
         if data['type'] == 'friendship':
             invite = Invite.objects.filter(id=data['id']).first()
+            Invite.objects.filter(sender=invite.send_to, send_to=invite.sender, invite_type=invite.invite_type).delete()
             if invite is not None:
                 if invite.invite_type == 1:
                     if data['result'] == 'accept':
@@ -99,6 +100,9 @@ class InviteConsumer(WebsocketConsumer):
                                 'update':0,
                             }
                         )
+                    else:
+                        self.send_to_all(sender.id, send_to.id, 2)
+                    
         
 
     def send_to_all(self, id1, id2, update):
