@@ -21,10 +21,12 @@
 <body>
     <div id='navbar'>
     </div>
+    <div id='chat'>
+    </div>
     <div id='app'>
     </div>
 
-    {% include "chat.html" %}
+    {% comment %} {% include "chat.html" %} {% endcomment %}
     <script>
         var originalMethod = "{{ method|escapejs }}";
     </script>

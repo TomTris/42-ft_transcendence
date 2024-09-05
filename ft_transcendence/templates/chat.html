@@ -13,16 +13,15 @@
 <button id="toggle-button" class="toggle-button">Show Chat</button>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatWrapper = document.getElementById('chat-wrapper');
-        const chatBox = document.getElementById('chat-box');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-        const toggleButton = document.getElementById('toggle-button');
-        const hideButton = document.getElementById('hide-button');
+        chatWrapper = document.getElementById('chat-wrapper');
+        chatBox = document.getElementById('chat-box');
+        messageInput = document.getElementById('message-input');
+        sendButton = document.getElementById('send-button');
+        toggleButton = document.getElementById('toggle-button');
+        hideButton = document.getElementById('hide-button');
     
         // Create a WebSocket connection
-        const socketChat = new WebSocket('wss://' + window.location.host + '/wss/chat/');
+        socketChat = new WebSocket('wss://' + window.location.host + '/wss/chat/');
     
         // Handle incoming messages
         socketChat.onmessage = function(event) {
@@ -230,12 +229,6 @@
             chatWrapper.style.display = 'none';
             toggleButton.style.display = 'block'; // Show the toggle button when chat is hidden
         });
-
-        
-
-    });
-    
-    
 </script>
 
 

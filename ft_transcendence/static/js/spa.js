@@ -1,3 +1,13 @@
+//chat
+let chatWrapper = null
+let chatBox = null
+let messageInput = null
+let sendButton = null
+let toggleButton = null
+let hideButton = null
+let socketChat = null
+
+
 //wss/invitations/`
 var invitationIcon
 var invitationList
@@ -35,6 +45,7 @@ let canvas;
 let ctx ;
 let scriptCounter = 1;
 let scriptCounterNavbar = 1;
+let scriptCounterChat = 1;
 var defaultOption = {
     method: 'GET',
     headers: {
@@ -70,7 +81,7 @@ function removeScripts() {
         socket1 = null;
     }
     for (let i = 1; i <= scriptCounter - 1; i++) {
-        const scriptElement = document.getElementById(`script_inserted${i}`);
+        const scriptElement = document.getElementById(`app_script_inserted${i}`);
         if (scriptElement) {
             document.body.removeChild(scriptElement);
         }
@@ -78,12 +89,15 @@ function removeScripts() {
     scriptCounter = 1;
 }
 
-function removeScriptsNavbar() {
+function removeScriptsNavbarAndChat() {
 
     if (InviteSocket) {
         InviteSocket.close();
         InviteSocket = null;
-        // cleanup_navbar_authorized();
+    }
+    if (socketChat) {
+        socketChat.close();
+        socketChat = null;
     }
     for (let i = 1; i <= scriptCounterNavbar - 1; i++) {
         const scriptElement = document.getElementById(`navbar_script_inserted${i}`);
@@ -91,10 +105,53 @@ function removeScriptsNavbar() {
             document.body.removeChild(scriptElement);
         }
     }
+    for (let i = 1; i <= scriptCounterChat - 1; i++) {
+        const scriptElement = document.getElementById(`chat_script_inserted${i}`);
+        if (scriptElement) {
+            document.body.removeChild(scriptElement);
+        }
+    }
     scriptCounterNavbar = 1;
+    scriptCounterChat = 1;
 }
 
-async function loadNavbar() {
+async function loadNavbar()
+{
+    var response = await fetch('/navbar_authorized/', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    var html = await response.text();
+    var navbarDiv = document.getElementById('navbar');
+    navbarDiv.innerHTML = html;
+    var scripts = navbarDiv.querySelectorAll('script');
+    for (let i = 0; i < scripts.length; i++) 
+    {
+        var newScript = document.createElement('script');
+        newScript.textContent = scripts[i].textContent;
+        newScript.id = `navbar_script_inserted${scriptCounterNavbar++}`;
+        document.body.appendChild(newScript);
+    }
+}
+async function loadChat()
+{
+    var response = await fetch('/chat/', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    var html = await response.text();
+    var chatDiv = document.getElementById('chat');
+    chatDiv.innerHTML = html;
+    var scripts = chatDiv.querySelectorAll('script');
+    for (let i = 0; i < scripts.length; i++) 
+    {
+        var newScript = document.createElement('script');
+        newScript.textContent = scripts[i].textContent;
+        newScript.id = `chat_script_inserted${scriptCounterChat++}`;
+        document.body.appendChild(newScript);
+    }
+}
+async function loadNavbarAndChat() {
     var response = await fetch('/is_authorized/', {
         method: 'POST',
         credentials: 'include'
@@ -105,25 +162,15 @@ async function loadNavbar() {
         authorized_new = 0;
     if (authorized_new != authorized_old)
     {
-        var response = await fetch('/navbar_authorized/', {
-            method: 'POST',
-            credentials: 'include'
-        })
-        var html = await response.text();
-        var navbarDiv = document.getElementById('navbar');
-        removeScriptsNavbar();
-        navbarDiv.innerHTML = html;
-        var scripts = navbarDiv.querySelectorAll('script');
-        for (let i = 0; i < scripts.length; i++) 
-        {
-            var newScript = document.createElement('script');
-            newScript.textContent = scripts[i].textContent;
-            newScript.id = `navbar_script_inserted${scriptCounterNavbar++}`;
-            document.body.appendChild(newScript);
+        removeScriptsNavbarAndChat();
+        if (authorized_new == 1) {
+            loadChat();
         }
+        loadNavbar();
         authorized_old = authorized_new;
     }
 }
+
 
 async function get_new_access_token()
 {
@@ -146,7 +193,7 @@ async function loadContent2(url, option, pushToHistory)
         {
             var newScript = document.createElement('script');
             newScript.textContent = scripts[i].textContent;
-            newScript.id = `script_inserted${scriptCounter++}`;
+            newScript.id = `app_script_inserted${scriptCounter++}`;
             document.body.appendChild(newScript);
         }
 
@@ -162,7 +209,7 @@ async function loadContent(url, option, pushToHistory = false) {
         await get_new_access_token();
         await loadContent2(url, option, pushToHistory);
         await get_new_access_token();
-        await loadNavbar();
+        await loadNavbarAndChat();
     }
     catch (error) {
         console.error('Error loading content:', error);

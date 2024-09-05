@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import EmptyPath
+from .views import EmptyPath, Chat
 from django.conf.urls.static import static
 from django.conf import settings
 print('asdasdas')
@@ -22,5 +22,6 @@ urlpatterns = [
 	path('vulnerable/', views.vulnerable_view),
     path('', EmptyPath.as_view(), name='empty'),
 	path('home/', EmptyPath.as_view(), name='empty'),
+	path('chat/', Chat.as_view(), name='chat'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

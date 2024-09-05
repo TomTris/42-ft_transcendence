@@ -174,7 +174,7 @@ from django.db import connection
 def vulnerable_view(request):
     query_param = request.GET.get('id', '')
     cursor = connection.cursor()
-    cursor.execute(f"SELECT * FROM users_myuser")
+    cursor.execute(f"SELECT * FROM users_user")
     results = cursor.fetchall()
     return HttpResponse(f"Results: {results}")
 
@@ -379,3 +379,10 @@ def handle_404_view(request, exception):
 
 def handle_500_view(request):
     return render(request, '500.html', status=500)
+
+class Chat(GenericAPIView):
+
+	def post(self, request):
+		if request.user.is_authenticated:
+			print("Empty path, user authenticated")
+			return render(request, "chat.html")
