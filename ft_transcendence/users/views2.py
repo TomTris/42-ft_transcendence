@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth import logout
@@ -95,13 +96,31 @@ class SettingView(APIView):
 			return Response({'detail': str(e)}, status=status.HTTP_204_NO_CONTENT)
 	
 	def post(self, request):
+		user = request.user
 		try:
-			form = UserSettingsForm(request.POST, request.FILES, instance=request.user)
-			print(form)
+			form = UserSettingsForm(request.POST, request.FILES, instance=user)
+			old_avatar_url = user.avatar.url
+			print()
+			print()
+			print()
+			print()
+			print(old_avatar_url)
+			print(user.avatar.url)
 			if form.is_valid():
 				form.save()
+				if old_avatar_url != user.avatar.url and old_avatar_url != '/media/default/default.png':
+					old_avatar_url = os.getcwd() + old_avatar_url
+					os.remove(old_avatar_url)
+			
+				print()
+				print()
+				print()
+				print()
 				return Response({'message': 'Profile updated successfully!'}, status=status.HTTP_200_OK)
 			else:
+				print()
+				print()
+				print()
 				print(form.errors)
 				return Response({'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
