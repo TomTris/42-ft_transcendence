@@ -49,12 +49,20 @@ CSRF_TRUSTED_ORIGINS = [
     # 'https://yourdomain.com',
 ]
 
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'da5b061fad8477'
-EMAIL_HOST_PASSWORD = 'f9ee2539a9b31b'
-EMAIL_PORT = '2525'
-DEFAULT_FROM_EMAIL="PingPong_QTOR@gmail.com"
-EMAIL_USE_TLS=True
+# EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+# EMAIL_HOST_USER = 'da5b061fad8477'
+# EMAIL_HOST_PASSWORD = 'f9ee2539a9b31b'
+# EMAIL_PORT = '2525'
+# DEFAULT_FROM_EMAIL="PingPong_QTOR@gmail.com"
+# EMAIL_USE_TLS=True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'nonreply.transcendence@gmail.com'
+EMAIL_HOST_PASSWORD = 'efieznyosphgvibx'
+EMAIL_USE_SSL = False
 
 # Application definition
 
