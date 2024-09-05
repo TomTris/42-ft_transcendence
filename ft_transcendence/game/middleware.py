@@ -3,6 +3,7 @@
 from django.utils.deprecation import MiddlewareMixin
 from game.models import GameSession
 from game.models import TournamentSession
+from chat.models import Message
 from django.conf import settings
 from users.models import User
 
@@ -21,6 +22,7 @@ class CleanupMiddleware(MiddlewareMixin):
         un_finished.delete()
         un_finished = TournamentSession.objects.filter(is_active=True)
         un_finished.delete()
+        Message.objects.filter(sender=None).delete()
         users = User.objects.all()
         for user in users:
             user.is_online = False
@@ -28,4 +30,3 @@ class CleanupMiddleware(MiddlewareMixin):
             user.save()
         print('Cleanup complete.')
 
-        

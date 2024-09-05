@@ -59,7 +59,7 @@ class ChatConsumer(WebsocketConsumer):
                     send_to=reciver,
                     content=content
                 )
-                if reciver is None:
+                if reciver is not None:
                     self.send_to_two(self.user.id, reciver.id)
                 else:
                     self.send_to_all()
@@ -142,6 +142,22 @@ class ChatConsumer(WebsocketConsumer):
                 'current_user': self.user.username,
             }
             self.send(text_data=json.dumps(response_data))
+
+    def sending_to_four(self, event):
+        id1 = event['id1']
+        id2 = event['id2']
+        id3 = event['id3']
+        id4 = event['id4']
+        if self.user.id in [id1, id2, id3, id4]:
+            messages = get_messages(self.user)
+            serializer = ChatMessageSerializer(messages, many=True)
+            message_data = serializer.data
+            response_data = {
+                'messages': message_data,
+                'current_user': self.user.username,
+            }
+            self.send(text_data=json.dumps(response_data))
+
 
     def send_to_two(self, id1, id2):
         async_to_sync(self.channel_layer.group_send)(
