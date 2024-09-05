@@ -22,16 +22,17 @@
         const hideButton = document.getElementById('hide-button');
     
         // Create a WebSocket connection
-        const socket = new WebSocket('wss://' + window.location.host + '/wss/chat/');
+        const socketChat = new WebSocket('wss://' + window.location.host + '/wss/chat/');
     
         // Handle incoming messages
-        socket.onmessage = function(event) {
+        socketChat.onmessage = function(event) {
             const data_all = JSON.parse(event.data);
             console.log(data_all);
             const messages = data_all.messages;
             const currentUser = data_all.current_user;
             chatBox.innerHTML = '';
     
+
             if (Array.isArray(messages)) {
                 messages.forEach(function(message) {
                     displayMessage(message, currentUser);
@@ -45,7 +46,7 @@
         sendButton.addEventListener('click', function() {
             const messageContent = messageInput.value.trim();
             if (messageContent) {
-                socket.send(JSON.stringify({
+                socketChat.send(JSON.stringify({
                     'type': 'message',
                     'content': messageContent
                 }));
@@ -69,6 +70,8 @@
             const contentElement = document.createElement('div');
             contentElement.className = 'message-content';
             
+            let privateMessage = null;
+
             if (message.sender)
             {
                 const linkToProfile = document.createElement('a');
@@ -83,14 +86,33 @@
 
                 usernameElement.appendChild(linkToProfile);
                 messageElement.appendChild(avatarElement);
+                contentElement.textContent = message.content;
 
                 if (message.sender.username === current_user) {
                     messageElement.classList.add('current-user');
-                    messageElement.style.textAlign = 'right'; // Align text to the right for current user
+                    messageElement.style.textAlign = 'right';
+                    if (message.send_to)
+                    {
+                        messageElement.classList.add('private');
+                        const privateLabel = document.createElement('div');
+                        privateLabel.className = 'private-label';
+                        privateLabel.textContent = 'Private-Message to:';
+                        const LinkOther = document.createElement('a');
+                        LinkOther.className = 'link-player';
+                        LinkOther.href = '/users' + message.send_to.id + '/';
+                        LinkOther.setAttribute('data-route' ,'/users/' + message.send_to.id + '/');
+                        LinkOther.textContent = message.send_to.username;
+                        privateLabel.appendChild(LinkOther);
+
+                        contentElement.appendChild(privateLabel);
+                    }
                 } else {
-                    messageElement.style.textAlign = 'left'; // Align text to the left for others
+                    messageElement.style.textAlign = 'left';
+                    if (message.send_to)
+                    {
+                        contentElement.style.backgroundColor = '#d0d0d0';
+                    }
                 }
-                contentElement.textContent = message.content;
             }
             else
             {
@@ -143,21 +165,34 @@
                     const blockButton = document.createElement('button');
                     blockButton.textContent = 'Block';
                     blockButton.onclick = function() {
-                        alert('Blocking user!');
+                        
+                        socketChat.send(JSON.stringify({
+                            'type': 'block',
+                            'id': message.sender.id
+                        }));
+
                         document.body.removeChild(contextMenu);
                     };
             
                     const inviteButton = document.createElement('button');
                     inviteButton.textContent = 'Invite to Play';
                     inviteButton.onclick = function() {
-                        alert(`Inviting ${message.sender.username} to play!`);
+                        socketChat.send(JSON.stringify({
+                            'type': 'play',
+                            'id': message.sender.id
+                        }));
+
                         document.body.removeChild(contextMenu);
                     };
             
                     const friendButton = document.createElement('button');
                     friendButton.textContent = 'Become Friends';
                     friendButton.onclick = function() {
-                        alert(`Sending friend request to ${message.sender.username}!`);
+                        socketChat.send(JSON.stringify({
+                            'type': 'friend',
+                            'id': message.sender.id
+                        }));
+
                         document.body.removeChild(contextMenu);
                     };
             
@@ -195,6 +230,9 @@
             chatWrapper.style.display = 'none';
             toggleButton.style.display = 'block'; // Show the toggle button when chat is hidden
         });
+
+        
+
     });
     
     
@@ -315,7 +353,9 @@
         background-color: #a3e07d;
         box-sizing: border-box;
         min-width: 30%;
+        position: relative; 
     }
+
     
     .message-element.current-user {
         align-self: flex-end;
@@ -346,6 +386,8 @@
         min-width: 100%;
     }
 
+
+
     .message-content-wrapper {
         display: flex;
         flex-direction: column;
@@ -373,6 +415,13 @@
         font-size: 0.9em;
     }
     
+    .link-player{
+        font-weight: bold;
+        cursor: pointer;
+        color: #000000;
+        text-decoration: none;
+    }
+
     .username a{
         cursor: pointer;
         color: inherit;
