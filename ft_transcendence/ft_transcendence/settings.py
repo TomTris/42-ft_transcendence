@@ -105,7 +105,7 @@ ROOT_URLCONF = 'ft_transcendence.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # Use the '/' operator to join paths
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,19 +123,6 @@ WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 import hvac
 with open('/vault/file/rootToken', 'r') as file:
@@ -152,16 +139,6 @@ DATABASES = {
         'PORT': secret['db_port'],
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'mydatabase',  # Match POSTGRES_DB in docker-compose.yml
-#         'USER': 'myuser',      # Match POSTGRES_USER in docker-compose.yml
-#         'PASSWORD': 'mypassword',  # Match POSTGRES_PASSWORD in docker-compose.yml
-#         'HOST': 'postgres',    # This should match the service name in docker-compose.yml
-#         'PORT': '5432',        # Default PostgreSQL port
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -214,29 +191,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = "users.User"
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
-
-
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#     },
-# }
-
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/1',  # Use Redis server URL here
-#     }
-# }
-
 
 
 CHANNEL_LAYERS = {
@@ -277,9 +231,5 @@ INITIALIZED_1 = False
 
 
 INTERNAL_IPS = [
-    # Include your local IP address here
     '127.0.0.1',
 ]
-
-# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-# SESSION_COOKIE_AGE = 10

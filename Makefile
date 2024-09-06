@@ -11,6 +11,8 @@ all:
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
+	@echo "New\nOur server is now back and powerful" > send_to_subscribers.txt
+	@make send_email
 
 #@./ngrok_run.sh
 ps:
@@ -26,6 +28,8 @@ build:
 down:
 	@printf "Stopping configuration $(NAME) ... \n"
 	@docker-compose down
+	@echo "Our server is off for a while" > send_to_subscribers.txt
+	@make send_emai
 
 send_email:
 	docker cp send_to_subscribers.txt my_django:/app/users/
@@ -34,6 +38,8 @@ send_email:
 	docker exec -it my_django rm -f /app/users/send_to_subscribers.txt
 
 re:
+	@echo "Our server is off for a while" > send_to_subscribers.txt
+	@make send_emai
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down
 	@printf "Running configuration $(NAME) ..."
@@ -47,6 +53,8 @@ re:
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
+	@echo "New\nOur server is now back and powerful" > send_to_subscribers.txt
+	@make send_email
 
 clean:
 	@docker stop $$(docker ps -qa);\
