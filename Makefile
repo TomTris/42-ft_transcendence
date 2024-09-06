@@ -8,7 +8,17 @@ all:
 	@echo "Your local IP-Address is:"
 	@ifconfig | grep "inet 10." | awk '{print $$2}'
 	@echo "The Domain is:"
-	@echo $$(cat .domain_name.txt)
+	@echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
+
+up:
+	@printf "Running configuration $(NAME) ..."
+	@./create_localip.sh
+	@./ngrok_run.sh
+	@docker-compose -f $(NAME) up -d
+	@echo "Your local IP-Address is:"
+	@ifconfig | grep "inet 10." | awk '{print $$2}'
+	@echo "The Domain is:"
+	@echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
 
 ps:
 	docker-compose -f $(NAME) ps
@@ -17,7 +27,7 @@ show:
 	@echo "Your local IP-Address is:"
 	@ifconfig | grep "inet 10." | awk '{print $$2}'
 	@echo "The Domain is:"
-	@echo $$(cat .domain_name.txt)
+	@echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
 
 logs:
 	docker-compose -f $(NAME) logs
@@ -40,7 +50,7 @@ send_email:
 
 re:
 	@echo "Server Off/Our server is now off for a while" > send_to_subscribers.txt
-	@make send_emai
+	@make send_email
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down
 	@printf "Running configuration $(NAME) ..."

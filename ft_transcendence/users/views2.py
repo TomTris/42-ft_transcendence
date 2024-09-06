@@ -59,17 +59,25 @@ class NavbarAuthorizedView(APIView):
 
 class TokenRefreshView(APIView):
 	def post(self, request):
+		print('asdasd')
 		refresh_token = request.COOKIES.get('refresh_token')
+		print(1111)
 		if refresh_token is None:
+			print(1)
 			return Response({
 				'detail': 'Refresh token not provided'
-				}, status=status.HTTP_204_NO_CONTENT)
-
+				}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+		print(222)
 		try:
+			print(3)
 			refresh = RefreshToken(refresh_token)
+			print(4)
 			new_access_token = str(refresh.access_token)
+			print(5)
 			response = Response({}, status=status.HTTP_200_OK)
+			print(6)
 			response.set_cookie('access_token', new_access_token, httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
+			print(7)
 			return response
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
@@ -93,7 +101,7 @@ class SettingView(APIView):
 				}
 			return render(request, "settings.html", context, status=200)
 		except Exception as e:
-			return Response({'detail': str(e)}, status=status.HTTP_204_NO_CONTENT)
+			return Response({'detail': str(e)}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
 	
 	def post(self, request):
 		user = request.user
