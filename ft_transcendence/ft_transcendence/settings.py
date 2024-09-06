@@ -29,6 +29,25 @@ SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0n123ay334#q3f+a0-dm7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+
+import hvac
+with open('/vault/token-volume/rootToken', 'r') as file:
+    vault_token = file.read().strip()
+client = hvac.Client(url='http://vault:8200', token=vault_token)
+secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': secret['db_name'],
+        'USER': secret['db_user'],
+        'PASSWORD': secret['db_password'],
+        'HOST': secret['db_host'],
+        'PORT': secret['db_port'],
+    }
+}
 
 # ALLOWED_HOSTS = ['localhost']
 
@@ -120,25 +139,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ft_transcendence.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-
-import hvac
-with open('/vault/file/rootToken', 'r') as file:
-    vault_token = file.read().strip()
-client = hvac.Client(url='http://vault:8200', token=vault_token)
-secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': secret['db_name'],
-        'USER': secret['db_user'],
-        'PASSWORD': secret['db_password'],
-        'HOST': secret['db_host'],
-        'PORT': secret['db_port'],
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

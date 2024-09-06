@@ -11,8 +11,6 @@ all:
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
-	@echo "New\nOur server is now back and powerful" > send_to_subscribers.txt
-	@make send_email
 
 #@./ngrok_run.sh
 ps:
@@ -26,10 +24,10 @@ build:
 	@docker-compose -f $(NAME) up -d --build
 
 down:
+	@echo "Our server is off for a while" > send_to_subscribers.txt
+	@make send_email
 	@printf "Stopping configuration $(NAME) ... \n"
 	@docker-compose down
-	@echo "Our server is off for a while" > send_to_subscribers.txt
-	@make send_emai
 
 send_email:
 	docker cp send_to_subscribers.txt my_django:/app/users/

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Start Vault server in the background
-# export VAULT_ADDR='http://127.0.0.1:8200'
-rm -rf /vault/file/created
+export VAULT_ADDR='http://127.0.0.1:8200'
+rm -rf /vault/token-volume/created
 sleep 5
 until nc -z -v -w30 postgres 5432
 do
@@ -11,6 +11,20 @@ do
 done
 
 echo "Running Vault configuration"
+cat << EOF > /vault/config/vault-config.hcl
+storage "postgresql" {
+	connection_url = "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable"
+}
+
+
+listener "tcp" {
+	address = "0.0.0.0:8200"
+	tls_disable = 1
+}
+
+api_addr = "http://vault:8200"
+EOF
+
 vault server -config=/vault/config/vault-config.hcl &
 sleep 3
 
@@ -18,12 +32,6 @@ sleep 3
 
 # Initialize Vault and save keys to file
 # echo "Initializing Vault"
-echo 1
-sh --version
-echo 2
-
-
-# Get the length of the file content
 
 # Check if the length is greater than 0
 if [ $(cat "/vault/file/keys.txt" | wc -c) -gt 0 ]; then
@@ -31,7 +39,6 @@ echo "skip init part, already init"
 else
 echo "----------1--------"
 vault operator init  -key-shares=5 -key-threshold=3 > /vault/file/keys.txt
-# cat /vault/file/keys.txt
 
 cat /vault/file/keys.txt | grep "Unseal Key 1: " | cut -c15- > /vault/file/key1 && chmod 777 /vault/file/key1
 cat /vault/file/keys.txt | grep "Unseal Key 2: " | cut -c15- > /vault/file/key2 && chmod 777 /vault/file/key2
@@ -39,30 +46,32 @@ cat /vault/file/keys.txt | grep "Unseal Key 3: " | cut -c15- > /vault/file/key3 
 cat /vault/file/keys.txt | grep "Unseal Key 4: " | cut -c15- > /vault/file/key4 && chmod 777 /vault/file/key4
 cat /vault/file/keys.txt | grep "Unseal Key 5: " | cut -c15- > /vault/file/key5 && chmod 777 /vault/file/key5
 
-cat /vault/file/keys.txt | grep "Initial Root Token: " | cut -c21- > /vault/file/rootToken && chmod 777 /vault/file/rootToken
+cat /vault/file/keys.txt | grep "Initial Root Token: " | cut -c21- > /vault/token-volume/rootToken && chmod 777 /vault/token-volume/rootToken
 echo "----------2--------"
 fi
-echo 5
+# echo 5
 vault operator unseal $(cat /vault/file/key1)
 vault operator unseal $(cat /vault/file/key2)
 vault operator unseal $(cat /vault/file/key3)
-export VAULT_TOKEN=$(cat /vault/file/rootToken)
-echo 6
+export VAULT_TOKEN=$(cat /vault/token-volume/rootToken)
+# echo 6
 # Configure Vault to use PostgreSQL as the storage backend
 vault secrets enable -path=secret kv-v2
 # echo 7
 echo "Storing initial secrets"
 # Store initial secrets
 vault kv put secret/postgresql/db_credentials \
-  db_name=mydatabase \
-  db_user=myuser \
-  db_password=mypassword \
+  db_name=$POSTGRES_DB \
+  db_user=$POSTGRES_USER \
+  db_password=$POSTGRES_PASSWORD \
   db_host=postgres \
   db_port=5432
 
-touch /vault/file/created
-sleep 5
-rm -rf /vault/file/created
-# echo 8
+touch /vault/token-volume/created
+echo Done1
+sleep 10
+echo Done1
+rm -rf /vault/token-volume/created
+echo Done2
 # # Keep the container run
 wait
