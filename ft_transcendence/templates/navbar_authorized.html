@@ -257,6 +257,7 @@
         <div class="dropdown-menu">
             <a href="/users/{{ request.user.id }}/" data-route="/users/{{ request.user.id}}/">Profile</a>
             <a href="/block_list/" data-route="/block_list/">Block-List</a>
+            <a href="/invite_list/" data-route="/invite_list/">Invite-List</a>
             <a href="/settings/" data-route="/settings/">Settings</a>
             <a href="/refresh/logout/" data-route="/refresh/logout/">Logout</a>
         </div>
@@ -337,11 +338,11 @@
             } else {
                 invitationList.innerHTML = '<p>No invitations</p>';
             }
-            console.log(window.location.href);
-            let start = 'https://localhost/users/';
+            console.log(window.location.pathname);
+            let start = '/users/';
             let end = '/friends/';
-            let location = window.location.href;
-            if (((location.startsWith(start) &&  location.length > start.length ) || (location.startsWith(start) && location.endsWith(end))) && data.update == 2)
+            let location = window.location.pathname;
+            if (((location.startsWith(start) &&  location.length > start.length ) || (location.startsWith(start) && location.endsWith(end)) || location == '/invite_list/') && data.update == 2)
             {
                 let link = location.substring(start.length - 7);
                 loadContent(link, defaultOption, false);
@@ -351,9 +352,9 @@
                 let link = '/users/';
                 loadContent(link, defaultOption, false);
             }
-            else if (location=='https://localhost/block_list/' && data.update == 3)
+            else if (location=='/block_list/' && data.update == 3)
             {
-                loadContent(/block_list/, defaultOption, false);
+                loadContent('/block_list/', defaultOption, false);
             }
         }
         else if (data.type == 'redirect')

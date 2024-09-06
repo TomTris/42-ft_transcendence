@@ -17,6 +17,7 @@ from chat.models import BlockList
 from .serializers import BlockListSerializer
 import json
 from django.http import JsonResponse
+from .serializers import InviteSerializer
 
 def get_friend_status(current_user, user):
     if user == current_user:
@@ -175,8 +176,8 @@ def block_list_view(request):
     user = request.user
     blocked = BlockList.objects.filter(blocker=user)
     serialized = BlockListSerializer(blocked, many=True)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/block_list.html', {'blocked':serialized.data}) 
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/block_list.html', {'blocked':serialized.data}) 
 
 def unblock(request):
     data = json.loads(request.body)
@@ -191,9 +192,32 @@ def unblock(request):
             'id':request.user.id
         }
     )
-
     return JsonResponse({'status': 'success', 'message': 'User unblocked successfully', 'ok':True})
 
+def invite_list_view(request):
+    user = request.user
+    invites = Invite.objects.filter(sender=user).order_by('-id')
+    serialized = InviteSerializer(invites, many=True)
+    return render(request, 'partials/invite_list.html', {'blocked':serialized.data}) 
+
+def canceling_invite(request):
+    data = json.loads(request.body)
+    id = data['block_id']
+    in1 = Invite.objects.filter(id=id).first()
+    id1 = in1.sender.id
+    id2 = in1.send_to.id
+    in1.delete()
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'invite',
+        {
+            'type': 'invite_message',
+            'id1':id1,
+            'id2':id2,
+            'update':2,
+        }
+    )
+    return JsonResponse({'status': 'success', 'message': 'User unblocked successfully', 'ok':True})
 
 #for test modsecurity
 from django.http import HttpResponse

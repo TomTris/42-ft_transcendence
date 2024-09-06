@@ -23,3 +23,4 @@ class BlockListSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockList
         fields = ['id', 'blocked']
+

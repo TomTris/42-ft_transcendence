@@ -1,0 +1,123 @@
+<style>
+    h1 {
+        color: #333;
+        text-align: center;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    li:last-child {
+        border-bottom: none;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    span {
+        font-size: 16px;
+        color: #555;
+        margin-right: 10px;
+    }
+
+    img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+    }
+
+    .invite_type {
+        margin-left: auto;
+        margin-right: 15px; /* Add margin to move closer to the button */
+        font-size: 14px;
+        color: #777;
+    }
+
+    .unblock-btn {
+        background-color: #ff4d4f;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .unblock-btn:hover {
+        background-color: #e43e3f;
+    }
+</style>
+
+<h1>Invite List</h1>
+
+<ul>
+{% for block in blocked %}
+<li>
+    <div class="user-info">
+        <img src="{{ block.send_to.avatar }}" alt="Avatar of {{ block.send_to.username }}">
+        <span>{{ block.send_to.username }}</span>
+    </div>
+    <div class='invite_type'>
+        {% if block.invite_type == 1 %}
+            Friend invite
+        {% else %}
+            Playing invite
+        {% endif %}
+    </div>
+    <button class="unblock-btn" data-id="{{ block.id }}">✖</button>
+</li>
+{% endfor %}
+</ul>
+    
+    <!-- Add a script to handle the unblock request -->
+    <script>
+    document.querySelectorAll('.unblock-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Get the block id from the button's data-id attribute
+            const blockId = this.getAttribute('data-id');
+    
+            // Make a POST request to unblock the user
+            fetch('/cancel_invite/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token if needed
+                },
+                body: JSON.stringify({ block_id: blockId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    this.parentElement.parentElement.remove();
+                } 
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+    </script>
+    
