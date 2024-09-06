@@ -219,6 +219,7 @@ def canceling_invite(request):
     )
     return JsonResponse({'status': 'success', 'message': 'User unblocked successfully', 'ok':True})
 
+
 #for test modsecurity
 from django.http import HttpResponse
 from django.db import connection

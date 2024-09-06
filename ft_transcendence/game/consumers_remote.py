@@ -11,6 +11,7 @@ import random
 from .models import width, height, pwidth, pheight, radius, distance, speed
 from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
 from chat.models import Message
+from .serializers import UserSerializer
 
 class GameConsumer(WebsocketConsumer):
     def connect(self):
@@ -280,6 +281,9 @@ class GameConsumer(WebsocketConsumer):
     def send_data(self):
         seen = 0
         while(self.game_session and self.game_session.is_active):
+            if self.game_session.player1 == self.game_session.player2:
+                time.sleep(0.1)
+                continue
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
                 if not game_state:
@@ -482,12 +486,19 @@ class GameConsumer(WebsocketConsumer):
             status = 'Won'
         elif self.game_session.player2 is None or self.game_session.player1 is None:
             status = "Waiting for other player"
+        elif game_state['prev'] == "Waiting for other player":
+            game_state['start2'] = time.time() + 3
+            status="enemy_found"
+        elif game_state['start2'] > time.time():
+            status="enemy_found"
         elif game_state['paused'] != 0:
             status = "Paused"
         elif game_state['start'] - time.time() >= 0.0:
             status = "Count down"
         else:
             status = "Playing"
+        game_state['prev'] = status
+        self.game_session.set_game_state(game_state)
         return status
     
     
@@ -497,11 +508,20 @@ class GameConsumer(WebsocketConsumer):
 
     
     def send_data_to_group(self):
+        async_to_sync(self.channel_layer.group_send)(
+            self.group_name,
+            {
+                'type': 'game_update',
+            }
+        )
+    
+    
+    def game_update(self, event):
         game_state = self.game_session.get_game_state()
         message = {
                 'status':self.get_status(),
-                'player1':self.get_player(1),
-                'player2':self.get_player(2),
+                'player1':UserSerializer(self.game_session.player1).data,
+                'player2':UserSerializer(self.game_session.player2).data,
                 'disc1':game_state['disc1'],
                 'disc2':game_state['disc2'],
                 'current_player': int(self.game_session.player1 != self.user) + 1,
@@ -524,17 +544,6 @@ class GameConsumer(WebsocketConsumer):
                 'distance': distance, 
                 'time':self.get_time(),
                 'is_tournament': int(self.game_session.is_tournament),
+                'alone':1
         }
-        async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                'type': 'game_update',  # Must match the method name in this consumer
-                'message': message
-            }
-        )
-        # print(message)
-    
-    
-    def game_update(self, event):
-        message = event['message']
         self.send(text_data=json.dumps(message))

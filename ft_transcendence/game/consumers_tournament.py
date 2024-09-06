@@ -202,6 +202,7 @@ class TournamentConsumer(BaseConsumer):
             'in2':self.game_state['in2'],
             'in3':self.game_state['in3'],
             'in4':self.game_state['in4'],
+            'alone':0,
         }
         self.send(text_data=json.dumps(message))
         if message['status'] in ['Finished', 'Input', 'Waiting']:

@@ -29,3 +29,4 @@ urlpatterns = [
 	path('chat/', Chat.as_view(), name='chat'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

@@ -89,6 +89,8 @@ class GameSession(models.Model):
             'm1':-1,
             'm2':-1,
             'must_update':0,
+            'prev':'',
+            'start2':0
         }
         self.set_game_state(game_state)
 
@@ -187,3 +189,4 @@ class TournamentSession(models.Model):
             'm4':-1
         }
         self.set_tournament_state(game_state)
+        

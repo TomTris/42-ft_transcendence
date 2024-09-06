@@ -217,6 +217,7 @@ class BaseConsumer(WebsocketConsumer):
             'vecx': self.game_state['vecx'],
             'distance': distance, 
             'time':self.get_time(),
+            'alone':0,
         }
         self.send(text_data=json.dumps(message))
 
@@ -325,6 +326,7 @@ class AIConsumer(BaseConsumer):
             'vecx': self.game_state['vecx'],
             'distance': distance, 
             'time':self.get_time(),
+            'alone':1,
         }
         self.send(text_data=json.dumps(message))
 

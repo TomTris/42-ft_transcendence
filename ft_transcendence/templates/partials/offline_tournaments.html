@@ -151,10 +151,47 @@
     };
 
     document.addEventListener('keydown', function(event) {
-        const key = event.key;
-        if ((key == 'f' || key== 'F') && event.repeat) {
+        let key = event.key;
+
+        if ((key == 'f' || key== 'F' || key == 'v' || key == 'V') && event.repeat ) {
             return;
         }
+        if ((key == 'v' || key== 'V') ) {
+            cameraView += 1;
+            cameraView %= 3;
+            return;
+        }
+
+        if ((key == 'w' || key == "W" || key == 'ArrowUp' || key == 'ArrowDown' || key == 's' || key == 'S') && cameraView != 0)
+            return;
+        if ((key == 'a' || key == 'A' || key == 'ArrowLeft' || key == 'ArrowRight' || key == 'd' || key == 'D') && cameraView == 0)
+        {
+            return;
+        }
+        else{
+            if (cameraView == 1)
+            {
+                if (key == 'a' || key == 'A')
+                    key = 's';
+                else if (key == 'ArrowLeft')
+                    key = 'ArrowDown';
+                else if (key == 'd' || key == 'D')
+                    key = 'w';
+                else if (key == 'ArrowRight')
+                    key = 'ArrowUp';
+            }
+            else
+            {
+                if (key == 'a' || key == 'A')
+                    key = 'w';
+                else if (key == 'ArrowLeft')
+                    key = 'ArrowUp';
+                else if (key == 'd' || key == 'D')
+                    key = 's';
+                else if (key == 'ArrowRight')
+                    key = 'ArrowDown';
+            }
+        } 
         const message = {
             type: 'keydown',
             key: key
