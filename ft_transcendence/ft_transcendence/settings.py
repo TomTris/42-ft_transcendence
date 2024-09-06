@@ -14,30 +14,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+print('99999999999999999999999999999999999999999999999999999999')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
-SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0n123ay334#q3f+a0-dm7'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-
+print(1)
 import hvac
 with open('/vault/token-volume/rootToken', 'r') as file:
     vault_token = file.read().strip()
+print(2)
 client = hvac.Client(url='http://vault:8200', token=vault_token)
+print(3)
 secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+print(4)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -49,22 +39,40 @@ DATABASES = {
     }
 }
 
-# ALLOWED_HOSTS = ['localhost']
+PRIVATE_KEY=secret['private_key']
+INFURA_URL=secret['infura_url']
+CONTRACT_ADDRESS=secret['contract_address']
+DEPLOYER_ACCOUNT=secret['deployer_account']
 
-with open('/localip/localip.txt', 'r') as file:
-    localip = file.read().strip()
-with open('/domain_name.txt', 'r') as file:
-    domain_name = file.read().strip()
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', domain_name, localip]
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+print(5)
 
-localip = "https://" + localip
-domain_name = "https://" + domain_name
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
+SECRET_KEY = secret['SECRET_KEY']
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = secret['DEBUG']
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+
+
+# with open('/localip/localip.txt', 'r') as file:
+#     localip = file.read().strip()
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+print(6)
+# localip = "https://" + localip
+# domain_name = "https://" + domain_name
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
     'https://127.0.0.1',
-    domain_name,
-    localip,
+    # domain_name,
+    # localip,
     # 'https://yourdomain.com',
 ]
 
@@ -75,13 +83,14 @@ CSRF_TRUSTED_ORIGINS = [
 # DEFAULT_FROM_EMAIL="PingPong_QTOR@gmail.com"
 # EMAIL_USE_TLS=True
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'nonreply.transcendence@gmail.com'
-EMAIL_HOST_PASSWORD = 'efieznyosphgvibx'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+EMAIL_BACKEND=secret['EMAIL_BACKEND']
+EMAIL_HOST=secret['EMAIL_HOST']
+EMAIL_HOST_USER=secret['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD=secret['EMAIL_HOST_PASSWORD']
+EMAIL_PORT=secret['EMAIL_PORT']
+EMAIL_USE_TLS=secret['EMAIL_USE_TLS']
+EMAIL_USE_SSL=secret['EMAIL_USE_SSL']
+
 
 # Application definition
 
@@ -105,7 +114,7 @@ INSTALLED_APPS = [
 ]
 
 ASGI_APPLICATION = 'ft_transcendence.asgi.application'
-
+print('11113333333')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -118,6 +127,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.CookieToAuthorizationMiddleware',
 ]
+print('1111333333344444444444444')
 
 ROOT_URLCONF = 'ft_transcendence.urls'
 
@@ -233,3 +243,4 @@ INITIALIZED_1 = False
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+print('1111111111111111111111111111111111111111111')

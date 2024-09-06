@@ -30,11 +30,8 @@ services:
       - "8200:8200"
     volumes:
       - token-volume:/vault/token-volume/
-    environment:
-      VAULT_ADDR: http://127.0.0.1:8200
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword1
-      POSTGRES_DB: mydatabase
+    env_file:
+      .env
     networks:
       - inception_network
 
@@ -47,10 +44,6 @@ services:
     volumes:
       - ./ft_transcendence:/app
       - token-volume:/vault/token-volume/
-      - ~/data/localip/:/localip
-      - ./.domain_name.txt:/domain_name.txt
-    env_file:
-      .env
     networks:
       - inception_network
 

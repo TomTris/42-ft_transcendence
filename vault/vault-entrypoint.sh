@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Start Vault server in the background
-export VAULT_ADDR='http://127.0.0.1:8200'
 rm -rf /vault/token-volume/created
 sleep 5
 until nc -z -v -w30 postgres 5432
@@ -31,7 +30,7 @@ sleep 3
 # Wait for Vault to start
 
 # Initialize Vault and save keys to file
-# echo "Initializing Vault"
+echo "Initializing Vault"
 
 # Check if the length is greater than 0
 if [ $(cat "/vault/file/keys.txt" | wc -c) -gt 0 ]; then
@@ -65,7 +64,23 @@ vault kv put secret/postgresql/db_credentials \
   db_user=$POSTGRES_USER \
   db_password=$POSTGRES_PASSWORD \
   db_host=postgres \
-  db_port=5432
+  db_port=5432\
+  \
+  SECRET_KEY=$SECRET_KEY\
+  DEBUG=$DEBUG\
+  \
+  private_key=$private_key\
+  infura_url=$infura_url\
+  contract_address=$contract_address\
+  deployer_account=$deployer_account\
+  \
+  EMAIL_BACKEND=$EMAIL_BACKEND\
+  EMAIL_HOST=$EMAIL_HOST\
+  EMAIL_HOST_USER=$EMAIL_HOST_USER\
+  EMAIL_HOST_PASSWORD=$EMAIL_HOST_PASSWORD\
+  EMAIL_PORT=$EMAIL_PORT\
+  EMAIL_USE_TLS=$EMAIL_USE_TLS\
+  EMAIL_USE_SSL=$EMAIL_USE_SSL\
 
 touch /vault/token-volume/created
 echo Done1
