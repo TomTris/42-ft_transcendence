@@ -139,9 +139,9 @@ class GameConsumer(WebsocketConsumer):
                         game_state['start'] = time.time() + 21
 
                 self.game_session.set_game_state(game_state)
-                if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active and not self.game_session.is_tournament:
-                    self.game_session.delete()
-                    return            
+                # if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active and not self.game_session.is_tournament:
+                #     self.game_session.delete()
+                #     return            
             self.send_data_to_group()
 
 
@@ -202,13 +202,12 @@ class GameConsumer(WebsocketConsumer):
     def update_playing(self):
         game_state = self.game_session.get_game_state()
 
-        if self.game_session.is_tournament:
-            if game_state['disc1'] == 1 and game_state['disc2'] == 1:
-                if game_state['start'] < time.time():
-                    game_state['playing'] = 1
-                    game_state['paused'] = 0
-                    self.game_session.set_game_state(game_state)
-                return
+        if game_state['disc1'] == 1 and game_state['disc2'] == 1:
+            if game_state['start'] < time.time():
+                game_state['playing'] = 1
+                game_state['paused'] = 0
+                self.game_session.set_game_state(game_state)
+            return
         if game_state['paused'] == 0 and self.game_session.player2 is not None:
             if game_state['start'] < time.time():
                 if game_state['playing'] == 0:
@@ -280,8 +279,6 @@ class GameConsumer(WebsocketConsumer):
 
     def send_data(self):
         seen = 0
-        last = time.time()
-        counter = 0
         while(self.game_session and self.game_session.is_active):
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
@@ -305,13 +302,8 @@ class GameConsumer(WebsocketConsumer):
                     self.make_move()
                 self.send_data_to_group()
             time.sleep(0.015)
-            # counter += 1
-            # if last <= time.time() + 1:
-            #     # print(counter / (time.time() - last))
-            #     counter = 0
-            #     last = time.time()
-        
-    
+
+
     def pause(self, ind):
        
         game_state = self.game_session.get_game_state()

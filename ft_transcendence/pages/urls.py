@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 from django.conf import settings
 print('asdasdas')
 urlpatterns = [
+    path('block_list/', views.block_list_view),
+    path('unblock/', views.unblock),
     path('users/', views.users_view),
     path('users/<int:id>/', views.user_view),
     path('users/<int:id>/friends/', views.friends_view),

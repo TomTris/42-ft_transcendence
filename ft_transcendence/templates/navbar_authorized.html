@@ -240,7 +240,7 @@
         <a href="/users/" data-route="/users/">Users</a>
         <a href="/tournaments/" data-route="/tournaments/">Tournaments</a>
         <a href="/users/{{ request.user.id }}/friends/" data-route="/users/{{ request.user.id }}/friends/">Friends</a>
-        <a href="/users/{{ request.user.id }}/" data-route="/users/{{ request.user.id}}/">Profile</a>
+        
     </div>
     <div class="invitation-container">
         <a href="#" id="invitation-icon" class="icon">
@@ -255,6 +255,8 @@
     <div class="dropdown-container">
         <button id="dropdown-button">Account</button>
         <div class="dropdown-menu">
+            <a href="/users/{{ request.user.id }}/" data-route="/users/{{ request.user.id}}/">Profile</a>
+            <a href="/block_list/" data-route="/block_list/">Block-List</a>
             <a href="/settings/" data-route="/settings/">Settings</a>
             <a href="/refresh/logout/" data-route="/refresh/logout/">Logout</a>
         </div>
@@ -348,6 +350,10 @@
             {
                 let link = '/users/';
                 loadContent(link, defaultOption, false);
+            }
+            else if (location=='https://localhost/block_list/' && data.update == 3)
+            {
+                loadContent(/block_list/, defaultOption, false);
             }
         }
         else if (data.type == 'redirect')

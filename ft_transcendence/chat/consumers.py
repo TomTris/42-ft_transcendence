@@ -73,6 +73,15 @@ class ChatConsumer(WebsocketConsumer):
                     blocked=blocked
                 )
                 self.send_to_one(self.user.id)
+                async_to_sync(self.channel_layer.group_send)(
+                    'invite',
+                    {
+                        'type': 'invite_message',
+                        'id1':self.user.id,
+                        'id2':-12,
+                        'update':3,
+                    }
+                )
         
         if data['type'] == 'play':
             sender = self.user

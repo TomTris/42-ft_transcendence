@@ -121,8 +121,16 @@
                     const linkToGame = document.createElement('a');
                     linkToGame.className = 'link-system';
                     linkToGame.textContent = message.content;
-                    linkToGame.href = '/game/' + message.game_id + '/';
-                    linkToGame.setAttribute('data-route' ,'/game/' + message.game_id + '/');
+                    if (message.content == 'Tournament')
+                    {
+                        linkToGame.href = '/game/online_tournament/' + message.game_id + '/';
+                        linkToGame.setAttribute('data-route', '/game/online_tournament/' + message.game_id + '/');
+                    }
+                    else{
+                        linkToGame.href = '/game/' + message.game_id + '/';
+                        linkToGame.setAttribute('data-route' ,'/game/' + message.game_id + '/');
+                    }
+  
                     contentElement.appendChild(linkToGame);
                 }
                 else

@@ -13,7 +13,10 @@ from .models import Invite
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
-
+from chat.models import BlockList
+from .serializers import BlockListSerializer
+import json
+from django.http import JsonResponse
 
 def get_friend_status(current_user, user):
     if user == current_user:
@@ -166,6 +169,30 @@ def tournaments_view(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'partials/tournaments.html', data)
     return render(request, "tournaments.html", data)
+
+
+def block_list_view(request):
+    user = request.user
+    blocked = BlockList.objects.filter(blocker=user)
+    serialized = BlockListSerializer(blocked, many=True)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'partials/block_list.html', {'blocked':serialized.data}) 
+
+def unblock(request):
+    data = json.loads(request.body)
+    print(data)
+    id = data['block_id']
+    BlockList.objects.filter(id=id).delete()
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'chat',
+        {
+            'type': 'sending_to_one',
+            'id':request.user.id
+        }
+    )
+
+    return JsonResponse({'status': 'success', 'message': 'User unblocked successfully', 'ok':True})
 
 
 #for test modsecurity

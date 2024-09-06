@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Invite
 from users.models import User
+from chat.models import BlockList
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,3 +16,10 @@ class InviteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invite
         fields = ['id', 'sender', 'send_to', 'invite_type']
+
+
+class BlockListSerializer(serializers.ModelSerializer):
+    blocked = UserSerializer()
+    class Meta:
+        model = BlockList
+        fields = ['id', 'blocked']
