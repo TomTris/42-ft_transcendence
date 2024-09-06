@@ -47,25 +47,25 @@ def playing_view(request, session_id):
     game_session = GameSession.objects.filter(id=session_id).first()
     user = request.user
     if game_session is None or user not in [game_session.player1, game_session.player2] or not game_session.is_active:
-        return render(request, "user_doesnt_exist.html")
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/matchmaking.html', {'session_id':session_id})
-    return render(request, 'matchmaking.html', {'session_id':session_id})
+        return render(request, "partials/home.html")
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/matchmaking.html', {'session_id':session_id})
+    # return render(request, 'matchmaking.html', {'session_id':session_id})
 
 def offline_view(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/offline.html')
-    return render(request, 'offline.html')
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/offline.html')
+    # return render(request, 'offline.html')
 
 def bot_view(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/playing_bot.html')
-    return render(request, 'playing_bot.html')
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/playing_bot.html')
+    # return render(request, 'playing_bot.html')
 
 def tournament_view(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/offline_tournaments.html')
-    return render(request, 'offline_tournaments.html')
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/offline_tournaments.html')
+    # return render(request, 'offline_tournaments.html')
 
 def online_tournament_view(request):
     return render(request, 'online_tournament.html')
@@ -75,11 +75,11 @@ def online_tournaments_view(request, session_id):
     user = request.user
     tournament = TournamentSession.objects.filter(id=session_id).first()
     if tournament is None or user not in [tournament.player1, tournament.player2, tournament.player3, tournament.player4]:
-        return render(request, "user_doesnt_exist.html")
+        return render(request, "partials/home.html")
     
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/online_tournaments.html', {'session_id':session_id})
-    return render(request, 'online_tournaments.html', {'session_id': session_id})
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/online_tournaments.html', {'session_id':session_id})
+    # return render(request, 'online_tournaments.html', {'session_id': session_id})
 
 
 

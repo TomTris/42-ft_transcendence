@@ -58,9 +58,9 @@ def best_view(request):
 
 def users_view(request):
     users = User.objects.order_by("id")
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/users.html', {'friends':users})
-    return render(request, "users.html", {'friends':users})
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/users.html', {'friends':users})
+    # return render(request, "users.html", {'friends':users})
 
 def user_view(request, id):
     curent_user = request.user
@@ -94,9 +94,9 @@ def user_view(request, id):
     friend=get_friend_status(curent_user, user)
     invite = get_invite_status(curent_user, user)
 
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend, 'invite':invite})
-    return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend, 'invite':invite})
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/user.html', {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend, 'invite':invite})
+    # return render(request, "user.html", {'user':user, "matches_with_ids":matches_with_ids, 'winrate':winrate, 'friend':friend, 'invite':invite})
 
 
 def friends_view(request, id):
@@ -110,9 +110,9 @@ def friends_view(request, id):
             only_friends.append(friendship.person2)
         else:
             only_friends.append(friendship.person1)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/users.html', {'friends':only_friends})
-    return render(request, "users.html", {'friends':only_friends})
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/users.html', {'friends':only_friends})
+    # return render(request, "users.html", {'friends':only_friends})
 
 def modify_data_for_view():
     output = []
@@ -166,9 +166,9 @@ def tournaments_view(request):
         'tournaments' : modify_data_for_view(),
     }
     print(data)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'partials/tournaments.html', data)
-    return render(request, "tournaments.html", data)
+    # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    return render(request, 'partials/tournaments.html', data)
+    # return render(request, "tournaments.html", data)
 
 
 def block_list_view(request):
