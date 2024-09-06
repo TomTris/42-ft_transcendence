@@ -28,7 +28,11 @@ down:
 	@docker-compose down
 
 send_email:
-	cd ft_trancendence 
+	docker cp send_to_subscribers.txt my_django:/app/users/
+	docker exec -it my_django chmod 777 /app/users/send_to_subscribers.txt
+	docker exec -it my_django python manage.py send_email
+	docker exec -it my_django rm -f /app/users/send_to_subscribers.txt
+
 re:
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down

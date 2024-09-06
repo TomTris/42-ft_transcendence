@@ -29,10 +29,6 @@ def send_code_to_user(email):
 	print("sent email to", email)
 
 
-
-
-
-
 def send_code_to_user_login(email):
 	Subject="One time passcode for Email verification"
 	otp_code=generateOtp()
@@ -53,10 +49,15 @@ def send_code_to_user_login(email):
 
 
 def send_normal_email(data):
-	email=EmailMessage(
-		subject=data['email_subject'],
-		body=data['email_body'],
-		from_email=settings.DEFAULT_FROM_EMAIL,
-		to=[data['to_email']]
-	)
+	# email=EmailMessage(
+	# 	subject=data['email_subject'],
+	# 	body=data['email_body'],
+	# 	from_email=settings.DEFAULT_FROM_EMAIL,
+	# 	to=[data['to_email']]
+	# )
 	# email.send(fail_silently=False)
+	subject=data['email_subject']
+	body=data['email_body']
+	from_email=settings.EMAIL_HOST_USER
+	to_email=data['to_email']
+	send_mail( subject, body, from_email, [to_email], False)
