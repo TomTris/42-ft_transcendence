@@ -1,16 +1,7 @@
 #!/bin/bash
 
-if [ ! -e .domain_name.txt ]; then
-echo ".domain_name doesn't exists"
-exit 1
-fi
-
-if [ ! -e .ngrok_token.txt ]; then
-echo ".ngrok_token.txt doesn't exists"
-exit 1
-fi
-
 if [ ! -e ngrok_running ]; then
-docker run --net=host -it -e NGROK_AUTHTOKEN=$(cat .ngrok_token.txt) ngrok/ngrok:latest http --domain=$(cat .domain_name.txt) 443 2>/dev/null | echo ""
-fi
+docker run --net=host -it -e NGROK_AUTHTOKEN=$(cat ./.env | grep "NGROK_AUTHTOKEN=" | cut -c17- | sed "s/^['\"]//;s/['\"]$//") \
+        ngrok/ngrok:latest http --domain=$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$//") 443 2>/dev/null | echo ""
 touch ngrok_running
+fi

@@ -83,11 +83,10 @@ clean_volumes:
 # 	@docker stop $$(docker ps -qa)
 # 	@docker system prune -a 
 
-# fclean:
-# 	@printf "Complete clearning of all docker configuration ... \n"
-# 	@docker stop $$(docker ps -qa);\
-# 	docker system prune -a ;\
-# 	docker system prune --all --force --volumes;\
-# 	docker network prune --force;\
-# 	docker volume rm srcs_db-volume;\
-# 	docker volume rm srcs_wp-volume;
+fclean:
+	@printf "Complete clearning of all docker configuration ... \n"
+	@docker stop $$(docker ps -qa);\
+	docker system prune -a ;\
+	docker system prune --all --force --volumes;\
+	docker network prune --force;\
+	docker volume rm  token-volume
