@@ -8,8 +8,6 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword1
       POSTGRES_DB: mydatabase
-    volumes:
-      - psql-volume:/var/lib/postgresql/data
     networks:
       - inception_network
 
@@ -65,15 +63,3 @@ networks:
 
 volumes:
   token-volume:
-
-  psql-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ~/data/psql
-  vault-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ~/data/vault
-

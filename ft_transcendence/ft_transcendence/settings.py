@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+DOMAIN_NAME='deciding-delicate-raptor.ngrok-free.app'
 
 from pathlib import Path
 from datetime import timedelta
@@ -61,18 +62,16 @@ DEBUG = secret['DEBUG']
 
 
 
-# with open('/localip/localip.txt', 'r') as file:
-#     localip = file.read().strip()
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-print(6)
-# localip = "https://" + localip
-# domain_name = "https://" + domain_name
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', secret['domain_name'], secret['localip']]
+
+localip = "https://" +  secret['localip'] 
+domain_name = "https://" + secret['domain_name']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost',
     'https://127.0.0.1',
-    # domain_name,
-    # localip,
+    domain_name,
+    localip,
     # 'https://yourdomain.com',
 ]
 
@@ -88,8 +87,10 @@ EMAIL_HOST=secret['EMAIL_HOST']
 EMAIL_HOST_USER=secret['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD=secret['EMAIL_HOST_PASSWORD']
 EMAIL_PORT=secret['EMAIL_PORT']
-EMAIL_USE_TLS=secret['EMAIL_USE_TLS']
-EMAIL_USE_SSL=secret['EMAIL_USE_SSL']
+# EMAIL_USE_TLS=secret['EMAIL_USE_TLS']
+# EMAIL_USE_SSL=secret['EMAIL_USE_SSL']
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
 
 
 # Application definition

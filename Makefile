@@ -2,17 +2,14 @@ NAME = ./docker-compose.yml
 
 all:
 	@printf "Running configuration $(NAME) ..."
-	@mkdir -p ~/data/psql  
-	@mkdir -p ~/data/vault 
-	@mkdir -p ~/data/localip
-	@ifconfig | grep "inet 10." | awk '{print $$2}'  > ~/data/localip/localip.txt
+	@./create_localip.sh
+	@./ngrok_run.sh
 	@docker-compose -f $(NAME) up -d
 	@echo "Your local IP-Address is:"
-	@cat ~/data/localip/localip.txt
+	@ifconfig | grep "inet 10." | awk '{print $$2}'
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
 
-#@./ngrok_run.sh
 ps:
 	docker-compose -f $(NAME) ps
 
@@ -67,8 +64,6 @@ clean1:
 	docker rm $$(docker ps -qa);\
 	docker rmi -f $$(docker images -qa);\
 	docker network rm $$(docker network ls -q);\
-	rm -rf ~/data/psql/*;\
-	rm -rf ~/data/vault/*;\
 	rm ngrok_running
 
 re1:

@@ -81,6 +81,10 @@ vault kv put secret/postgresql/db_credentials \
   EMAIL_PORT=$EMAIL_PORT\
   EMAIL_USE_TLS=$EMAIL_USE_TLS\
   EMAIL_USE_SSL=$EMAIL_USE_SSL\
+  \
+  domain_name=$DOMAIN_NAME\
+  localip=$LOCALIP\
+
 
 touch /vault/token-volume/created
 echo Done1
