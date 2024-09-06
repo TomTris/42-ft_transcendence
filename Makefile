@@ -13,6 +13,12 @@ all:
 ps:
 	docker-compose -f $(NAME) ps
 
+show:
+	@echo "Your local IP-Address is:"
+	@ifconfig | grep "inet 10." | awk '{print $$2}'
+	@echo "The Domain is:"
+	@echo $$(cat .domain_name.txt)
+
 logs:
 	docker-compose -f $(NAME) logs
 
@@ -21,7 +27,7 @@ build:
 	@docker-compose -f $(NAME) up -d --build
 
 down:
-	@echo "Our server is off for a while" > send_to_subscribers.txt
+	@echo "Server Off/Our server is now off until you are alive" > send_to_subscribers.txt
 	@make send_email
 	@printf "Stopping configuration $(NAME) ... \n"
 	@docker-compose down
@@ -33,7 +39,7 @@ send_email:
 	docker exec -it my_django rm -f /app/users/send_to_subscribers.txt
 
 re:
-	@echo "Our server is off for a while" > send_to_subscribers.txt
+	@echo "Server Off/Our server is now off for a while" > send_to_subscribers.txt
 	@make send_emai
 	@printf "Rebuilding configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) down
@@ -48,7 +54,7 @@ re:
 	@cat ~/data/localip/localip.txt
 	@echo "The Domain is:"
 	@echo $$(cat .domain_name.txt)
-	@echo "New\nOur server is now back and powerful" > send_to_subscribers.txt
+	@echo "SERVER ON!!\nOur Server is now back and ready for challangeing duales!!!!" > send_to_subscribers.txt
 	@make send_email
 
 clean:
