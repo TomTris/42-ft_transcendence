@@ -55,6 +55,7 @@ class GameConsumer(WebsocketConsumer):
                     game_state['start'] = time.time() + 4
                     game_state['started'] = 1
                 game_state['playing'] = 0
+            game_state['must_update'] = 1
             self.game_session.set_game_state(game_state)
         else:
             self.close()
@@ -90,7 +91,7 @@ class GameConsumer(WebsocketConsumer):
         self.game_session = GameSession.objects.filter(id=self.session_id).first()
         with self.game_state_lock:
             game_state = self.game_session.get_game_state()
-            if game_state['online'] == self.count and game_state['disc1'] == 1:
+            if game_state['disc1'] == 1:
                 self.game_session.delete()
                 if not self.game_session.is_tournament:
                     self.user.is_playing = False
@@ -98,7 +99,7 @@ class GameConsumer(WebsocketConsumer):
             else:
                 if self.game_session.player1 == self.game_session.player2:
                     self.game_session.delete_second()
-                game_state['online'] = 0
+
        
         self.game_session.set_game_state(game_state)
         self.update_game_session()
@@ -122,12 +123,11 @@ class GameConsumer(WebsocketConsumer):
             if self.game_session.is_active:
                 game_state = self.game_session.get_game_state()
                 if self.user == self.game_session.player1:
-                    if self.game_session.player2 is None:
-                        self.count += 1
-                        game_state['online'] = self.count
-                        self.disconecting()
                     game_state['disc1'] = 1
-                    if game_state['paused1'] != 2:
+                    if self.game_session.player2 is None:
+                        self.count = 1
+                        self.disconecting()
+                    elif game_state['paused1'] != 2:
                         game_state['paused'] = 1
                         game_state['paused1'] += 1
                         game_state['start'] = time.time() + 21
@@ -142,6 +142,9 @@ class GameConsumer(WebsocketConsumer):
                 if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active and not self.game_session.is_tournament:
                     self.game_session.delete()
                     return
+            
+
+
             
             self.send_data_to_group()
 
@@ -283,8 +286,15 @@ class GameConsumer(WebsocketConsumer):
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
                 if not game_state:
-                    return
-                if seen == 0 and self.game_session.player1 and self.game_session.player2 and self.game_session.is_tournament == False:
+                    break
+                if game_state['must_update'] == 1:
+                    print(1)
+                    game_state['must_update'] = 0
+                    self.game_session = GameSession.objects.filter(id=self.game_session.id).first()
+                    if self.game_session is None:
+                        break
+                    self.game_session.set_game_state(game_state)
+                if seen == 0 and self.game_session.player1 and self.game_session.player2 and self.game_session.player1 != self.game_session.player2 and self.game_session.is_tournament == False:
                     seen = 1
                     self.create_messages(game_state)
                     self.game_session.set_game_state(game_state)
@@ -296,6 +306,7 @@ class GameConsumer(WebsocketConsumer):
                     self.make_move()
                 self.send_data_to_group()
             time.sleep(0.005)
+        
     
     def pause(self, ind):
        
@@ -472,7 +483,7 @@ class GameConsumer(WebsocketConsumer):
         game_state = self.game_session.get_game_state()
         if game_state['won'] != 0:
             status = 'Won'
-        elif self.game_session.player2 is None or self.game_session.player1 is None or game_state['online'] != 0:
+        elif self.game_session.player2 is None or self.game_session.player1 is None:
             status = "Waiting for other player"
         elif game_state['paused'] != 0:
             status = "Paused"

@@ -228,7 +228,7 @@
     // Function to finish the lobby
     window.finishLobby = function() {
         const finishMessage = {
-            type: 'finish'
+            type: 'cancel'
         };
         socket1.send(JSON.stringify(finishMessage));
     };

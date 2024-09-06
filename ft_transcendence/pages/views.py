@@ -384,5 +384,4 @@ class Chat(GenericAPIView):
 
 	def post(self, request):
 		if request.user.is_authenticated:
-			print("Empty path, user authenticated")
 			return render(request, "chat.html")

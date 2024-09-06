@@ -87,7 +87,8 @@ class GameSession(models.Model):
             "time_passed":0,
             'started':0,
             'm1':-1,
-            'm2':-1
+            'm2':-1,
+            'must_update':0,
         }
         self.set_game_state(game_state)
 
@@ -180,5 +181,9 @@ class TournamentSession(models.Model):
             'pos2':0,
             'pos3_1':0,
             'pos3_2':0,
+            'm1':-1,
+            'm2':-1,
+            'm3':-1,
+            'm4':-1
         }
         self.set_tournament_state(game_state)

@@ -72,6 +72,40 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
 
+    def send_message(self, game_state):
+        mess = 'm' + str(self.get_player())
+        if game_state[mess] == -1:
+            m = Message.objects.create(
+                send_to=self.user,
+                content='Tournament',
+                game_id=self.session_id
+            )
+            game_state[mess] = m.id
+            async_to_sync(self.channel_layer.group_send)(
+                'chat',
+                {
+                    'type': 'sending_to_one',
+                    'id':self.user.id
+                }
+            )
+
+    def delete_message(self):
+        game_state = self.tournament.get_tournament_state()
+        mess = 'm' + str(self.get_player())
+        print(game_state[mess])
+        if game_state[mess] != -1:
+            Message.objects.get(id=game_state[mess]).delete()
+            game_state[mess] = -1
+            async_to_sync(self.channel_layer.group_send)(
+                'chat',
+                {
+                    'type': 'sending_to_one',
+                    'id':self.user.id
+                }
+            )
+            self.tournament.set_tournament_state(game_state)
+
+
 
     def connect(self):
         self.session_id = self.scope['url_route']['kwargs']['session_id']
@@ -90,9 +124,10 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                     self.channel_name
                 )
             game_state = self.tournament.get_tournament_state()
+            self.send_message(game_state)
             if self.tournament.is_full() and game_state['status'] == 'Waiting':
                 game_state['status'] = 'Confirming'
-                self.tournament.set_tournament_state(game_state)
+            self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
         else:
             self.close()
@@ -106,8 +141,14 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def force_disconect(self, event):
+        async_to_sync(self.channel_layer.group_discard)(
+            self.group_name,
+            self.channel_name
+        )
         self.user.is_playing = False
         self.user.save()
+        self.delete_message()
+        self.send_data_to_group()
         self.close()
 
 
@@ -121,22 +162,30 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def kick(self, event):
-        self.user.is_playing = False
-        self.user.save()
+
         message = event['message']
         message['status'] = 'Kick'
         if message['player'] == self.get_player():
+            async_to_sync(self.channel_layer.group_discard)(
+                self.group_name,
+                self.channel_name
+            )
+            self.user.is_playing = False
+            self.user.save()
             self.send(text_data=json.dumps(message))
+            self.delete_message()
+            if message['player'] == 2:
+                self.tournament.player2 = None
+            if message['player'] == 3:
+                self.tournament.player3 = None
+            if message['player'] == 4:
+                self.tournament.player4 = None
+            self.tournament.save()
+            self.send_data_to_group()
             self.close()
 
     def handle_kick(self, player):
-        if player == 2:
-            self.tournament.player2 = None
-        if player == 3:
-            self.tournament.player3 = None
-        if player == 4:
-            self.tournament.player4 = None
-        self.tournament.save()
+        
         message = {
             'player': player,
         }
@@ -153,13 +202,43 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
 
     def cancel(self, event):
+        print('asdas')
+        async_to_sync(self.channel_layer.group_discard)(
+            self.group_name,
+            self.channel_name
+        )
         message = {
             'status': "Cancel"
         }
         self.send(text_data=json.dumps(message))
         self.user.is_playing = False
         self.user.save()
+  
         self.close()
+
+    
+    def delete_all(self):
+        game_state = self.tournament.get_tournament_state()
+        for i in range(4):
+            mess = 'm' + str(i + 1)
+            if game_state[mess] != -1:
+                Message.objects.get(id=game_state[mess]).delete()
+                if i == 0:
+                    id = self.tournament.player1.id
+                elif i == 1:
+                    id = self.tournament.player2.id
+                elif i == 2:
+                    id = self.tournament.player3.id
+                else:
+                    id = self.tournament.player4.id
+
+                async_to_sync(self.channel_layer.group_send)(
+                    'chat',
+                    {
+                        'type': 'sending_to_one',
+                        'id':id
+                    }
+                )
 
 
     def handle_cancel(self):
@@ -169,24 +248,31 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                 'type': 'cancel',  # Must match the method name in this consumer
             }
         )
+        self.delete_all()
         self.tournament.delete()
 
     def quit(self, event):
         message = event['message']
         if message['player'] == self.get_player():
+            async_to_sync(self.channel_layer.group_discard)(
+                self.group_name,
+                self.channel_name
+            )
             self.user.is_playing = False
             self.user.save()
+            self.delete_message()
+            if message['player'] == 2:
+                self.tournament.player2 = None
+            if message['player'] == 3:
+                self.tournament.player3 = None
+            if message['player'] == 4:
+                self.tournament.player4 = None
+            self.tournament.save()
+            self.send_data_to_group()
             self.close()
     
 
     def handle_quit(self, player):
-        if player == 2:
-            self.tournament.player2 = None
-        if player == 3:
-            self.tournament.player3 = None
-        if player == 4:
-            self.tournament.player4 = None
-        self.tournament.save()
         message = {
             'player': player,
         }
@@ -567,6 +653,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
+        print(data)
         self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
         if data['type'] == 'kick':
             self.handle_kick(data['player'])
