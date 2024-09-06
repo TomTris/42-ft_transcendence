@@ -141,11 +141,7 @@ class GameConsumer(WebsocketConsumer):
                 self.game_session.set_game_state(game_state)
                 if game_state['disc1'] == 1 and game_state['disc2'] == 1 and self.game_session.is_active and not self.game_session.is_tournament:
                     self.game_session.delete()
-                    return
-            
-
-
-            
+                    return            
             self.send_data_to_group()
 
 
@@ -205,10 +201,12 @@ class GameConsumer(WebsocketConsumer):
 
     def update_playing(self):
         game_state = self.game_session.get_game_state()
+
         if self.game_session.is_tournament:
             if game_state['disc1'] == 1 and game_state['disc2'] == 1:
                 if game_state['start'] < time.time():
                     game_state['playing'] = 1
+                    game_state['paused'] = 0
                     self.game_session.set_game_state(game_state)
                 return
         if game_state['paused'] == 0 and self.game_session.player2 is not None:
@@ -282,13 +280,14 @@ class GameConsumer(WebsocketConsumer):
 
     def send_data(self):
         seen = 0
+        last = time.time()
+        counter = 0
         while(self.game_session and self.game_session.is_active):
             with self.game_state_lock:
                 game_state = self.game_session.get_game_state()
                 if not game_state:
                     break
                 if game_state['must_update'] == 1:
-                    print(1)
                     game_state['must_update'] = 0
                     self.game_session = GameSession.objects.filter(id=self.game_session.id).first()
                     if self.game_session is None:
@@ -305,7 +304,12 @@ class GameConsumer(WebsocketConsumer):
                 elif game_state['playing']:
                     self.make_move()
                 self.send_data_to_group()
-            time.sleep(0.005)
+            time.sleep(0.015)
+            # counter += 1
+            # if last <= time.time() + 1:
+            #     # print(counter / (time.time() - last))
+            #     counter = 0
+            #     last = time.time()
         
     
     def pause(self, ind):
