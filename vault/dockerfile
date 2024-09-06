@@ -1,9 +1,10 @@
 FROM hashicorp/vault:1.17.3
 
 COPY vault-entrypoint.sh /vault/scripts/vault-entrypoint.sh
-COPY vault-config.hcl /vault/config/vault-config.hcl
 
 RUN mkdir -p /vault/file/ && chmod 777 /vault/file
+RUN mkdir -p /vault/token-volume/ && chmod 777 /vault/token-volume/
+
 RUN chmod +x /vault/scripts/vault-entrypoint.sh
 EXPOSE 8200
 

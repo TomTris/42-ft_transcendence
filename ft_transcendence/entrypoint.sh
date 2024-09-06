@@ -5,7 +5,7 @@
 # Run migrations
 sleep 4
 i=0
-while [ ! -e /vault/file/created ] && [ $i -lt 60 ]; do
+while [ ! -e /vault/token-volume/created ] && [ $i -lt 60 ]; do
   sleep 3
   echo "Script is running"
   i=$(($i + 1))

@@ -6,7 +6,7 @@ services:
     container_name: postgres
     environment:
       POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_PASSWORD: mypassword1
       POSTGRES_DB: mydatabase
     volumes:
       - psql-volume:/var/lib/postgresql/data
@@ -29,9 +29,9 @@ services:
     ports:
       - "8200:8200"
     volumes:
-      - vault-volume:/vault/file
-    environment:
-      VAULT_ADDR: http://127.0.0.1:8200
+      - token-volume:/vault/token-volume/
+    env_file:
+      .env
     networks:
       - inception_network
 
@@ -43,11 +43,7 @@ services:
       - redis
     volumes:
       - ./ft_transcendence:/app
-      - vault-volume:/vault/file
-      - ~/data/localip/:/localip
-      - ./.domain_name.txt:/domain_name.txt
-    env_file:
-      .env
+      - token-volume:/vault/token-volume/
     networks:
       - inception_network
 
@@ -68,6 +64,8 @@ networks:
     name: inception_network
 
 volumes:
+  token-volume:
+
   psql-volume:
     driver_opts:
       o: bind
