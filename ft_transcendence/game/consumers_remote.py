@@ -304,6 +304,7 @@ class GameConsumer(WebsocketConsumer):
             time.sleep(0.015)
 
 
+
     def pause(self, ind):
        
         game_state = self.game_session.get_game_state()

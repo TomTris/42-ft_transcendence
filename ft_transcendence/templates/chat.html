@@ -121,10 +121,16 @@
                     const linkToGame = document.createElement('a');
                     linkToGame.className = 'link-system';
                     linkToGame.textContent = message.content;
+                    console.log(message.content);
                     if (message.content == 'Tournament')
                     {
                         linkToGame.href = '/game/online_tournament/' + message.game_id + '/';
                         linkToGame.setAttribute('data-route', '/game/online_tournament/' + message.game_id + '/');
+                    }
+                    else if (message.content == 'Offline Tournament')
+                    {
+                        linkToGame.href = '/game/tournament/';
+                        linkToGame.setAttribute('data-route', '/game/tournament/');
                     }
                     else{
                         linkToGame.href = '/game/' + message.game_id + '/';

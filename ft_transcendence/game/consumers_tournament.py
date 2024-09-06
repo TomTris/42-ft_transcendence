@@ -5,6 +5,7 @@ import math
 from .models import width, height, pwidth, pheight, radius, distance
 import random
 from .utils import Player, generate_random_angle, simulate_ball_position
+from chat.models import Message
 
 import json
 from .consumers_offline import BaseConsumer
@@ -25,7 +26,6 @@ class TournamentConsumer(BaseConsumer):
     def connect(self):
         self.accept()
         self.user = self.scope['user'] 
-        self.user.is_playing = True
         self.user.save()
         data = self.get_game_state()
         if data:
@@ -77,6 +77,7 @@ class TournamentConsumer(BaseConsumer):
                 "disconected": 0,
                 "send": 1,
                 "input": 1,
+                "message":-1,
             }
         self.set_game_state(self.game_state)
         self.game_state_lock = threading.Lock()
@@ -86,8 +87,6 @@ class TournamentConsumer(BaseConsumer):
 
     def disconnect(self, code):
         with self.game_state_lock:
-            self.user.is_playing = False
-            self.user.save()
             self.game_state['paused'] = 1
             self.game_state['disconected'] = 1
             self.set_game_state(self.game_state)
@@ -282,6 +281,21 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['centered'] = 0
                 self.game_state['finished'] = 0
                 self.game_state['won'] = 0
+                m = Message.objects.create(
+                    send_to=self.user,
+                    content="Offline Tournament",
+                    game_id=-1
+                )
+                self.game_state['message'] = m.id
+                async_to_sync(self.channel_layer.group_send)(
+                    'chat',
+                    {
+                        'type': 'sending_to_one',
+                        'id':self.user.id
+                    }
+                )
+                self.user.is_playing = True
+                self.user.save()
             elif data['type'] == 'ready':
                 self.game_state['send'] = 1
                 self.game_state['waiting'] = 0
@@ -296,6 +310,17 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['input'] = 1
                 self.game_state['finished'] = 0
                 self.game_state['send'] = 1
+                if self.game_state['message'] != -1:
+                    Message.objects.get(id=self.game_state['message']).delete()
+                    async_to_sync(self.channel_layer.group_send)(
+                        'chat',
+                        {
+                            'type': 'sending_to_one',
+                            'id':self.user.id
+                        }
+                    )
+                self.user.is_playing = False
+                self.user.save()
             else:
                 if data['key'] in ['f', 'F']:
                     self.pause()

@@ -299,7 +299,27 @@
     }
     
     function playTournamentOffline(){
-        loadContent("/game/tournament/", defaultOption, true);
+        fetch('/game/can_join/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                link = `/game/tournament/`;
+                loadContent(link, defaultOption, true);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 
     function getCookie(name) {

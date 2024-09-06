@@ -18,6 +18,8 @@ def join_game_session(request):
         is_active=True
     ).first()
     if game_session is None:
+        if user.is_playing:
+            return JsonResponse({'error': 'Game session is full'})
         game_session = GameSession.objects.filter(player2=None, is_active=True).first()
         if game_session is None:
             game_session = GameSession.objects.create()
@@ -25,11 +27,18 @@ def join_game_session(request):
         try:
             game_session.add_player(user)
         except ValueError:
-            return JsonResponse({'error': 'Game session is full'}, status=400)
+            return JsonResponse({'error': 'Game session is full'})
 
     return JsonResponse({
         'session_id': game_session.id
     })
+
+@require_POST
+def can_join(request):
+    user = request.user
+    if user.is_playing == False:
+        return JsonResponse({'success':True})
+    return JsonResponse({'success':False})
 
 def game_view(request):
     return render(request, "game.html")
@@ -84,11 +93,12 @@ def generate_unique_code():
 
 @require_POST
 def create_tournament(request):
-    print(1)
+    user = request.user
+    if user.is_playing:
+        return JsonResponse({'success': False})
     name = request.POST.get('name')
-    print(name)
     if not name:
-        return JsonResponse({'error': 'Tournament name is required'}, status=400)
+        return JsonResponse({'error': 'Tournament name is required'})
     code = generate_unique_code()
     tournament = TournamentSession.objects.create(name=name, code=code)
     tournament.init_tournament_state()
@@ -97,15 +107,18 @@ def create_tournament(request):
 
 @require_POST
 def join_tournament(request):
+    user = request.user
+    if user.is_playing:
+        return JsonResponse({'success': False})
     code = request.POST.get('code')
     if not code:
-        return JsonResponse({'error': 'Tournament code is required'}, status=400)
+        return JsonResponse({'error': 'Tournament code is required'})
     try:
         tournament = TournamentSession.objects.get(code=code, is_active=True)
         if not tournament.is_player_in(request.user):
             tournament.add_player(request.user)
         return JsonResponse({'success': True, 'id': tournament.id})
     except TournamentSession.DoesNotExist:
-        return JsonResponse({'error': 'Tournament not found'}, status=404)
+        return JsonResponse({'error': 'Tournament not found'})
     except ValueError:
-        return JsonResponse({'error': 'Tournament is full'}, status=400)
+        return JsonResponse({'error': 'Tournament is full'})

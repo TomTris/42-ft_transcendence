@@ -73,36 +73,37 @@ class InviteConsumer(WebsocketConsumer):
                 else:
                     sender = invite.sender
                     send_to = invite.send_to
-                    invite.delete()
                     if data['result'] == 'accept':
-                        game = GameSession.objects.create(
-                            player1=sender,
-                            player2=send_to,
-                        )
-                        game.init_game_state()
-                        channel_layer = get_channel_layer()
-                        link = f'/game/{game.id}/'
-                        async_to_sync(channel_layer.group_send)(
-                            'invite',
-                            {
-                                'type': 'invite_accept',
-                                'id1': sender.id,
-                                'id2': send_to.id,
-                                'link': link
-                            }
-                        )
-                        async_to_sync(channel_layer.group_send)(
-                            'invite',
-                            {
-                                'type':'invite_message',
-                                'id1':sender.id,
-                                'id2':send_to.id,
-                                'update':0,
-                            }
-                        )
+                        if sender.is_playing == False and send_to.is_playing == False and sender.is_online and sender.online_check:
+                            game = GameSession.objects.create(
+                                player1=sender,
+                                player2=send_to,
+                            )
+                            game.init_game_state()
+                            channel_layer = get_channel_layer()
+                            link = f'/game/{game.id}/'
+                            async_to_sync(channel_layer.group_send)(
+                                'invite',
+                                {
+                                    'type': 'invite_accept',
+                                    'id1': sender.id,
+                                    'id2': send_to.id,
+                                    'link': link
+                                }
+                            )
+                            async_to_sync(channel_layer.group_send)(
+                                'invite',
+                                {
+                                    'type':'invite_message',
+                                    'id1':sender.id,
+                                    'id2':send_to.id,
+                                    'update':0,
+                                }
+                            )
+                            invite.delete()
                     else:
                         self.send_to_all(sender.id, send_to.id, 2)
-                    
+                        invite.delete()
         
 
     def send_to_all(self, id1, id2, update):
