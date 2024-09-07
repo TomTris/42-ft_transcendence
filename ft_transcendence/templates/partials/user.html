@@ -86,31 +86,9 @@
         border-radius: 12px; /* Rounded corners */
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow */
         padding: 20px; /* Comfortable padding */
-        border: 1px solid #ddd; /* Light border */
+        border: 1.2px solid #ddd; /* Light border */
     }
     
-    /* History list */
-    .history-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        width: 80%; /* Adjust width */
-        max-width: 800px; /* Max width for larger screens */
-        background-color: #fff; /* Solid background */
-        border-radius: 12px; /* Rounded corners */
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-        overflow: hidden;
-        border: 1px solid #ddd; /* Light border */
-    }
-    
-    .history-list li {
-        display: flex;
-        align-items: center;
-        padding: 16px 24px; /* Comfortable padding */
-        border-bottom: 1px solid #eee; /* Subtle border */
-        font-size: 16px;
-        background-color: #ffffff; /* Solid background for list items */
-    }
     
     .userinfo {
         width: 90%; /* Full width */
@@ -143,46 +121,100 @@
     .history-list a:hover {
         color: #0056b3; /* Darker blue on hover */
     }
+
+
+
+
+/* ---------------------------- match ---------------------------- */
+.match-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px; /* Limit width for readability */
+    margin: 20px auto; /* Center and add vertical spacing */
+}
+
+/* Individual match item */
+.match-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ddd; /* Separator line between items */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+/* Last item without bottom border */
+.match-item:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect for the list item */
+.match-item:hover {
+    background-color: #f1f1f1; /* Slightly darker background */
+    transform: scale(1.02); /* Slightly enlarge on hover */
+}
+
+/* Match player avatars */
+.match-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+/* Player names and rank change */
+.match-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+}
+
+.match-info a {
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.match-info a:hover {
+    color: #0056b3;
+}
+
+/* Rank change */
+.rank-change {
+    margin: 0 10px;
+    color: #666;
+}
 </style>
 <div class="page-container">
     <h1>{{ user.username }}</h1>
 
     <div class="button-container">
         {% if friend == 1 %}
-        <div class='userinfo'>
             <button id="add-friend-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Add Friend</button>
-        </div>
-        
         {% elif friend == 2 %}
-        <div class='userinfo'>
             <button id="delete-friend-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Delete Friend</button>
-        </div>
         {% elif friend == 3 %}
-        <div class='userinfo'>
             <button id="accept-friend-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Friend Request</button>
-        </div>
         {% elif friend == 4 %}
-        <div class='userinfo'>
             <button id="cancel-friend-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Friend Request</button>
-        </div>
         {% endif %}
 
         {% if invite == 1 %}
-        <div class='userinfo'>
             <button id="add-invite-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Invite to play</button>
-        </div>
         {% elif invite == 2 %}
-        <div class='userinfo'>
             <button id="play-invite-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Already Playing</button>
-        </div>
         {% elif invite == 3 %}
-        <div class='userinfo'>
             <button id="accept-invite-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Invite Request</button>
-        </div>
         {% elif invite == 4 %}
-        <div class='userinfo'>
             <button id="cancel-invite-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Invite Request</button>
-        </div>
         {% endif %}
     </div>
 
@@ -196,17 +228,19 @@
     </div>
 
     <h1>History</h1>
-    <ul class="history-list">
+    <ul class="match-list">
         {% for m in matches_with_ids %}
-            <li>
-                <img src="{{ m.player1.avatar.url }}" alt="{{ m.match.player1 }}'s avatar"/>
+        <li class="match-item">
+            <img src="{{ m.player1.avatar.url }}" alt="{{ m.match.player1 }}'s avatar" class="match-avatar"/>
+            <div class="match-info">
                 <a href="/users/{{ m.player1.id }}">{{ m.match.player1 }}</a>
-                Rank Change: {{ m.match.rank_change1 }}
+                <span class="rank-change">Rank Change: {{ m.match.rank_change1 }}</span>
                 vs
-                <img src="{{ m.player2.avatar.url }}" alt="{{ m.match.player2 }}'s avatar"/>
+                <span class="rank-change">Rank Change: {{ m.match.rank_change2 }}</span>
                 <a href="/users/{{ m.player2.id }}">{{ m.match.player2 }}</a>
-                Rank Change: {{ m.match.rank_change2 }}
-            </li>
+            </div>
+            <img src="{{ m.player2.avatar.url }}" alt="{{ m.match.player2 }}'s avatar" class="match-avatar"/>
+        </li>
         {% endfor %}
     </ul>
 </div>
