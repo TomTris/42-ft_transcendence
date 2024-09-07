@@ -45,6 +45,12 @@ build:
 	@printf "building configuration $(NAME) ... \n"
 	@docker-compose -f $(NAME) up -d --build
 
+stop:
+	@printf "Stop configuration $(NAME) ... \n"; \
+	echo "Server Off\nOur server is now off for a while" > send_to_subscribers.txt;\
+	make send_email;\
+	docker-compose -f $(NAME) stop;
+
 down:
 	@printf "Stopping configuration $(NAME) ... \n"
 	@echo "Server Off\nOur server is now off until you are alive" > send_to_subscribers.txt
@@ -61,12 +67,17 @@ re:
 	@printf "Rebuilding configuration $(NAME) ... \n";\
 	echo "Server Off\nOur server is now off for a while" > send_to_subscribers.txt;\
 	make send_email;\
-	docker-compose -f $(NAME) down;\
+	docker-compose -f $(NAME) stop;\
 	printf "Running configuration $(NAME) ...";\
-	make up;
+	docker-compose start; \
+	echo "Your local IP-Address is:"; \
+	ifconfig | grep "inet 10." | awk '{print $$2}'; \
+	echo "The Domain is:"; \
+	echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
+
 
 clean:
-	@echo "Server Off Forever\nOur server is now off. We may be will be back.\n" > send_to_subscribers.txt; \
+	@echo "Server Off Forever\nOur server is now off. Thanks for coming to us.\n" > send_to_subscribers.txt; \
 	make send_email; \
 	docker stop $$(docker ps -qa);\
 	docker rm $$(docker ps -qa);\

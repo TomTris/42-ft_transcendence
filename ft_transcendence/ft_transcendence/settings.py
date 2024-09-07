@@ -24,6 +24,8 @@ with open('/vault/token-volume/rootToken', 'r') as file:
     vault_token = file.read().strip()
 client = hvac.Client(url='http://vault:8200', token=vault_token)
 secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -34,6 +36,13 @@ DATABASES = {
         'PORT': secret['db_port'],
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 PRIVATE_KEY=secret['private_key']
 INFURA_URL=secret['infura_url']
