@@ -5,6 +5,7 @@ from .models import width, height, pwidth, pheight, radius, distance
 import random
 from .utils import Player, generate_random_angle, simulate_ball_position, get_factor, update_speed
 
+from .serializers import UserSerializer
 import json
 from channels.generic.websocket import WebsocketConsumer
 import threading
@@ -31,11 +32,12 @@ class BaseConsumer(WebsocketConsumer):
             "paused2": 0,
             "centered": 0,
             "playing": 0,
-            "score1":0,
-            "score2":0,
+            "score1":4,
+            "score2":4,
             "left":0,
             "won": 0,
-            "start": time.time() + 4,
+            "start": time.time() + 3,
+            'second':0,
             "last_update": 0,
             "time_passed":0,
         }
@@ -53,7 +55,7 @@ class BaseConsumer(WebsocketConsumer):
 
     def update_playing(self):
         if self.game_state['paused'] == 0:
-            if self.game_state['start'] < time.time():
+            if self.game_state['start'] < time.time() and self.game_state['second'] == 1:
                 if self.game_state['playing'] == 0:
                     self.game_state['playing'] = 1
                     self.game_state['last_update'] = time.time()
@@ -150,7 +152,7 @@ class BaseConsumer(WebsocketConsumer):
                 elif self.game_state['playing']:
                     self.make_move()
                 self.send_data()
-            time.sleep(0.005)
+            time.sleep(0.015)
 
     def get_time(self):
         return int(self.game_state['start'] - time.time())
@@ -158,6 +160,11 @@ class BaseConsumer(WebsocketConsumer):
     def get_status(self):
         if self.game_state['won'] != 0:
             status = 'Won'
+        elif self.game_state['second'] == 0:
+            if time.time() > self.game_state['start']:
+                self.game_state['second'] = 1
+                self.game_state['start'] = time.time() + 4
+            status = 'enemy_found'
         elif self.game_state['paused'] != 0:
             status = "Paused"
         elif self.game_state['start'] - time.time() >= 0.0:
@@ -305,7 +312,7 @@ class AIConsumer(BaseConsumer):
     def send_data(self):
         message = {
             'status': self.get_status(),
-            'player1': self.user.username,
+            'player1': UserSerializer(self.user).data,
             'player2':'bot',
             'disc1':self.game_state['disc1'],
             'disc2':self.game_state['disc2'],

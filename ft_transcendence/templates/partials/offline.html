@@ -1,49 +1,407 @@
+
 <div id="game-container">
-    <h1>Game Session: {{ session_id }}</h1>
-    <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
-    <p>Player 1: <span id="player1">{{ player1 }}</span></p>
-    <p>Player 2: <span id="player2">{{ player2 }}</span></p>
-    <div><div id="score1"></div> <div id="score2"></div></div>
+    
+    <div id="players">
+        <div id='player1-username-top'>
+            <img src="" alt="" id="player1-av" class="big-profiles">
+            <div id="player1-user-name"></div>
+        </div>
+        <div id='score-count-down'>
+            <div id='cound-down'></div>
+            <div id='score'></div>
+        </div>
+        <div id='player2-username-top'>
+            <img src="" alt="" id="player2-av" class='big-profiles'>
+            <div id="player2-user-name"></div>
+        </div>
+    </div>
+
     <canvas id="gameCanvas" width="1000" height="600"></canvas>
+
+    <!-- Modal for waiting or enemy found status -->
+    <div id="waiting-modal" class="unique-modal-overlay">
+        <div class="unique-modal-content">
+            <div class="unique-player-info" id="player1-info">
+                <img src="" id="player1-avatar" class="unique-avatar" alt="">
+                <div class="unique-username" id="player1-username"></div>
+                <div class="unique-elo-container">
+                    <img src="/media/game_pictures/trophy.jpg" id="player1-trophy" class="unique-icon" alt="Trophy Icon">
+                    <span id="player1-elo" class="unique-elo"></span>
+                </div>
+            </div>
+            <div class="unique-middle-content" id="loading-text">
+                <p id="waiting-text">Searching for other player</p>
+                <div id="winner"></div>
+                <img src="/media/game_pictures/time.png" alt="" id="time-picture" class="temp-picture">
+                <img src="/media/game_pictures/lose.png" alt="" id="lose-picture" class="temp-picture">
+                <img src="/media/game_pictures/win.png" id="won-picture" class="temp-picture">
+                <img src="/media/game_pictures/swords.jpg" id="swords-icon" class="unique-icon" style="display: none;" alt="Swords Icon">
+                <button id="cancel-button" class="unique-cancel-button">Cancel</button>
+                <button id="again-button" class="unique-cancel-button" onclick=PlayOneMoreTime()>Play Again</button>
+                
+            </div>
+            <div class="unique-player-info" id="player2-info" style="display: none;">
+                <img src="{}" id="player2-avatar" class="unique-avatar" alt="">
+                <div class="unique-username" id="player2-username"></div>
+                <div class="unique-elo-container">
+                    <img src="/media/game_pictures/trophy.jpg" id="player2-trophy" class="unique-icon" alt="Trophy Icon">
+                    <span id="player2-elo" class="unique-elo"></span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
 
-
-<script id="playing-bot">
-    init();
     socket1 = new WebSocket(`wss://${window.location.host}/wss/game/offline/`);
-    canvas = document.getElementById('gameCanvas');
-    ctx = canvas.getContext('2d');
-
+    lastStatus = ""; // To track the last status
+    lastUpdateMatchMaking = 0;
+    init();
 
     socket1.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            document.getElementById('status').textContent = data.status;
-            document.getElementById('player1').textContent = data.player1;
-            document.getElementById('player2').textContent = data.player2;
-            document.getElementById('time').textContent = data.time
-            document.getElementById('score1').textContent = data.score1
-            document.getElementById('score2').textContent = data.score2
-            updateGameCanvas(data);
+        const data = JSON.parse(event.data);
+
+        updateGameCanvas(data);
+        // Only update modal when status changes
+        if (lastStatus !== data.status) {
+            handleStatus(data);
+            lastStatus = data.status; // Update the lastStatus with current status
+        }
+        else if (lastStatus === "Paused")
+        {
+            const loadingText = document.getElementById('loading-text');
+            const waitingText = document.getElementById('waiting-text');
+            waitingText.style.display = 'flex';
+            let textForPause = 'You can unpause';
+            waitingText.textContent = textForPause;
+        }
+        else if (lastStatus==='Playing' || lastStatus ==='Count down')
+        {
+            const CountDown = document.getElementById('cound-down');
+            const score = document.getElementById('score');
+            score.textContent = data.score1 + ":" + data.score2;
+            
+            if (lastStatus ==='Count down')
+            {
+                CountDown.textContent = data.time;
+            }
+            else{
+                CountDown.textContent = "";
+            }
+        }
+        else if (lastStatus === 'Waiting for other player')
+        {
+            if (lastUpdateMatchMaking + 1000 < Date.now())
+            {
+                document.getElementById('player2-username').textContent = enemies[getRandomInt(0, 11)];
+                document.getElementById('player2-avatar').src = '/media/searching_avatars/avatar' + getRandomInt(1, 12) +  '.png';
+                document.getElementById('player2-elo').textContent = getRandomInt(0, 2000);
+                lastUpdateMatchMaking = Date.now()
+            }
+        }
     };
-    
+
+    function handleStatus(data) {
+        const modal = document.getElementById('waiting-modal');
+        const player2Info = document.getElementById('player2-info');
+        const loadingText = document.getElementById('loading-text');
+        const cancelButton = document.getElementById('cancel-button');
+        const waitingText = document.getElementById('waiting-text');
+        const swordsIcon = document.getElementById('swords-icon');
+        const timePic = document.getElementById('time-picture');
+        const wonPic = document.getElementById('won-picture');
+        const losePic = document.getElementById('lose-picture');
+        const againButton = document.getElementById('again-button');
+        const elementWinner = document.getElementById('winner');
+
+        if (data.status === 'Waiting for other player') {
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex'; 
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'block'; 
+            cancelButton.style.display = 'block'; 
+            swordsIcon.style.display = 'none';
+            timePic.style.display = 'block';
+            losePic.style.display = 'none';
+            elementWinner.style.display = 'none';
+            wonPic.style.display = 'none';
+
+            document.getElementById('player1-avatar').src = data.player1.avatar;
+            document.getElementById('player1-username').textContent = data.player1.username;
+            document.getElementById('player1-elo').textContent = data.player1.elo;
+
+            // Show the cancel button and waiting text only when waiting for other player
+            cancelButton.style.display = 'block';
+            cancelButton.onclick = function() {
+                loadContent("/", defaultOption, true);
+            };
+
+        } else if (data.status === 'enemy_found') {
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex';
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'none'; 
+            swordsIcon.style.display = 'block';
+            timePic.style.display = 'none';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
+            againButton.style.display = 'none';
+            elementWinner.style.display = 'none';
+
+            document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
+            document.getElementById('player1-username').textContent = 'Left';
+            document.getElementById('player1-elo').textContent = 400;
+            document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
+            document.getElementById('player2-username').textContent = 'Right';
+            document.getElementById('player2-elo').textContent = 400;
+
+            cancelButton.style.display = 'none'; // Hide the cancel button when enemy is found
+        }
+        else if (data.status == 'Paused')
+        {
+            modal.style.display = 'flex'; 
+            player2Info.style.display = 'flex'; 
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'none'; 
+            cancelButton.style.display = 'none';
+            timePic.style.display = 'block';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
+            swordsIcon.style.display = 'none';
+            againButton.style.display = 'none';
+            elementWinner.style.display = 'none';
+
+            document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
+            document.getElementById('player1-username').textContent = 'Left';
+            document.getElementById('player1-elo').textContent = 400;
+            document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
+            document.getElementById('player2-username').textContent = 'Right';
+            document.getElementById('player2-elo').textContent = 400;
+        }
+        else if (data.status == 'Won')
+        {
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex';
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'none';
+            swordsIcon.style.display = 'block';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
+            timePic.style.display = 'none';
+            againButton.style.display = 'block';
+            elementWinner.style.display = 'block';
+            if (data.score1 > data.score2)
+            {
+                elementWinner.textContent = "Player to the left won";
+            }
+            else{
+                elementWinner.textContent = "Player to the right won";
+            }
+            
+            const score = document.getElementById('score');
+            score.textContent = data.score1 + ":" + data.score2;
+
+            document.getElementById('player1-elo').textContent = 400;
+            document.getElementById('player2-elo').textContent = 400;
+            
+            cancelButton.textContent = 'Go Home';
+            cancelButton.style.display = 'block';
+            cancelButton.onclick = function() {
+                loadContent("/", defaultOption, true);
+            };
+
+        }
+        else {
+            modal.style.display = 'none';
+            const player1 = document.getElementById('player1-user-name');
+            const player2 = document.getElementById('player2-user-name');
+            player1.textContent = 'Left';
+            player2.textContent = 'Right';
+            const image1 = document.getElementById('player1-av');
+            const image2 = document.getElementById('player2-av');
+            image1.src = '/media/game_pictures/left.png';
+            image2.src = '/media/game_pictures/right.png';
+            const score = document.getElementById('score');
+            score.textContent = data.score1 + ":" + data.score2;
+        }
+    }
+
     function updateGameCanvas(data) {
         animate(data.posx, data.posy, data.pos1, data.pos2);
-    };
+    }
 
 
     document.addEventListener('keydown', handleKeyDown);
 
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function PlayOneMoreTime(){
+        loadContent('/game/offline/', defaultOption, false);
+    }
 </script>
+
 <style>
     #game-container {
         text-align: center;
         margin-top: 20px;
     }
+
     canvas {
         border: 1px solid black;
         background: #eee;
         display: block;
         margin: 0 auto;
     }
-</style>    
+
+    .unique-modal-overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 2000; /* Higher priority */
+    }
+
+    .unique-modal-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 80%; /* Increased size */
+        max-width: 1200px; /* Max size constraint */
+        background-color: white;
+        padding: 40px; /* Increased padding for a bigger look */
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        z-index: 3000; /* Higher priority for modal content */
+    }
+
+    .unique-player-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 30%; /* Increased player info size */
+    }
+
+    .unique-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+
+    .unique-username {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .unique-elo-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;  
+        margin-top: 10px; /* Adjust spacing as needed */
+    }
+
+    .unique-elo {
+        margin-top:20px;
+        font-size: 32px;
+        color: #777;
+        margin-left: 10px; /* Space between Elo and trophy */
+    }
+
+    .unique-middle-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px; /* Increased font size */
+        color: #333;
+        flex-grow: 1;
+    }
+
+    .unique-cancel-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .unique-cancel-button:hover {
+        background-color: #ff2c2c;
+    }
+
+    .unique-icon {
+        width: 50px;
+        height: 50px;
+        margin-top: 20px;
+    }
+
+    #swords-icon{
+        width: 150px;
+        height: 150px;
+    }
+
+    .temp-picture{
+        width: 150px;
+        height: 150px;
+    }
+
+    #players {
+        display: flex;
+        justify-content: space-between; /* Distribute space evenly between items */
+        align-items: flex-end; /* Align items to the bottom of the container */
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 10px 20px;
+        box-sizing: border-box;
+        z-index: 10000;
+    }
+    
+    #player1-username-top,
+    #player2-username-top {
+        flex: 1;
+        text-align: center; 
+        font-size: 30px;
+    }
+    
+    #score-count-down {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        height: 100%;
+        font-size: 90px;
+    }
+    
+    #score {
+        font-size: 50px;
+        font-weight: bold;
+        margin-top: 20px; /* Adjust the spacing as needed */
+    }
+    
+    .big-profiles {
+        width: 175px;
+        height: 175px;
+        border-radius: 50%;
+    }
+
+    #winner {
+        font-size: 30px;
+    }
+</style>
