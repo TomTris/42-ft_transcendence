@@ -2,17 +2,15 @@ NAME = ./docker-compose.yml
 LOCALIP = 'LOCALIP='
 
 up: print_running set_localip run_ngrok
-	@printf "Running configuration $(NAME) ..."
 	@docker-compose -f $(NAME) up -d
 	@echo "Your local IP-Address is:"
 	@ifconfig | grep "inet 10." | awk '{print $$2}'
 	@echo "The Domain is:"
 	@echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
-	@printf "" >> send_to_subscribers.txt
 
 
 print_running:
-	@printf "Running configuration $(NAME) ..."
+	@printf "Running configuration $(NAME) ...\n"
 
 set_localip:
 	@if ! grep -q "LOCALIP=" ./.env; then \
@@ -23,7 +21,7 @@ set_localip:
 	fi	
 
 run_ngrok:
-	@if ! (docker ps -a | grep ngrok_container_pongping); then \
+	@if ! (docker ps -a | grep ngrok_container_pongping  1>/dev/null); then \
 		docker run --name ngrok_container_pongping --net=host -it \
 				-e NGROK_AUTHTOKEN=$$(cat ./.env | grep "NGROK_AUTHTOKEN=" | cut -c17- | sed "s/^['\"]//;s/['\"]$$//") \
 				ngrok/ngrok:latest http \
@@ -32,7 +30,7 @@ run_ngrok:
 	fi
 
 ps:
-	docker-compose -f $(NAME) ps
+	@docker-compose -f $(NAME) ps
 
 show:
 	@echo "Your local IP-Address is:"
@@ -41,7 +39,7 @@ show:
 	@echo $$(cat ./.env | grep "DOMAIN_NAME=" | cut -c14- | sed "s/^['\"]//;s/['\"]$$//")
 
 logs:
-	docker-compose -f $(NAME) logs
+	@docker-compose -f $(NAME) logs
 
 build:
 	@printf "building configuration $(NAME) ... \n"
@@ -54,19 +52,18 @@ down:
 	@docker-compose down
 
 send_email:
-	docker cp send_to_subscribers.txt my_django:/app/users/
-	docker exec -it my_django chmod 777 /app/users/send_to_subscribers.txt
-	docker exec -it my_django python manage.py send_email
-	docker exec -it my_django rm -f /app/users/send_to_subscribers.txt
+	@docker cp send_to_subscribers.txt my_django:/app/users/
+	@docker exec -it my_django chmod 777 /app/users/send_to_subscribers.txt
+	@docker exec -it my_django python manage.py send_email
+	@docker exec -it my_django rm -f /app/users/send_to_subscribers.txt
 
 re:
-	@printf "Rebuilding configuration $(NAME) ... \n"
-	@echo "Server Off\nOur server is now off for a while" > send_to_subscribers.txt
-	@make send_email
-	@docker-compose -f $(NAME) down
-	@printf "Running configuration $(NAME) ..."
-	@make up
-	@echo "SERVER ON!!\nOur Server is now back and ready for challengeing duales!!!!" > send_to_subscribers.txt
+	@printf "Rebuilding configuration $(NAME) ... \n";\
+	echo "Server Off\nOur server is now off for a while" > send_to_subscribers.txt;\
+	make send_email;\
+	docker-compose -f $(NAME) down;\
+	printf "Running configuration $(NAME) ...";\
+	make up;
 
 clean:
 	@echo "Server Off Forever\nOur server is now off. We may be will be back.\n" > send_to_subscribers.txt; \

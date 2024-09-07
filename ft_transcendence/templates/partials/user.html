@@ -1,93 +1,215 @@
 <style>
+    /* Container for the whole page */
+    .page-container {
+        display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 40px;
+		background-color: #fff;
+		border-radius: 15px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+		width: 100%;
+		max-width: 1200px;
+		margin: 50px auto; /* Add margin to center vertically */
+		font-family: 'Arial', sans-serif; /* Clean modern font */
+    }
+    
+    /* Container for buttons */
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; /* Space between buttons */
+        margin-bottom: 30px; /* Space below buttons */
+    }
+    
+    /* Buttons */
     .action-button {
         border: none;
-        border-radius: 5px;
+        border-radius: 8px; /* More rounded corners */
         color: white;
-        padding: 10px 20px;
-        font-size: 16px;
+        padding: 12px 24px; /* Comfortable padding */
+        font-size: 18px; /* Larger font size */
         cursor: pointer;
-        transition: background-color 0.3s, box-shadow 0.3s;
+        transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
         margin-left: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        background-color: #ffffff; /* Default background color to prevent transparency */
+        border: 1px solid #ddd; /* Light border to define button edges */
     }
-
+    
     .action-button.add-friend {
         background-color: #28a745; /* Green */
     }
-
+    
     .action-button.add-friend:hover {
         background-color: #218838;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05); /* Slightly enlarge on hover */
     }
-
+    
     .action-button.delete-friend {
         background-color: #dc3545; /* Red */
     }
-
+    
     .action-button.delete-friend:hover {
         background-color: #c82333;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
     }
-
+    
     .action-button.accept-friend {
         background-color: #007bff; /* Blue */
     }
-
+    
     .action-button.accept-friend:hover {
         background-color: #0056b3;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
     }
-
+    
     .action-button.cancel-friend {
         background-color: #ffc107; /* Yellow */
     }
-
+    
     .action-button.cancel-friend:hover {
         background-color: #e0a800;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+    }
+    
+    /* Stats section */
+    .stats-section {
+        min-width: 300px;
+        text-align: center;
+        margin-bottom: 40px; /* Space below stats */
+        background-color: #ffffff; /* Solid background for stats section */
+        border-radius: 12px; /* Rounded corners */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        padding: 20px; /* Comfortable padding */
+        border: 1px solid #ddd; /* Light border */
+    }
+    
+    /* History list */
+    .history-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        width: 80%; /* Adjust width */
+        max-width: 800px; /* Max width for larger screens */
+        background-color: #fff; /* Solid background */
+        border-radius: 12px; /* Rounded corners */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        overflow: hidden;
+        border: 1px solid #ddd; /* Light border */
+    }
+    
+    .history-list li {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px; /* Comfortable padding */
+        border-bottom: 1px solid #eee; /* Subtle border */
+        font-size: 16px;
+        background-color: #ffffff; /* Solid background for list items */
+    }
+    
+    .userinfo {
+        width: 90%; /* Full width */
+		padding: 15px;
+		font-size: 15px;
+		border-radius: 8px; /* Slightly rounder corners */
+		border: 1px solid #ddd; /* Lighter border */
+		box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Soft inner shadow */
+		margin-top: 10px;
+		margin-bottom: 20px; /* Increase gap between fields */
+		transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    .history-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .history-list img {
+        width: 20px; /* Slightly larger avatar */
+        height: 20px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+    
+    .history-list a {
+        color: #007bff; /* Link color */
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .history-list a:hover {
+        color: #0056b3; /* Darker blue on hover */
     }
 </style>
+<div class="page-container">
+    <h1>{{ user.username }}</h1>
 
-<h1>{{ user.username }}</h1>
+    <div class="button-container">
+        {% if friend == 1 %}
+        <div class='userinfo'>
+            <button id="add-friend-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Add Friend</button>
+        </div>
+        
+        {% elif friend == 2 %}
+        <div class='userinfo'>
+            <button id="delete-friend-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Delete Friend</button>
+        </div>
+        {% elif friend == 3 %}
+        <div class='userinfo'>
+            <button id="accept-friend-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Friend Request</button>
+        </div>
+        {% elif friend == 4 %}
+        <div class='userinfo'>
+            <button id="cancel-friend-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Friend Request</button>
+        </div>
+        {% endif %}
 
-{% if friend == 1 %}
-    <button id="add-friend-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Add Friend</button>
-{% elif friend == 2 %}
-    <button id="delete-friend-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Delete Friend</button>
-{% elif friend == 3 %}
-    <button id="accept-friend-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Friend Request</button>
-{% elif friend == 4 %}
-    <button id="cancel-friend-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Friend Request</button>
-{% endif %}
+        {% if invite == 1 %}
+        <div class='userinfo'>
+            <button id="add-invite-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Invite to play</button>
+        </div>
+        {% elif invite == 2 %}
+        <div class='userinfo'>
+            <button id="play-invite-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Already Playing</button>
+        </div>
+        {% elif invite == 3 %}
+        <div class='userinfo'>
+            <button id="accept-invite-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Invite Request</button>
+        </div>
+        {% elif invite == 4 %}
+        <div class='userinfo'>
+            <button id="cancel-invite-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Invite Request</button>
+        </div>
+        {% endif %}
+    </div>
 
-{% if invite == 1 %}
-    <button id="add-invite-btn" class="action-button add-friend" data-user-id="{{ user.id }}">Invite to play</button>
-{% elif invite == 2 %}
-    <button id="play-invite-btn" class="action-button delete-friend" data-user-id="{{ user.id }}">Already Playing</button>
-{% elif invite == 3 %}
-    <button id="accept-invite-btn" class="action-button accept-friend" data-user-id="{{ user.id }}">Accept Invite Request</button>
-{% elif invite == 4 %}
-    <button id="cancel-invite-btn" class="action-button cancel-friend" data-user-id="{{ user.id }}">Cancel Invite Request</button>
-{% endif %}
+    <div class="stats-section">
+        <h2>Stats</h2>
+            <div class='userinfo'> Total Matches: {{ user.total }} </div>
+            <div class='userinfo'> Wins: {{ user.wins }} </div>
+            <div class='userinfo'> Loses: {{ user.loses }} </div>
+            <div class='userinfo'> Winrate: {{ winrate }} </div>
+            <div class='userinfo'> Elo: {{ user.elo }} </div>
+    </div>
 
-<h2>Stats</h2>
-<p>Total Matches: {{ user.total }} Wins: {{ user.wins }} Loses: {{ user.loses }} Winrate: {{ winrate }}</p>
-<p>Elo: {{ user.elo }}</p>
-
-<h1>History</h1>
-<ul>
-{% for m in matches_with_ids %}
-    <li>
-        <img src="{{ m.player1.avatar.url }}" width="15" height="15"/>
-        <a href="/users/{{ m.player1.id }}">{{ m.match.player1 }}</a>
-        Rank Change: {{ m.match.rank_change1 }}
-        vs
-        <img src="{{ m.player2.avatar.url }}" width="15" height="15"/>
-        <a href="/users/{{ m.player2.id }}">{{ m.match.player2 }}</a>
-        Rank Change: {{ m.match.rank_change2 }}
-    </li>
-{% endfor %}
-</ul>
-
+    <h1>History</h1>
+    <ul class="history-list">
+        {% for m in matches_with_ids %}
+            <li>
+                <img src="{{ m.player1.avatar.url }}" alt="{{ m.match.player1 }}'s avatar"/>
+                <a href="/users/{{ m.player1.id }}">{{ m.match.player1 }}</a>
+                Rank Change: {{ m.match.rank_change1 }}
+                vs
+                <img src="{{ m.player2.avatar.url }}" alt="{{ m.match.player2 }}'s avatar"/>
+                <a href="/users/{{ m.player2.id }}">{{ m.match.player2 }}</a>
+                Rank Change: {{ m.match.rank_change2 }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
 
 <script>
     addFriendButton = document.getElementById('add-friend-btn');

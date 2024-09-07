@@ -1,3 +1,104 @@
+<style>
+	form {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 40px;
+		background-color: #fff;
+		border-radius: 15px;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+		width: 100%;
+		max-width: 400px;
+		margin: 50px auto; /* Add margin to center vertically */
+		font-family: 'Arial', sans-serif; /* Clean modern font */
+	}
+
+	/* Form Title Styling */
+	form h2 {
+		font-size: 32px; /* Larger title font */
+		color: #333;
+		margin-bottom: 20px;
+		font-weight: bold;
+		text-align: center;
+	}
+
+	/* Input Fields */
+	input[type="email"],
+	input[type="password"],
+	input[type="text"] {
+		width: 90%; /* Full width */
+		padding: 15px;
+		font-size: 18px;
+		border-radius: 8px; /* Slightly rounder corners */
+		border: 1px solid #ddd; /* Lighter border */
+		box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05); /* Soft inner shadow */
+		margin-top: 10px;
+		margin-bottom: 20px; /* Increase gap between fields */
+		transition: border 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	/* Focus state for inputs */
+	input[type="email"]:focus,
+	input[type="password"]:focus,
+	input[type="text"]:focus {
+		border-color: #61dafb; /* Match primary color */
+		box-shadow: 0 0 8px rgba(97, 218, 251, 0.5); /* Softer glowing effect */
+		outline: none;
+	}
+
+	/* Label Styling */
+	label {
+		font-size: 16px;
+		color: #666;
+		align-self: flex-start; /* Align labels to the left */
+	}
+
+	/* Button Styling */
+	button {
+		background-color: #61dafb;
+		color: #fff;
+		border: none;
+		padding: 15px;
+		border-radius: 8px;
+		font-size: 18px;
+		cursor: pointer;
+		width: 100%; /* Full width for cleaner look */
+		box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3); /* Softer shadow */
+		transition: background-color 0.3s ease, transform 0.2s ease;
+		margin-top: 10px;
+	}
+
+	button:hover {
+		background-color: #4fa3c0;
+		transform: translateY(-3px); /* Lift effect */
+	}
+
+	button:active {
+		background-color: #3687a3;
+		transform: translateY(1px);
+	}
+
+	/* Hidden class for toggling visibility */
+	.hidden {
+		display: none;
+	}
+
+	/* Form alignment */
+	#loginForm, #loginOtpForm {
+		text-align: center;
+		width: 100%;
+	}
+
+	/* Additional margin for OTP section */
+	#loginOtp {
+		margin-top: 30px;
+	}
+
+	/* Adjusting spacing */
+	form input, form button {
+		margin-bottom: 15px;
+	}
+</style>
 <form id="loginForm">
 	<h2>Login</h2>
 	<label for="email">Email:</label>
@@ -23,6 +124,11 @@
 	async function submitInitialForm() {
 		try {
 			const email = document.getElementById('email').value;
+			var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailPattern.test(email)) {
+				alert('Please enter a valid email address.');
+				return;
+			}
 			const password = document.getElementById('password').value;
 			response = await fetch('/login/', {
 				method: 'POST',

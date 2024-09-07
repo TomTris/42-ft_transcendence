@@ -116,9 +116,6 @@ class SendRegisterCode(GenericAPIView):
 
 
 
-# request = self.context.get('request')
-# if request is not None:
-# 	login(request, user)
 class LoginUserView(GenericAPIView):
 	serializer_class = LoginSerializer
 
@@ -175,10 +172,18 @@ class PasswordResetRequestView(GenericAPIView):
 	serializer_class=PasswordResetRequestSerializer
 	def post(self, request):
 		serializer=self.serializer_class(data=request.data, context={'request':request})
-		serializer.is_valid(raise_exception=True)
+		try:
+			if serializer.is_valid():
+				return Response({
+					'message':"A verify-link has been sent to your email to reset your password",
+					}, status=status.HTTP_200_OK)
+		except Exception as e:
+			return Response({
+				'error': str(e),
+				}, status=status.HTTP_200_OK)
 		return Response({
-			'message':"A verify-link has been sent to your email to reset your password",
-			}, status=status.HTTP_200_OK)
+				'error': str(serializer.errors),
+				}, status=status.HTTP_200_OK)
 	
 	def get(self, request):
 		return render(request, 'password_reset-request.html')

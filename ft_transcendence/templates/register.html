@@ -1,5 +1,98 @@
+<style>
+/* General Form Styling */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-width: 500px;
+    margin: 50px auto;
+    font-family: 'Arial', sans-serif;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.form-container:hover {
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2); /* Elevated effect */
+}
+
+/* Form Title */
+h2 {
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Input Fields */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+    border-color: #4fa3c0;
+    box-shadow: 0 0 8px rgba(79, 163, 192, 0.5);
+    outline: none;
+}
+
+/* Label Styling */
+label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #555;
+    align-self: flex-start;
+    margin-bottom: 8px;
+}
+
+/* Button Styling */
+button {
+    background-color: #4fa3c0;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    font-size: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 6px 18px rgba(79, 163, 192, 0.3);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #3b8fa3;
+    transform: translateY(-3px);
+}
+
+button:active {
+    background-color: #2a6878;
+    transform: translateY(1px);
+}
+
+/* Hidden Class for OTP Form */
+.hidden {
+    display: none;
+}
+
+/* Adjusting spacing between form elements */
+input, button {
+    margin-bottom: 15px;
+}
+</style>
 <title>Registration Form</title>
-    <div id="registration-form">
+    <div id="registration-form" class="form-container">
         <h2>Register</h2>
 		<form id="register-form">
 			<label for="email">Email:</label>
@@ -40,6 +133,11 @@
 async function submitRegistrationForm() {
     try {
         const email = document.getElementById('email').value;
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailPattern.test(email)) {
+				alert('Please enter a valid email address.');
+				return;
+			}
         const first_name = document.getElementById('first_name').value;
         const last_name = document.getElementById('last_name').value;
         const username = document.getElementById('username').value;
@@ -58,6 +156,7 @@ async function submitRegistrationForm() {
         if (success) {
             document.getElementById('registration-form').classList.add('hidden');
             document.getElementById('otp-form').classList.remove('hidden');
+            document.getElementById('otp-form').classList.add('form-container');
         }
     }
     catch(error)

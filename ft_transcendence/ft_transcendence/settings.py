@@ -15,20 +15,15 @@ DOMAIN_NAME='deciding-delicate-raptor.ngrok-free.app'
 from pathlib import Path
 from datetime import timedelta
 import os
-print('99999999999999999999999999999999999999999999999999999999')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-print(1)
 import hvac
 with open('/vault/token-volume/rootToken', 'r') as file:
     vault_token = file.read().strip()
-print(2)
 client = hvac.Client(url='http://vault:8200', token=vault_token)
-print(3)
 secret = client.secrets.kv.v2.read_secret_version(path='postgresql/db_credentials')['data']['data']
-print(4)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -47,7 +42,6 @@ DEPLOYER_ACCOUNT=secret['deployer_account']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-print(5)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -115,7 +109,6 @@ INSTALLED_APPS = [
 ]
 
 ASGI_APPLICATION = 'ft_transcendence.asgi.application'
-print('11113333333')
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -128,7 +121,6 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.CookieToAuthorizationMiddleware',
 ]
-print('1111333333344444444444444')
 
 ROOT_URLCONF = 'ft_transcendence.urls'
 
@@ -244,4 +236,3 @@ INITIALIZED_1 = False
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-print('1111111111111111111111111111111111111111111')

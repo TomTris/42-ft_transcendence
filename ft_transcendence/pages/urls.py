@@ -3,7 +3,7 @@ from . import views
 from .views import EmptyPath, Chat
 from django.conf.urls.static import static
 from django.conf import settings
-print('asdasdas')
+
 urlpatterns = [
     path('invite_list/', views.invite_list_view),
     path('cancel_invite/', views.canceling_invite),

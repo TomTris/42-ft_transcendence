@@ -87,10 +87,6 @@ vault kv put secret/postgresql/db_credentials \
 
 
 touch /vault/token-volume/created
-echo Done1
-sleep 10
-echo Done1
-rm -rf /vault/token-volume/created
 echo Done2
 # # Keep the container run
 wait
