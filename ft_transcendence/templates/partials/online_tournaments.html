@@ -186,8 +186,6 @@
 
     socket1.onclose = function() {
         statusDiv.textContent = 'Disconnected from server.';
-        socket1.onerror = null;
-        socket1.onmessage = null;
         stopCountdown(); // Stop the countdown when the socket closes
     };
 

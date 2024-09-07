@@ -15,7 +15,7 @@
             background-color: #f0f4f8;
             padding:0px;
             margin:0px;
-            {% comment %} background-image: url("{%static 'snow.gif' %}"); {% endcomment %}
+            background-image: url("{%static 'snow.gif' %}");
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
@@ -31,7 +31,7 @@
     <div id='app'>
     </div>
 
-    {% comment %} {% include "chat.html" %} {% endcomment %}
+    {% include "chat.html" %}
     <script>
         var originalMethod = "{{ method|escapejs }}";
     </script>

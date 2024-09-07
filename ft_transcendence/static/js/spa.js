@@ -97,10 +97,14 @@ function removeScripts() {
 function removeScriptsNavbarAndChat() {
 
     if (InviteSocket) {
+        InviteSocket.onmessage = null;
+        InviteSocket.onerror = null;
         InviteSocket.close();
         InviteSocket = null;
     }
     if (socketChat) {
+        socketChat.onmessage = null;
+        socketChat.onerror = null;
         socketChat.close();
         socketChat = null;
     }
@@ -172,7 +176,7 @@ async function loadNavbarAndChat() {
     if (response.status == 200)
         authorized_new = 1;
     else
-    authorized_new = 0;
+        authorized_new = 0;
 if (authorized_new != authorized_old)
     {
         removeScriptsNavbarAndChat();
@@ -185,13 +189,10 @@ if (authorized_new != authorized_old)
 
 async function get_new_access_token()
 {
-    var response = await fetch('/refresh/refresh/', {
+    await fetch('/refresh/refresh/', {
         method: 'POST',
-        // credentials: 'include'
+        credentials: 'include'
     });
-    if (response.ok == 200)
-        return 1;
-    return 0;
 }
 
 async function loadContent2(url, option, pushToHistory)
