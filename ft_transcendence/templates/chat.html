@@ -24,7 +24,6 @@
         // Handle incoming messages
         socketChat.onmessage = function(event) {
             const data_all = JSON.parse(event.data);
-            console.log(data_all);
             const messages = data_all.messages;
             const currentUser = data_all.current_user;
             chatBox.innerHTML = '';
@@ -116,12 +115,10 @@
                 usernameElement.textContent = 'System';
                 messageElement.classList.add('centered');
                 messageElement.style.textAlign = 'center';
-                console.log(message.game_id); 
                 if (message.game_id){
                     const linkToGame = document.createElement('a');
                     linkToGame.className = 'link-system';
                     linkToGame.textContent = message.content;
-                    console.log(message.content);
                     if (message.content == 'Tournament')
                     {
                         linkToGame.href = '/game/online_tournament/' + message.game_id + '/';

@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,29 +44,9 @@
         };
 
         function updateGameCanvas(data) {
-            // ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas`
-            console.log(data.posx, data.posy, data.vecx, data.vecy)
-            // Draw the paddles and ball
-            // ctx.fillStyle = 'black';
-            // ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
-            // ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
-            // ctx.beginPath();
-            // ctx.arc(data.posx, data.posy, data.radius, 0, 2 * Math.PI); // Ball
-            // ctx.fill();
             animate(data.posx, data.posy, data.pos1, data.pos2);
         };
-
-        document.addEventListener('keydown', function(event) {
-            const key = event.key;
-            if ((key == 'f' || key== 'F') && event.repeat) {
-                return;
-            }
-            const message = {
-                type: 'keydown',
-                key: key
-            };
-            socket.send(JSON.stringify(message));
-        });
+        document.addEventListener('keydown', handleKeyDown);
 
     </script>
 </body>

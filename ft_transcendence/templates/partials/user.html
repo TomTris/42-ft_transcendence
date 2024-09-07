@@ -251,7 +251,6 @@
     if (addFriendButton) {
         addFriendButton.addEventListener('click', function() {
             const userId = addFriendButton.getAttribute('data-user-id');
-            console.log(userId);
             handleAction(`/add_friend/${userId}/`, 'POST', 1);
         });
     }
@@ -294,7 +293,6 @@
     if (playInviteButton){
         playInviteButton.addEventListener('click', function() {
             const userId = playInviteButton.getAttribute('data-user-id');
-            console.log('asd');
             handleAction(`/play_invite/${userId}/`, 'POST', 0);
         });
     }

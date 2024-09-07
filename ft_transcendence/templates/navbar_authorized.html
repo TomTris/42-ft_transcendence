@@ -275,7 +275,6 @@
     // Listen for messages from the WebSocket
     InviteSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
-        console.log(data);
     
         if (data.type == 'invites')
         {
@@ -338,7 +337,6 @@
             } else {
                 invitationList.innerHTML = '<p>No invitations</p>';
             }
-            console.log(window.location.pathname);
             let start = '/users/';
             let end = '/friends/';
             let location = window.location.pathname;

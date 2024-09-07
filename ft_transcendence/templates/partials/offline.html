@@ -1,5 +1,3 @@
-{% comment %} {% load static %} {% endcomment %}
-
 <div id="game-container">
     <h1>Game Session: {{ session_id }}</h1>
     <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
@@ -12,9 +10,7 @@
 
 
 <script id="playing-bot">
-    console.log('yessssss   ');
     init();
-    // JavaScript to connect to WebSocket and update player list
     socket1 = new WebSocket(`wss://${window.location.host}/wss/game/offline/`);
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
@@ -32,66 +28,11 @@
     };
     
     function updateGameCanvas(data) {
-        //ctx.clearRect(0, 0, data.width, data.height); // Clear the canvas
-        //// Draw the paddles and ball
-        //ctx.fillStyle = 'black';
-        //ctx.fillRect(data.distance, data.pos1, data.pwidth, data.pheight); // Player 1 paddle
-        //ctx.fillRect(data.width - data.distance - data.pwidth, data.pos2, data.pwidth, data.pheight); // Player 2 paddle
-        //ctx.beginPath();
-        //ctx.arc(data.posx, data.posy, 10, 0, 2 * Math.PI); // Ball
-        //ctx.fill();
-        //console.log(data.posx, data.posy, data.pos1, data.pos2);
         animate(data.posx, data.posy, data.pos1, data.pos2);
     };
 
-    document.addEventListener('keydown', function(event) {
-        let key = event.key;
 
-        if ((key == 'f' || key== 'F' || key == 'v' || key == 'V') && event.repeat ) {
-            return;
-        }
-        if ((key == 'v' || key== 'V') ) {
-            cameraView += 1;
-            cameraView %= 3;
-            return;
-        }
-
-        if ((key == 'w' || key == "W" || key == 'ArrowUp' || key == 'ArrowDown' || key == 's' || key == 'S') && cameraView != 0)
-            return;
-        if ((key == 'a' || key == 'A' || key == 'ArrowLeft' || key == 'ArrowRight' || key == 'd' || key == 'D') && cameraView == 0)
-        {
-            return;
-        }
-        else{
-            if (cameraView == 1)
-            {
-                if (key == 'a' || key == 'A')
-                    key = 's';
-                else if (key == 'ArrowLeft')
-                    key = 'ArrowDown';
-                else if (key == 'd' || key == 'D')
-                    key = 'w';
-                else if (key == 'ArrowRight')
-                    key = 'ArrowUp';
-            }
-            else
-            {
-                if (key == 'a' || key == 'A')
-                    key = 'w';
-                else if (key == 'ArrowLeft')
-                    key = 'ArrowUp';
-                else if (key == 'd' || key == 'D')
-                    key = 's';
-                else if (key == 'ArrowRight')
-                    key = 'ArrowDown';
-            }
-        } 
-        const message = {
-            type: 'keydown',
-            key: key
-        };
-        socket1.send(JSON.stringify(message));
-    });
+    document.addEventListener('keydown', handleKeyDown);
 
 </script>
 <style>

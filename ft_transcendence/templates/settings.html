@@ -227,16 +227,11 @@
                 method: 'POST',
                 body: formData,
             });
-            
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
 
             if (response.status == 413)
                 alert("Request Entity Too Large, please upload under 5MB")
             else {
                 const data = await response.json();
-                console.log(777);
                 if (data.message) {
                     alert(data.message);
                 } else if (data.detail) {

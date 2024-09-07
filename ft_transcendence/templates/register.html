@@ -189,7 +189,6 @@ async function submitOtpForm() {
         const email = document.getElementById('email').value;
         const otp = document.getElementById('otp').value;
 
-        console.log(1);
         response = await fetch('/register-verify/', {
             method: 'POST',
             headers: {
@@ -197,7 +196,6 @@ async function submitOtpForm() {
             },
             body: JSON.stringify({ email, otp }),
         })
-        console.log(2);
         var success = response.ok;
         data = await response.json();
         if (success) {

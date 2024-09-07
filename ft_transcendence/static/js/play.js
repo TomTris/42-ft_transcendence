@@ -140,7 +140,6 @@ function init() {
   light2.castShadow = true;
 
   scene.add(light2);
-  console.log("init");
 
 }
 

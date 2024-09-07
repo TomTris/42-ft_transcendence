@@ -79,6 +79,9 @@ document.addEventListener('click', function(event) {
 
 function removeScripts() {
     if (socket1) {
+        document.removeEventListener('keydown', handleKeyDown);
+        socket1.onerror = null;
+        socket1.onmessage = null;
         socket1.close();
         socket1 = null;
     }
@@ -137,20 +140,28 @@ async function loadNavbar()
 }
 async function loadChat()
 {
-    var response = await fetch('/chat/', {
-        method: 'POST',
-        credentials: 'include'
-    })
-    var html = await response.text();
-    var chatDiv = document.getElementById('chat');
-    chatDiv.innerHTML = html;
-    var scripts = chatDiv.querySelectorAll('script');
-    for (let i = 0; i < scripts.length; i++) 
+    if (authorized_new == 1)
     {
-        var newScript = document.createElement('script');
-        newScript.textContent = scripts[i].textContent;
-        newScript.id = `chat_script_inserted${scriptCounterChat++}`;
-        document.body.appendChild(newScript);
+        var response = await fetch('/chat/', {
+            method: 'POST',
+            credentials: 'include'
+        })
+        var html = await response.text();
+        var chatDiv = document.getElementById('chat');
+        chatDiv.innerHTML = html;
+        var scripts = chatDiv.querySelectorAll('script');
+        for (let i = 0; i < scripts.length; i++) 
+        {
+            var newScript = document.createElement('script');
+            newScript.textContent = scripts[i].textContent;
+            newScript.id = `chat_script_inserted${scriptCounterChat++}`;
+            document.body.appendChild(newScript);
+        }
+    }
+    else
+    {
+        var chatDiv = document.getElementById('chat');
+        chatDiv.innerHTML = '';
     }
 }
 async function loadNavbarAndChat() {
@@ -165,9 +176,7 @@ async function loadNavbarAndChat() {
 if (authorized_new != authorized_old)
     {
         removeScriptsNavbarAndChat();
-        if (authorized_new == 1) {
-            loadChat();
-        }
+        loadChat();
         loadNavbar();
         authorized_old = authorized_new;
     }
@@ -235,3 +244,52 @@ document.addEventListener('DOMContentLoaded',  async function() {
     option.method = originalMethod;
     await loadContent(window.location.pathname, option, true);
 });
+
+function handleKeyDown(event){
+    let key = event.key;
+
+    if ((key == 'f' || key== 'F' || key == 'v' || key == 'V') && event.repeat ) {
+        return;
+    }
+    if ((key == 'v' || key== 'V') ) {
+        cameraView += 1;
+        cameraView %= 3;
+        return;
+    }
+
+    if ((key == 'w' || key == "W" || key == 'ArrowUp' || key == 'ArrowDown' || key == 's' || key == 'S') && cameraView != 0)
+        return;
+    if ((key == 'a' || key == 'A' || key == 'ArrowLeft' || key == 'ArrowRight' || key == 'd' || key == 'D') && cameraView == 0)
+    {
+        return;
+    }
+    else{
+        if (cameraView == 1)
+        {
+            if (key == 'a' || key == 'A')
+                key = 's';
+            else if (key == 'ArrowLeft')
+                key = 'ArrowDown';
+            else if (key == 'd' || key == 'D')
+                key = 'w';
+            else if (key == 'ArrowRight')
+                key = 'ArrowUp';
+        }
+        else
+        {
+            if (key == 'a' || key == 'A')
+                key = 'w';
+            else if (key == 'ArrowLeft')
+                key = 'ArrowUp';
+            else if (key == 'd' || key == 'D')
+                key = 's';
+            else if (key == 'ArrowRight')
+                key = 'ArrowDown';
+        }
+    } 
+    const message = {
+        type: 'keydown',
+        key: key
+    };
+    socket1.send(JSON.stringify(message));
+}
