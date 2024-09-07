@@ -66,10 +66,21 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
             try:
                 valid_access_token(request)
                 print("HTTP_AUTHORIZATION GET set")
+                print()
+                print()
+                print()
+                print()
+                print(request.path)
+                print()
+                print()
+                print()
+                
                 if request.path in self.non_login:
-                    print("redirect to home.html")
-                    response = render(request, "home.html")
-                    response.delete_cookie('access_token', samesite='Strict', path='/')
+                    print("redirect to partials/home.html")
+                    print(1)
+                    print(1)
+                    print(1)
+                    response = render(request, "partials/home.html")
                     return response
                 print("redirect to", request.path)
             except:

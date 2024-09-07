@@ -164,7 +164,6 @@ async function loadNavbarAndChat() {
     authorized_new = 0;
 if (authorized_new != authorized_old)
     {
-        console.log(1);
         removeScriptsNavbarAndChat();
         if (authorized_new == 1) {
             loadChat();

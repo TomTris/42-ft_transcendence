@@ -33,6 +33,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 		username=attrs.get('username')
 		if username == '' or username is None:
 			raise serializers.ValidationError("Username can't be empty")
+		if User.objects.filter(username=username).exists():
+			raise serializers.ValidationError("Username has been used")
 		password = attrs.get('password', '')
 		password2 = attrs.get('password2', '')
 		if password != password2 or password == '':

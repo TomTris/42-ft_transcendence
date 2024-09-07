@@ -26,7 +26,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     wins =  models.IntegerField(default=0)
     loses = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
-    username = models.CharField(max_length=40)
+    username = models.CharField(max_length=40, unique=True)
     is_playing = models.BooleanField(default=False)
 
     USERNAME_FIELD="email"

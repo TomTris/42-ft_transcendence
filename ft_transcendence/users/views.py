@@ -33,6 +33,9 @@ class RegisterUserView(GenericAPIView):
 		if is_registered == 1:
 			msg = 'This account is already registered, but not verified. New code has been sent to your email. Please check and verify.'
 			return Response({"message" : msg}, status=status.HTTP_200_OK)
+		if is_registered == 2:
+			msg = 'Username has been used.'
+			return Response({"message" : msg}, status=status.HTTP_400_BAD_REQUEST)
 		msg = 'Thanks for signing up. New Passcode has been sent to your mail'
 		return Response({"message" : msg}, status=status.HTTP_201_CREATED)
 
@@ -51,7 +54,9 @@ class RegisterUserView(GenericAPIView):
 			if is_registered == 1:
 				send_code_to_user(request.data['email'])
 				return self.response_message(is_registered,account_active)
-			
+			if request.data['username']:
+				if User.objects.filter(username=request.data['username']).exists():
+					return self.response_message(2, 0)
 			if serializer.is_valid(raise_exception=True):
 				serializer.save()
 				send_code_to_user(request.data['email'])

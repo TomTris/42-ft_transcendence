@@ -74,7 +74,7 @@ clean:
 	docker network rm $$(docker network ls -q);\
 
 clean1:
-	@echo "Server Off Forever\nOur server is now off forever.\nThanks for your time with us!"; \
+	@echo "Server Off Forever\nOur server is now off forever.\nThanks for your time with us!" > send_to_subscribers.txt; \
 	make send_email;\
 	docker-compose down -v;\
 	docker stop $$(docker ps -qa);\
