@@ -177,10 +177,13 @@ if (authorized_new != authorized_old)
 
 async function get_new_access_token()
 {
-    await fetch('/refresh/refresh/', {
+    var response = await fetch('/refresh/refresh/', {
         method: 'POST',
-        credentials: 'include'
+        // credentials: 'include'
     });
+    if (response.ok == 200)
+        return 1;
+    return 0;
 }
 
 async function loadContent2(url, option, pushToHistory)

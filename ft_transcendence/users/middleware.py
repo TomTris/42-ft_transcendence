@@ -57,10 +57,11 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
         if request.method == 'GET':
             if request.headers.get('X-Requested-With') != 'XMLHttpRequest' and not request.path.startswith('/media/'):
                 context = {
-                    'method': 'GET'
+                    'method': 'GET',
+                    'Location' : '/'
                 }
                 print("New Request")
-                return render(request, 'base.html', context, status=status.HTTP_307_TEMPORARY_REDIRECT)
+                return render(request, 'base.html', context, status=status.HTTP_302_FOUND)
             
             try:
                 valid_access_token(request)

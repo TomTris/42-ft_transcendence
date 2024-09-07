@@ -4,10 +4,8 @@ services:
   postgres:
     build: ./postgreSQL
     container_name: postgres
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword1
-      POSTGRES_DB: mydatabase
+    env_file:
+      .env_postgres
     networks:
       - inception_network
 
@@ -29,7 +27,8 @@ services:
     volumes:
       - token-volume:/vault/token-volume/
     env_file:
-      .env
+      - .env
+      - .env_postgres
     networks:
       - inception_network
 
