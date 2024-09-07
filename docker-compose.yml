@@ -27,7 +27,8 @@ services:
     volumes:
       - token-volume:/vault/token-volume/
     env_file:
-      .env
+      - .env
+      - .env_postgres
     networks:
       - inception_network
 
