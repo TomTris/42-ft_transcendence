@@ -488,6 +488,7 @@ class GameConsumer(WebsocketConsumer):
             status = "Waiting for other player"
         elif game_state['prev'] == "Waiting for other player":
             game_state['start2'] = time.time() + 3
+            game_state['start'] = time.time() + 6
             status="enemy_found"
         elif game_state['start2'] > time.time():
             status="enemy_found"

@@ -27,6 +27,7 @@ let popupMessage;
 let countdownInterval;
 let countdownTime;
 
+let lastUpdateMatchMaking;
 let lastStatus;
 // user
 var addFriendButton;

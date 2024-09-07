@@ -4,12 +4,15 @@
     
     <div id="players">
         <div id='player1-username-top'>
-            <img src="" alt="" id="player1-av">
+            <img src="" alt="" id="player1-av" class="big-profiles">
             <div id="player1-user-name"></div>
         </div>
-        <div id='score'></div>
+        <div id='score-count-down'>
+            <div id='cound-down'></div>
+            <div id='score'></div>
+        </div>
         <div id='player2-username-top'>
-            <img src="" alt="" id="player2-av">
+            <img src="" alt="" id="player2-av" class='big-profiles'>
             <div id="player2-user-name"></div>
         </div>
     </div>
@@ -23,21 +26,24 @@
                 <img src="" id="player1-avatar" class="unique-avatar" alt="">
                 <div class="unique-username" id="player1-username"></div>
                 <div class="unique-elo-container">
-                    <img src="{% static 'trophy.jpg'%}" id="player1-trophy" class="unique-icon" alt="Trophy Icon">
+                    <img src="/media/game_pictures/trophy.jpg" id="player1-trophy" class="unique-icon" alt="Trophy Icon">
                     <span id="player1-elo" class="unique-elo"></span>
                 </div>
             </div>
             <div class="unique-middle-content" id="loading-text">
                 <p id="waiting-text">Searching for other player</p>
+                <img src="/media/game_pictures/time.png" alt="" id="time-picture" class="temp-picture">
+                <img src="/media/game_pictures/lose.png" alt="" id="lose-picture" class="temp-picture">
+                <img src="/media/game_pictures/win.png" id="won-picture" class="temp-picture">
                 <button id="cancel-button" class="unique-cancel-button">Cancel</button>
-                <img src="{% static 'swords.jpg' %}" id="swords-icon" class="unique-icon" style="display: none;" alt="Swords Icon">
-                <img src="{% static 'time.png'%}" alt="" id="time-picture">
+                <img src="/media/game_pictures/swords.jpg" id="swords-icon" class="unique-icon" style="display: none;" alt="Swords Icon">
+                
             </div>
             <div class="unique-player-info" id="player2-info" style="display: none;">
                 <img src="{}" id="player2-avatar" class="unique-avatar" alt="">
                 <div class="unique-username" id="player2-username"></div>
                 <div class="unique-elo-container">
-                    <img src="{% static 'trophy.jpg'%}" id="player2-trophy" class="unique-icon" alt="Trophy Icon">
+                    <img src="/media/game_pictures/trophy.jpg" id="player2-trophy" class="unique-icon" alt="Trophy Icon">
                     <span id="player2-elo" class="unique-elo"></span>
                 </div>
             </div>
@@ -49,10 +55,12 @@
     sessionId = "{{ session_id }}";
     socket1 = new WebSocket(`wss://${window.location.host}/wss/game/${sessionId}/`);
     lastStatus = ""; // To track the last status
+    lastUpdateMatchMaking = 0;
     init();
 
     socket1.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        const enemies = ['Bob', 'Destroyer', 'Tom', 'Qdo', "Oleksandr", 'Obrittne', 'Tqin', 'Qin', 'Robin', 'Rmarquar', 'Patrick', 'Lisa'];
 
         updateGameCanvas(data);
         // Only update modal when status changes
@@ -76,10 +84,29 @@
             }
             waitingText.textContent = textForPause;
         }
-        else if (lastStatus==='Playing')
+        else if (lastStatus==='Playing' || lastStatus ==='Count down')
         {
+            const CountDown = document.getElementById('cound-down');
             const score = document.getElementById('score');
-            score.textContent = data.score1 + ":" data.score2;
+            score.textContent = data.score1 + ":" + data.score2;
+            
+            if (lastStatus ==='Count down')
+            {
+                CountDown.textContent = data.time;
+            }
+            else{
+                CountDown.textContent = "";
+            }
+        }
+        else if (lastStatus === 'Waiting for other player')
+        {
+            if (lastUpdateMatchMaking + 1000 < Date.now())
+            {
+                document.getElementById('player2-username').textContent = enemies[getRandomInt(0, 11)];
+                document.getElementById('player2-avatar').src = '/media/searching_avatars/avatar' + getRandomInt(1, 12) +  '.png';
+                document.getElementById('player2-elo').textContent = getRandomInt(0, 2000);
+                lastUpdateMatchMaking = Date.now()
+            }
         }
     };
 
@@ -91,14 +118,19 @@
         const waitingText = document.getElementById('waiting-text');
         const swordsIcon = document.getElementById('swords-icon');
         const timePic = document.getElementById('time-picture');
+        const wonPic = document.getElementById('won-picture');
+        const losePic = document.getElementById('lose-picture');
+
         if (data.status === 'Waiting for other player') {
-            modal.style.display = 'flex'; // Show the modal
-            player2Info.style.display = 'flex'; // Hide player 2 info
-            loadingText.style.display = 'flex'; // Show loading text
-            waitingText.style.display = 'block'; // Show waiting text
-            cancelButton.style.display = 'block'; // Show cancel button
-            swordsIcon.style.display = 'none'; // Hide swords icon
-            timePic.style.display = 'none';
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex'; 
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'block'; 
+            cancelButton.style.display = 'block'; 
+            swordsIcon.style.display = 'none';
+            timePic.style.display = 'block';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
 
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
@@ -107,17 +139,18 @@
             // Show the cancel button and waiting text only when waiting for other player
             cancelButton.style.display = 'block';
             cancelButton.onclick = function() {
-                socket1.close();
-                window.location.href = "/"; // Redirect to the home page or any appropriate action
+                loadContent("/", defaultOption, true);
             };
 
         } else if (data.status === 'enemy_found') {
-            modal.style.display = 'flex'; // Show the modal
-            player2Info.style.display = 'flex'; // Show player 2 info
-            loadingText.style.display = 'flex'; // Show loading text
-            waitingText.style.display = 'none'; // Hide waiting text
-            swordsIcon.style.display = 'block'; // Show swords icon
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex';
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'none'; 
+            swordsIcon.style.display = 'block';
             timePic.style.display = 'none';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
 
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
@@ -136,15 +169,78 @@
             waitingText.style.display = 'none'; 
             cancelButton.style.display = 'none';
             timePic.style.display = 'block';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
+            swordsIcon.style.display = 'none';
 
-            swordsIcon.scr = "/static/time.png"
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
             document.getElementById('player1-elo').textContent = data.player1.elo;
             document.getElementById('player2-avatar').src = data.player2.avatar;
             document.getElementById('player2-username').textContent = data.player2.username;
             document.getElementById('player2-elo').textContent = data.player2.elo;
-        } 
+        }
+        else if (data.status == 'Won')
+        {
+            modal.style.display = 'flex';
+            player2Info.style.display = 'flex';
+            loadingText.style.display = 'flex'; 
+            waitingText.style.display = 'none';
+            swordsIcon.style.display = 'none';
+            losePic.style.display = 'none';
+            wonPic.style.display = 'none';
+            timePic.style.display = 'none';
+
+            let textEnd;
+            if (data.current_player == 1){
+                if (data.score1 > data.score2)
+                {
+                    wonPic.style.display = 'block';
+                }
+                else
+                {
+                    losePic.style.display = 'block';
+                }
+            }
+            else{
+                if (data.score1 > data.score2)
+                {
+                    losePic.style.display = 'block';
+                }
+                else
+                {
+                    wonPic.style.display = 'block';
+                }
+            }
+            waitingText.textContent = textEnd;
+            const score = document.getElementById('score');
+            score.textContent = data.score1 + ":" + data.score2;
+
+            let addition1;
+            if (data.rank_change1 > 0){
+                addition1 = " (+" + data.rank_change1 + ')';
+            }
+            else{
+                addition1 = " (-" + (-data.rank_change1) + ')' ;
+            }
+            document.getElementById('player1-elo').textContent = data.player1.elo + addition1;
+            let addition2;
+            if (data.rank_change2 > 0)
+            {
+                addition2 = " (+" + data.rank_change2 + ')';
+            }
+            else{
+                addition2 = " (-" + (-data.rank_change2) + ')';
+            }
+            document.getElementById('player2-elo').textContent = data.player2.elo + addition2;
+            
+            cancelButton.textContent = 'Go Home';
+            cancelButton.style.display = 'block';
+            cancelButton.onclick = function() {
+                loadContent("/", defaultOption, true);
+            };
+
+        }
         else {
             modal.style.display = 'none';
             const player1 = document.getElementById('player1-user-name');
@@ -155,6 +251,8 @@
             const image2 = document.getElementById('player2-av');
             image1.src = data.player1.avatar;
             image2.src = data.player2.avatar;
+            const score = document.getElementById('score');
+            score.textContent = data.score1 + ":" + data.score2;
         }
     }
 
@@ -213,6 +311,12 @@
         };
         socket1.send(JSON.stringify(message));
     });
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 </script>
 
 <style>
@@ -325,15 +429,15 @@
         height: 150px;
     }
 
-    #time-picture{
+    .temp-picture{
         width: 150px;
-        height: 150px   ;
+        height: 150px;
     }
 
     #players {
         display: flex;
-        justify-content:
-        align-items:
+        justify-content: space-between; /* Distribute space evenly between items */
+        align-items: flex-end; /* Align items to the bottom of the container */
         width: 100%;
         max-width: 1000px;
         margin: 0 auto;
@@ -346,13 +450,30 @@
     #player2-username-top {
         flex: 1;
         text-align: center; 
+        font-size: 30px;
+    }
+    
+    #score-count-down {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        position: relative;
+        height: 100%;
+        font-size: 90px;
     }
     
     #score {
-        flex: 2;
-        text-align: center; 
-        font-size: 24px; 
-        font-weight: bold; 
+        font-size: 50px;
+        font-weight: bold;
+        margin-top: 20px; /* Adjust the spacing as needed */
     }
+    
+    .big-profiles {
+        width: 175px;
+        height: 175px;
+        border-radius: 50%;
+    }
+
 
 </style>
