@@ -187,7 +187,8 @@ class TournamentSession(models.Model):
             'm1':-1,
             'm2':-1,
             'm3':-1,
-            'm4':-1
+            'm4':-1,
+            'start':0
         }
         self.set_tournament_state(game_state)
         

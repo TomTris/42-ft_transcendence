@@ -158,6 +158,33 @@
         margin-top: 20px;
     }
 
+    .LinkToUser{
+        margin-right: auto;
+        color: #333;
+        text-decoration: none;
+        font-weight: bold;
+        margin-left: 6px;
+    }
+    .medals-tournament{
+        width: 15px;
+        height: auto;
+    }
+
+    .playersLinks{
+        margin-right: auto;
+        color: #333;
+        text-decoration: none;
+        font-weight: bold;
+        margin-left: 6px;
+    }
+    .results{
+        width: 30%;
+    }
+    .playerInfo{
+        margin-left:70px;
+        text-align: left;
+    }
+    
 </style>
 <div class='players'>
     <div id="status">Connecting...</div>
@@ -175,6 +202,24 @@
     <div class="popup-content">
         <h2 id="popup-title">Notification</h2>
         <p id="popup-message">You have been notified.</p>
+        <div id="results" class="final hidden">
+            <div class="playerInfo">
+                <img class='medals-tournament' src="/media/game_pictures/medal_gold.png" alt="">
+                <a class="playersLinks" id="player1Link"></a>
+            </div>
+            <div class="playerInfo">
+                <img class='medals-tournament' src="/media/game_pictures/medal_silver.png" alt="">
+                <a class="playersLinks" id="player2Link"></a>
+            </div>
+            <div class="playerInfo">
+                <img class='medals-tournament' src="/media/game_pictures/medal_bronze.png" alt="">
+                <a class="playersLinks" id="player3Link"></a>
+            </div>
+            <div class="playerInfo">
+                <img class='medals-tournament' src="/media/game_pictures/medal_bronze.png" alt="">
+                <a class="playersLinks" id="player4Link"></a>
+            </div>
+        </div>
         <button onclick="redirectToHome()">Go to Home</button>
     </div>
 </div>
@@ -195,9 +240,6 @@
     countdownTime = 60;
     
 
-    {% comment %} socket1.onopen = function() {
-    }; {% endcomment %}
-
     socket1.onmessage = function(event) {
         const data = JSON.parse(event.data);
         codeDiv.innerHTML = data.code;
@@ -216,10 +258,10 @@
     
         // Always display the player list
         playersDiv.innerHTML = `
-            <p class="player-item">Player 1: ${data.player1 ? data.player1.username : 'Waiting...'}</p>
-            <p class="player-item">Player 2: ${data.player2 ? data.player2.username : 'Waiting...'} ${data.player === 1 && data.player2 && data.player1.id !== data.player2.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(2)">Kick</button>' : ''}</p>
-            <p class="player-item">Player 3: ${data.player3 ? data.player3.username : 'Waiting...'} ${data.player === 1 && data.player3 && data.player1.id !== data.player3.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(3)">Kick</button>' : ''}</p>
-            <p class="player-item">Player 4: ${data.player4 ? data.player4.username : 'Waiting...'} ${data.player === 1 && data.player4 && data.player1.id !== data.player4.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(4)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 1: ${data.player1 ? '<a class="LinkToUser" href="/users/' + data.player1.id + '/" data-route="/users/' + data.player1.id + '/">' + data.player1.username + '</a>' : 'Waiting...'}</p>
+            <p class="player-item">Player 2: ${data.player2 ? '<a class="LinkToUser" href="/users/' + data.player2.id + '/" data-route="/users/' + data.player2.id + '/">' + data.player2.username + '</a>' : 'Waiting...'} ${data.player === 1 && data.player2 && data.player1.id !== data.player2.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(2)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 3: ${data.player3 ? '<a class="LinkToUser" href="/users/' + data.player3.id + '/" data-route="/users/' + data.player3.id + '/">' + data.player3.username + '</a>' : 'Waiting...'} ${data.player === 1 && data.player3 && data.player1.id !== data.player3.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(3)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 4: ${data.player4 ? '<a class="LinkToUser" href="/users/' + data.player4.id + '/" data-route="/users/' + data.player4.id + '/">' + data.player4.username + '</a>' : 'Waiting...'} ${data.player === 1 && data.player4 && data.player1.id !== data.player4.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(4)">Kick</button>' : ''}</p>
         `;
     
         // Only show action buttons when the status is "Waiting" or "Confirming"
@@ -244,8 +286,7 @@
                 actionsDiv.innerHTML = `<p>Waiting for other match to finish...</p>`;
             }
         } else if (data.status === 'Round2_count') {
-            // Start the countdown for Round2_count
-            startCountdown();
+            startCountdown(data.start);
         } else if (data.status === 'Round2') {
             // Handle Round2 status
             if (data.player === data.final1 || data.player === data.final2) {
@@ -254,13 +295,39 @@
                 actionsDiv.innerHTML = `<p>You are out. Wait till you see the result of the tournament.</p>`;
             }
         } else {
-            actionsDiv.innerHTML = ''; // Clear actions if status is not waiting, confirming, round1, round2, or counting statuses
-            stopCountdown(); // Stop the countdown if the status is not counting
+            actionsDiv.innerHTML = '';
+            stopCountdown();
+            notificationPopup.classList.remove('hidden');
+            document.getElementById('popup-title').textContent = 'Tournament is Finished';
+            document.getElementById('')
+            const resultElement = document.getElementById('results');
+            resultElement.classList.remove('hidden');
+
+            const p1 = document.getElementById('player1Link');
+            const p2 = document.getElementById('player2Link');
+            const p3 = document.getElementById('player3Link');
+            const p4 = document.getElementById('player4Link');
+
+            p1.textContent = data.player1.username;
+            p1.href = '/users/' + data.player1.id + '/';
+            p1.setAttribute('data-route' , '/users/' + data.player1.id + '/');
+
+            p2.textContent = data.player2.username;
+            p2.href = '/users/' + data.player2.id + '/';
+            p2.setAttribute('data-route' , '/users/' + data.player2.id + '/');
+
+            p3.textContent = data.player3.username;
+            p3.href = '/users/' + data.player3.id + '/';
+            p3.setAttribute('data-route' , '/users/' + data.player3.id + '/');
+
+            p4.textContent = data.player4.username;
+            p4.href = '/users/' + data.player4.id + '/';
+            p4.setAttribute('data-route' , '/users/' + data.player4.id + '/');
         }
     
         // Handle the timer for Round1_count and Round2_count statuses
         if (data.status === 'Round1_count' || data.status === 'Round2_count') {
-            startCountdown();
+            startCountdown(data.start);
         } else {
             stopCountdown();
         }
@@ -279,9 +346,9 @@
 
     
     
-    function startCountdown() {
+    function startCountdown(start) {
         clearInterval(countdownInterval); // Clear any existing countdown
-        countdownTime = 60; // Reset countdown to 60
+        countdownTime = start; // Reset countdown to 60
         statusDiv.textContent = `Countdown: ${countdownTime}`;
     
         countdownInterval = setInterval(function() {

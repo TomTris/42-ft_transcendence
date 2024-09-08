@@ -73,7 +73,7 @@ def online_tournament_view(request):
 
 def online_tournaments_view(request, session_id):
     user = request.user
-    tournament = TournamentSession.objects.filter(id=session_id).first()
+    tournament = TournamentSession.objects.filter(id=session_id, is_active=True).first()
     if tournament is None or user not in [tournament.player1, tournament.player2, tournament.player3, tournament.player4]:
         return render(request, "partials/home.html")
     

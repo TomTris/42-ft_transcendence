@@ -424,6 +424,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state['status'] = 'Round1_count'
         game_state['game1_id'] = game1.id
         game_state['game2_id'] = game2.id
+        game_state['start'] = time.time() + 60
 
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
@@ -443,6 +444,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state['finished1'] = 1
         game_state['finished2'] = 1
         game_state['status'] = 'Round2_count'
+        game_state['start'] = time.time() + 60
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
         finalist1 = self.get_finalist(1)
@@ -523,15 +525,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                     'id4': self.tournament.player4.id
                 }
             )
-            print()
-            print()
-            print()
-            print()
-            print(Message.objects.filter(send_to=self.tournament.player1))
-            print(Message.objects.filter(send_to=self.tournament.player2))
-            print(Message.objects.filter(send_to=self.tournament.player3))
-            print(Message.objects.filter(send_to=self.tournament.player4))
-            print(game_state)
             time.sleep(30)
             self.disconnect_all()
             self.tournament.is_active = False
@@ -701,6 +694,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
             m1, m2, m3, m4 = self.notify_round1()
             game_state = self.tournament.get_tournament_state()
+
             time.sleep(3) #change to 60
             
             m1, m2, m3, m4 = self.notify_round1_start(m1, m2, m3, m4)
@@ -816,6 +810,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             'pos2': game_state['pos2'],
             'pos3_1': game_state['pos3_1'],
             'pos3_2': game_state['pos3_2'],
+            'start':int(game_state['start'] - time.time())
         }
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
