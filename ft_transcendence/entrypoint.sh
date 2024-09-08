@@ -22,4 +22,4 @@ python manage.py migrate
 
 # Start the Django development server
 echo "Server On\nNow we are back and more powerful!!" > /app/users/send_to_subscribers.txt
-python manage.py send_email && python manage.py runserver 0.0.0.0:8000
+python manage.py collectstatic && python manage.py send_email && python manage.py runserver 0.0.0.0:8000
