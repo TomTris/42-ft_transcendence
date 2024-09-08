@@ -149,12 +149,12 @@
             againButton.style.display = 'none';
             elementWinner.style.display = 'none';
 
+            document.getElementById('player1-trophy').style.display = 'none';
+            document.getElementById('player2-trophy').style.display = 'none';
             document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
             document.getElementById('player1-username').textContent = 'Left';
-            document.getElementById('player1-elo').textContent = 400;
             document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
             document.getElementById('player2-username').textContent = 'Right';
-            document.getElementById('player2-elo').textContent = 400;
 
             cancelButton.style.display = 'none'; // Hide the cancel button when enemy is found
         }
@@ -174,10 +174,8 @@
 
             document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
             document.getElementById('player1-username').textContent = 'Left';
-            document.getElementById('player1-elo').textContent = 400;
             document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
             document.getElementById('player2-username').textContent = 'Right';
-            document.getElementById('player2-elo').textContent = 400;
         }
         else if (data.status == 'Won')
         {
@@ -202,8 +200,6 @@
             const score = document.getElementById('score');
             score.textContent = data.score1 + ":" + data.score2;
 
-            document.getElementById('player1-elo').textContent = 400;
-            document.getElementById('player2-elo').textContent = 400;
             
             cancelButton.textContent = 'Go Home';
             cancelButton.style.display = 'block';

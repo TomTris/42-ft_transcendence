@@ -25,6 +25,7 @@ class GameSession(models.Model):
     winner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='winner', null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    tournament_id = models.IntegerField(default=0)
 
     def get_cache_key(self):
         return f'game_session_game_state_{self.id}'
