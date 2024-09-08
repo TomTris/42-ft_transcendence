@@ -511,6 +511,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.player2.save()
             self.tournament.player3.save()
             self.tournament.player4.save()
+            self.delete_all()
             Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
@@ -522,6 +523,15 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                     'id4': self.tournament.player4.id
                 }
             )
+            print()
+            print()
+            print()
+            print()
+            print(Message.objects.filter(send_to=self.tournament.player1))
+            print(Message.objects.filter(send_to=self.tournament.player2))
+            print(Message.objects.filter(send_to=self.tournament.player3))
+            print(Message.objects.filter(send_to=self.tournament.player4))
+            print(game_state)
             time.sleep(30)
             self.disconnect_all()
             self.tournament.is_active = False
@@ -537,7 +547,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.player2.save()
             self.tournament.player3.save()
             self.tournament.player4.save()
-            Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
+            self.delete_all()
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
                 {
@@ -586,6 +596,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.player2.save()
             self.tournament.player3.save()
             self.tournament.player4.save()
+            self.delete_all()
             Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
@@ -632,6 +643,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.player2.save()
             self.tournament.player3.save()
             self.tournament.player4.save()
+            self.delete_all()
             Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
@@ -665,6 +677,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         self.tournament.player2.save()
         self.tournament.player3.save()
         self.tournament.player4.save()
+        self.delete_all()
         Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
         async_to_sync(self.channel_layer.group_send)(
             'chat',

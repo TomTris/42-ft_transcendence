@@ -190,12 +190,13 @@
             wonPic.style.display = 'none';
             timePic.style.display = 'none';
 
+            console.log(data);
             if (data.is_tournament == 1)
             {
                 let TournamentButton = document.getElementById('go-tournament');
-                TournamentButton.style.display = 'none';
+                TournamentButton.style.display = 'block';
                 TournamentButton.onclick = function() {
-                    loadContent("/game/online_tournament/" + tournament_id, defaultOption, true);
+                    loadContent("/game/online_tournament/" + data.tournament_id, defaultOption, true);
                 };
             
             }
@@ -241,7 +242,10 @@
                 addition2 = " (-" + (-data.rank_change2) + ')';
             }
             document.getElementById('player2-elo').textContent = data.player2.elo + addition2;
-            
+            document.getElementById('player2-avatar').src = data.player2.avatar;
+            document.getElementById('player2-username').textContent = data.player2.username;
+            document.getElementById('player1-avatar').src = data.player1.avatar;
+            document.getElementById('player1-username').textContent = data.player1.username;
             cancelButton.textContent = 'Go Home';
             cancelButton.style.display = 'block';
             cancelButton.onclick = function() {

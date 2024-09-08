@@ -67,7 +67,6 @@ vault kv put secret/postgresql/db_credentials \
   db_port=5432\
   \
   SECRET_KEY=$SECRET_KEY\
-  DEBUG=$DEBUG\
   \
   private_key=$private_key\
   infura_url=$infura_url\
@@ -79,8 +78,6 @@ vault kv put secret/postgresql/db_credentials \
   EMAIL_HOST_USER=$EMAIL_HOST_USER\
   EMAIL_HOST_PASSWORD=$EMAIL_HOST_PASSWORD\
   EMAIL_PORT=$EMAIL_PORT\
-  EMAIL_USE_TLS=$EMAIL_USE_TLS\
-  EMAIL_USE_SSL=$EMAIL_USE_SSL\
   \
   domain_name=$DOMAIN_NAME\
   localip=$LOCALIP\
