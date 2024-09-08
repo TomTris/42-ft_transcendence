@@ -1,163 +1,3 @@
-{% comment %} <div id="game-container">
-    <h1>Game Session: {{ session_id }}</h1>
-    <p><div id='status'>{{status}}</div><div id='time'>{{status}}</div></p>
-    <p>Player 1: <span id="player1">{{ player1 }}</span></p>
-    <p>Player 2: <span id="player2">{{ player2 }}</span></p>
-    <div><div id="score1"></div> <div id="score2"></div></div>
-    <canvas id="gameCanvas" width="1000" height="600"></canvas>
-</div>
-
-<script>
-    // JavaScript to connect to WebSocket and update player list
-    socket1 = new WebSocket(`wss://${window.location.host}/wss/game/tournament/`);
-   
-    init();
-
-    socket1.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-
-
-        // Prevent multiple forms from being created
-        if (data.status === 'Input' && !document.getElementById('inputForm')) {
-            // Create and display the form
-            const form = document.createElement('form');
-            form.id = 'inputForm';
-            const inputsData = [data.in1, data.in2, data.in3, data.in4];
-            // Create four input fields
-            for (let i = 1; i <= 4; i++) {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.name = 'player' + i;
-                input.placeholder = 'player ' + i;
-                input.value = inputsData[i - 1] || '';
-                
-                form.appendChild(input);
-                form.appendChild(document.createElement('br'));
-            }
-    
-            // Create the submit button
-            const submitButton = document.createElement('button');
-            submitButton.type = 'button';
-            submitButton.textContent = 'Submit';
-            form.appendChild(submitButton);
-    
-            // Append the form to the game container
-            document.getElementById('game-container').appendChild(form);
-    
-            // Add event listener for the submit button
-            submitButton.addEventListener('click', function() {
-                // Collect the form data
-                const formData = {
-                    "type": "input"
-                };
-                const inputs = form.querySelectorAll('input');
-                inputs.forEach(input => {
-                    formData[input.name] = input.value;
-                });
-    
-                // Send the form data to the server
-                socket1.send(JSON.stringify(formData));
-    
-                // Remove the form after submission
-                form.remove();
-            });
-        }
-        if (data.status === 'Waiting') {
-
-            // Display the "Ready" button
-            if (!document.getElementById('readyButton')) {
-
-                const playerContainer = document.createElement('div');
-                playerContainer.id = 'playerContainer';
-                playerContainer.style.display = 'flex';
-                playerContainer.style.justifyContent = 'space-between';
-                playerContainer.style.marginTop = '20px';
-    
-                // Player 1 on the left
-                const player1 = document.createElement('div');
-                player1.textContent = data.player1 || 'Player 1';
-                playerContainer.appendChild(player1);
-    
-                // Player 2 on the right
-                const player2 = document.createElement('div');
-                player2.textContent = data.player2 || 'Player 2';
-                playerContainer.appendChild(player2);
-    
-                // Append the player container to the game container
-                document.getElementById('game-container').appendChild(playerContainer);
-
-                const readyButton = document.createElement('button');
-                readyButton.id = 'readyButton';
-                readyButton.textContent = 'Ready';
-                readyButton.style.marginTop = '20px';
-    
-                // Append the button to the game container
-                document.getElementById('game-container').appendChild(readyButton);
-    
-                // Add an event listener for the Ready button
-                readyButton.addEventListener('click', function() {
-                    socket1.send(JSON.stringify({ 'type': 'ready' }));
-                    readyButton.remove(); // Optionally remove the button after clicking
-                    playerContainer.remove();
-                });
-            }
-        }
-
-        if (data.status === 'Finished'){
-            const playerContainer = document.createElement('div');
-            const readyButton = document.createElement('button');
-                readyButton.id = 'readyButton';
-                readyButton.textContent = 'OK';
-                readyButton.style.marginTop = '20px';
-    
-                // Append the button to the game container
-                document.getElementById('game-container').appendChild(readyButton);
-    
-                // Add an event listener for the Ready button
-                readyButton.addEventListener('click', function() {
-                    socket1.send(JSON.stringify({ 'type': 'finished' }));
-                    readyButton.remove(); // Optionally remove the button after clicking
-                    playerContainer.remove();
-                });
-        }
-
-        if (true)
-        {
-
-            document.getElementById('status').textContent = data.status;
-            document.getElementById('player1').textContent = data.player1;
-            document.getElementById('player2').textContent = data.player2;
-            document.getElementById('time').textContent = data.time
-            document.getElementById('score1').textContent = data.score1
-            document.getElementById('score2').textContent = data.score2
-            updateGameCanvas(data);
-        }
-    };
-
-    function updateGameCanvas(data) {
-        animate(data.posx, data.posy, data.pos1, data.pos2);
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-</script>
-
-<style>
-    #game-container {
-        text-align: center;
-        margin-top: 20px;
-    }
-    canvas {
-        border: 1px solid black;
-        background: #eee;
-        display: block;
-        margin: 0 auto;
-    }
-</style>     {% endcomment %}
-
-
-
-
 <div id="game-container">
     
     <div id="players">
@@ -192,19 +32,39 @@
                 <p id="waiting-text">Searching for other player</p>
                 <div id="winner"></div>
                 <div id="best-form">
-                    <input type="text" id="player1" class="playerInput">
-                    <input type="text" id="player2" class="playerInput">
-                    <input type="text" id="player3" class="playerInput">
-                    <input type="text" id="player4" class="playerInput">
-                    <button class="submit-button" id="submitionButton" onclick=checkFunction()>Submit</button>
+                    <div id="WrongInput">All nicknames must be unique and not empty</div>
+                    <input type="text" name="player1" id="player1" class="playerInput" placeholder="Enter Player 1st Nickname">
+                    <input type="text" name="player2" id="player2" class="playerInput" placeholder="Enter Player 2nd Nickname">
+                    <input type="text" name="player3" id="player3" class="playerInput" placeholder="Enter Player 3rd Nickname">
+                    <input type="text" name="player4" id="player4" class="playerInput" placeholder="Enter Player 4th Nickname">
+                    <button class="submition-button" id="submitionButton" onclick="checkFunction()">Submit</button>
+                </div>
+                <div id="results-tournament">
+                    <div class="place-info">
+                        <img src="/media/game_pictures/medal_gold.png" alt="" class="place_image">
+                        <div class="player-place" id="place1"></div>
+                    </div>
+                    <div class="place-info">
+                        <img src="/media/game_pictures/medal_silver.png" alt="" class="place_image">
+                        <div class="player-place" id="place2"></div>
+                    </div>
+                    <div class="place-info">
+                        <img src="/media/game_pictures/medal_bronze.png" alt="" class="place_image">
+                        <div class="player-place" id="place3_1"></div>
+                    </div>
+                    <div class="place-info">
+                        <img src="/media/game_pictures/medal_bronze.png" alt="" class="place_image">
+                        <div class="player-place" id="place3_2"></div>
+                    </div>
                 </div>
                 <img src="/media/game_pictures/time.png" alt="" id="time-picture" class="temp-picture">
                 <img src="/media/game_pictures/lose.png" alt="" id="lose-picture" class="temp-picture">
                 <img src="/media/game_pictures/win.png" id="won-picture" class="temp-picture">
                 <img src="/media/game_pictures/swords.jpg" id="swords-icon" class="unique-icon" style="display: none;" alt="Swords Icon">
-                <button id="cancel-button" class="unique-cancel-button">Cancel</button>
-                <button id="again-button" class="unique-cancel-button" onclick=PlayOneMoreTime()>Play Again</button>
-                
+                <button id="cancel-button" class="unique-cancel-button" onclick="Cancel()">Cancel</button>
+                <button id="again-button" class="unique-cancel-button" onclick="PlayOneMoreTime()">Play Again</button>
+                <button id="ready-button" class="unique-cancel-button" onclick="SendReady()">Ready</button>
+                <button id="ok-button" class="unique-cancel-button" onclick="SendOk()">OK</button>
             </div>
             <div class="unique-player-info" id="player2-info" style="display: none;">
                 <img src="{}" id="player2-avatar" class="unique-avatar" alt="">
@@ -221,13 +81,14 @@
 <script>
 
     socket1 = new WebSocket(`wss://${window.location.host}/wss/game/tournament/`);
+    console.log("socket1 is now open", socket1);
     lastStatus = ""; // To track the last status
     lastUpdateMatchMaking = 0;
     init();
 
     socket1.onmessage = function(event) {
         const data = JSON.parse(event.data);
-
+        console.log(data);
         updateGameCanvas(data);
         // Only update modal when status changes
         if (lastStatus !== data.status) {
@@ -271,6 +132,7 @@
     function handleStatus(data) {
         const modal = document.getElementById('waiting-modal');
         const player2Info = document.getElementById('player2-info');
+        const player1Info = document.getElementById('player1-info');
         const loadingText = document.getElementById('loading-text');
         const cancelButton = document.getElementById('cancel-button');
         const waitingText = document.getElementById('waiting-text');
@@ -282,21 +144,36 @@
         const elementWinner = document.getElementById('winner');
 
         if (data.status === 'Input') {
+            document.getElementById('best-form').style.display = 'block';
+            document.getElementById('results-tournament').style.display = 'none';
             modal.style.display = 'flex';
+            player1Info.style.display = 'flex';
             player2Info.style.display = 'flex';
             loadingText.style.display = 'flex'; 
             waitingText.style.display = 'block'; 
-            cancelButton.style.display = 'none'; 
+            cancelButton.style.display = 'block'; 
             swordsIcon.style.display = 'none';
             timePic.style.display = 'none';
             losePic.style.display = 'none';
             elementWinner.style.display = 'none';
             wonPic.style.display = 'none';
-            elementWinner.style.display = 'none';
             againButton.style.display = 'none';
             waitingText.textContent = 'Input your nicknames';
-
-        } else if (data.status === 'enemy_found') {
+            document.getElementById('player2-avatar').src = '/media/game_pictures/swords.jpg';
+            document.getElementById('player1-avatar').src = '/media/game_pictures/swords.jpg';
+            document.getElementById('player1-trophy').style.display = 'none';
+            document.getElementById('player2-trophy').style.display = 'none';
+            document.getElementById('player1').value = data.in1 || '';
+            document.getElementById('player2').value = data.in2 || '';
+            document.getElementById('player3').value = data.in3 || '';
+            document.getElementById('player4').value = data.in4 || '';
+            document.getElementById('WrongInput').style.display = 'none';
+            document.getElementById('ok-button').style.display = 'none';
+            document.getElementById('ready-button').style.display = 'none';
+            document.getElementById('player2-username').textContent = '';
+            document.getElementById('player1-username').textContent = '';
+        } else if (data.status === 'Waiting') {
+            document.getElementById('results-tournament').style.display = 'none';
             modal.style.display = 'flex';
             player2Info.style.display = 'flex';
             loadingText.style.display = 'flex'; 
@@ -307,18 +184,25 @@
             wonPic.style.display = 'none';
             againButton.style.display = 'none';
             elementWinner.style.display = 'none';
-
+            document.getElementById('best-form').style.display = 'none';
+            document.getElementById('ready-button').style.display = 'block';
+            document.getElementById('ok-button').style.display = 'none';
             document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
-            document.getElementById('player1-username').textContent = 'Left';
-            document.getElementById('player1-elo').textContent = 400;
+            document.getElementById('player1-username').textContent = data.player1;
             document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
-            document.getElementById('player2-username').textContent = 'Right';
-            document.getElementById('player2-elo').textContent = 400;
-
+            document.getElementById('player2-username').textContent = data.player2;
+            document.getElementById('player2-trophy').style.display = 'none';
+            document.getElementById('player1-trophy').style.display = 'none';
+            if (data.winner != '')
+            {
+                waitingText.style.display = 'block';
+                waitingText.textContent = 'Player ' + data.winner + " won"; 
+            }
             cancelButton.style.display = 'none'; // Hide the cancel button when enemy is found
         }
         else if (data.status == 'Paused')
         {
+            document.getElementById('results-tournament').style.display = 'none';
             modal.style.display = 'flex'; 
             player2Info.style.display = 'flex'; 
             loadingText.style.display = 'flex'; 
@@ -332,51 +216,54 @@
             elementWinner.style.display = 'none';
 
             document.getElementById('player1-avatar').src = '/media/game_pictures/left.png';
-            document.getElementById('player1-username').textContent = 'Left';
-            document.getElementById('player1-elo').textContent = 400;
+            document.getElementById('player1-username').textContent = data.player1;
             document.getElementById('player2-avatar').src = '/media/game_pictures/right.png';
-            document.getElementById('player2-username').textContent = 'Right';
-            document.getElementById('player2-elo').textContent = 400;
+            document.getElementById('player2-username').textContent = data.player2;
+            document.getElementById('player2-trophy').style.display = 'none';
+            document.getElementById('player1-trophy').style.display = 'none';
+            document.getElementById('best-form').style.display = 'none';
+            document.getElementById('ok-button').style.display = 'none';
+            document.getElementById('ready-button').style.display = 'none';
         }
-        else if (data.status == 'Won')
+        else if (data.status == 'Finished')
         {
+            document.getElementById('results-tournament').style.display = 'block';
             modal.style.display = 'flex';
             player2Info.style.display = 'flex';
             loadingText.style.display = 'flex'; 
-            waitingText.style.display = 'none';
-            swordsIcon.style.display = 'block';
+            waitingText.style.display = 'block';
+            swordsIcon.style.display = 'none';
             losePic.style.display = 'none';
             wonPic.style.display = 'none';
             timePic.style.display = 'none';
             againButton.style.display = 'block';
-            elementWinner.style.display = 'block';
-            if (data.score1 > data.score2)
-            {
-                elementWinner.textContent = "Player to the left won";
-            }
-            else{
-                elementWinner.textContent = "Player to the right won";
-            }
-            
+            elementWinner.style.display = 'none';
+            document.getElementById('best-form').style.display = 'none';
+            document.getElementById('ok-button').style.display = 'block';
+            document.getElementById('place3_2').textContent = data.place3_2
+            document.getElementById('place3_1').textContent = data.place3_1
+            document.getElementById('place2').textContent = data.place2
+            document.getElementById('place1').textContent = data.place1
+            waitingText.textContent = 'The Tournament is finished';
+
+            document.getElementById('player2-avatar').src = '/media/game_pictures/swords.jpg';
+            document.getElementById('player1-avatar').src = '/media/game_pictures/swords.jpg';
+            document.getElementById('player1-trophy').style.display = 'none';
+            document.getElementById('player2-trophy').style.display = 'none';
+            document.getElementById('ready-button').style.display = 'none';
+            document.getElementById('ready-button').style.display = 'none';
+            document.getElementById('again-button').style.display = 'none';
             const score = document.getElementById('score');
             score.textContent = data.score1 + ":" + data.score2;
-
-            document.getElementById('player1-elo').textContent = 400;
-            document.getElementById('player2-elo').textContent = 400;
-            
-            cancelButton.textContent = 'Go Home';
-            cancelButton.style.display = 'block';
-            cancelButton.onclick = function() {
-                loadContent("/", defaultOption, true);
-            };
+            cancelButton.style.display = 'none';
 
         }
         else {
             modal.style.display = 'none';
             const player1 = document.getElementById('player1-user-name');
             const player2 = document.getElementById('player2-user-name');
-            player1.textContent = 'Left';
-            player2.textContent = 'Right';
+            player1.textContent = data.player1;
+            player2.textContent = data.player2;
             const image1 = document.getElementById('player1-av');
             const image2 = document.getElementById('player2-av');
             image1.src = '/media/game_pictures/left.png';
@@ -416,12 +303,33 @@
         value4 = document.getElementById('player4').value.replace(/\s+/g, ' ').trim();
         
         if (value1 === '' || value2 === '' || value3 === '' || value4 === '' || checkIfUnique(value1, value2, value3, value4) == false){
-            console.log('AiAiAi');
+            document.getElementById('WrongInput').style.display = 'block';
         }
         else{
-            console.log('Goood');
+            document.getElementById('WrongInput').style.display = 'none';
+            const form = document.getElementById('best-form');
+            const formData = {
+                "type": "input"
+            };
+            const inputs = form.querySelectorAll('input');
+            inputs.forEach(input => {
+                formData[input.name] = input.value;
+            });
+            socket1.send(JSON.stringify(formData));
         }
 
+    }
+
+    function SendReady(){
+        socket1.send(JSON.stringify({ 'type': 'ready' }));
+    }
+
+    function SendOk(){
+        socket1.send(JSON.stringify({'type': 'finished'}));
+    }
+
+    function Cancel(){
+        loadContent("/", defaultOption, true);
     }
 
 </script>
@@ -484,6 +392,7 @@
         font-weight: bold;
         margin-bottom: 10px;
         color: #333;
+        font-size 30px;
     }
 
     .unique-elo-container {
@@ -586,9 +495,87 @@
         font-size: 30px;
     }
     
-    #best-form{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    /* General form styling */
+    #best-form {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: #f9f9f9;
+    }
+    
+    /* Styling the input fields */
+    .playerInput {
+        width: calc(100% - 22px); /* Adjusting for padding and border */
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    /* Input field focus effect */
+    .playerInput:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+    
+    /* Styling the submit button */
+    .submition-button {
+        width: 65%;
+        padding: 12px;
+        margin: 10px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    /* Submit button hover effect */
+    .submition-button:hover {
+        background-color: #0056b3;
+    }
+
+    #WrongInput{
+        color:red;
+    }
+
+    #waiting-text{
+        font-size: 24px;
+    }
+
+    .place_image{
+        width: 15px;
+    }
+
+    #results-tournament {
+        display: flex; /* Aligns all place-info elements in a row */
+        gap: 15px; /* Adds space between each place-info element */
+        justify-content: space-around; /* Optional: distributes space evenly */
+        align-items: center; /* Centers the items vertically */
+        padding: 10px; /* Optional: padding around the container */
+    }
+    
+    .place-info {
+        display: flex; /* Makes image and text align horizontally */
+        flex-direction: row; /* Ensures children are in a row */
+        align-items: center; /* Vertically centers the image and text */
+        gap: 10px; /* Optional: space between the medal and text */
+    }
+    
+    .place_image {
+        width: 20px; /* Adjusts the size of the medal images */
+        height: auto; /* Maintains the aspect ratio of the images */
+    }
+    
+    .player-place {
+        font-size: 35px; /* Adjust the font size as needed */
+        color: #333; /* Sets the color for the player place text */
     }
 </style>

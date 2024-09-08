@@ -51,6 +51,9 @@ class BaseConsumer(WebsocketConsumer):
         with self.game_state_lock:
             self.game_state['left'] = 1
         self.close()
+        
+    def setting_game_state(self, game_state):
+        self.game_state = game_state
 
 
     def update_playing(self):

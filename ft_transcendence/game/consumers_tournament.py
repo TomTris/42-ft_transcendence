@@ -31,7 +31,7 @@ class TournamentConsumer(BaseConsumer):
         if data:
             self.game_state = data
             self.game_state['disconected'] = 0
-            self.game_state['send'] = 1
+            self.game_state['change'] = 1
         else:
             self.game_state = {
                 "disc1": 0,
@@ -78,12 +78,12 @@ class TournamentConsumer(BaseConsumer):
                 "send": 1,
                 "input": 1,
                 "message":-1,
+                "change":0
             }
         self.set_game_state(self.game_state)
         self.game_state_lock = threading.Lock()
         self.periodic_task = threading.Thread(target=self.start, daemon=True)
         self.periodic_task.start()
-
 
     def disconnect(self, code):
         with self.game_state_lock:
@@ -202,8 +202,27 @@ class TournamentConsumer(BaseConsumer):
             'in2':self.game_state['in2'],
             'in3':self.game_state['in3'],
             'in4':self.game_state['in4'],
+            'place1':"",
+            'place2':"",
+            'place3_1':"",
+            'place3_2':"",
             'alone':0,
         }
+        if message['status'] == 'Finished':
+            if self.game_state['score1'] > self.game_state['score2']:
+                message['place1'] = message['player1']
+                message['place2'] = message['player2']
+            else:
+                message['place1'] = message['player2']
+                message['place2'] = message['player1']
+            if self.game_state['score1_1'] > self.game_state['score1_2']:
+                message['place3_1'] = self.game_state['player2']
+            else:
+                message['place3_1'] = self.game_state['player1']
+            if self.game_state['score2_1'] > self.game_state['score2_2']:
+                message['place3_2'] = self.game_state['player4']
+            else:
+                message['place3_2'] = self.game_state['player3']
         self.send(text_data=json.dumps(message))
         if message['status'] in ['Finished', 'Input', 'Waiting']:
             self.game_state['send'] = 0
@@ -237,28 +256,33 @@ class TournamentConsumer(BaseConsumer):
     def start(self):
         while True:
             with self.game_state_lock:
-                if self.game_state['won'] != 0 and self.game_state['send'] == 1:
-                    self.game_state['games_played'] += 1
-                    self.set_score()
-                    self.game_state['waiting'] = 1
-                    if self.game_state['games_played'] >= 3:
-                        self.game_state['finished'] = 1
                 if self.game_state['disconected'] == 1:
-                    return
-                self.update_playing()
-                if self.game_state['centered'] == 0:
-                    self.position_center_random_move()
-                elif self.game_state['playing']:
-                    self.make_move()
-
-                if self.game_state['send'] == 1:
+                    break
+                if self.game_state['change'] == 0:
+                    if self.game_state['won'] != 0 and self.game_state['send'] == 1:
+                        self.game_state['games_played'] += 1
+                        self.set_score()
+                        self.game_state['waiting'] = 1
+                        if self.game_state['games_played'] >= 3:
+                            self.game_state['finished'] = 1
+                    self.update_playing()
+                    if self.game_state['centered'] == 0:
+                        self.position_center_random_move()
+                    elif self.game_state['playing']:
+                        self.make_move()
+                    if self.game_state['send'] == 1:
+                        self.send_data()
+                else:
+                    self.game_state['change'] = 0
                     self.send_data()
             time.sleep(0.005)
+        print('out of thread')
 
 
 
     def receive(self, text_data):
         data = json.loads(text_data)
+        print(data)
         print(data['type'])
         with self.game_state_lock:
             if data['type'] == 'input':
@@ -282,6 +306,7 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['centered'] = 0
                 self.game_state['finished'] = 0
                 self.game_state['won'] = 0
+                self.game_state['time_passed'] = 0
                 m = Message.objects.create(
                     send_to=self.user,
                     content="Offline Tournament",
@@ -306,13 +331,15 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['score1'] = 4
                 self.game_state['score2'] = 4
                 self.game_state['start'] = time.time() + 4
+                self.game_state['time_passed'] = 0
             elif data['type'] == 'finished':
+                self.game_state['time_passed'] = 0
                 self.game_state['won'] = 0
                 self.game_state['input'] = 1
                 self.game_state['finished'] = 0
                 self.game_state['send'] = 1
                 if self.game_state['message'] != -1:
-                    Message.objects.get(id=self.game_state['message']).delete()
+                    Message.objects.filter(id=self.game_state['message']).delete()
                     async_to_sync(self.channel_layer.group_send)(
                         'chat',
                         {

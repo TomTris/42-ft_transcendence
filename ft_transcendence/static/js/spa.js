@@ -84,6 +84,7 @@ function removeScripts() {
         socket1.onmessage = null;
         socket1.close();
         socket1 = null;
+        console.log("socket1 is closed");
     }
     for (let i = 1; i <= scriptCounter - 1; i++) {
         const scriptElement = document.getElementById(`app_script_inserted${i}`);
