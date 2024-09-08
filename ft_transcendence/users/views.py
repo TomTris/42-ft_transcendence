@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth import logout
@@ -72,8 +73,12 @@ class RegisterUserView(GenericAPIView):
 class VerifyUserEmail(GenericAPIView):
 	serializer_class=TrashSerializer
 	def post(self, request):
-		otpcode=request.data.get('otp')
-		email=request.data.get('email')
+		try:
+			otpcode=request.data.get('otp')
+			email=request.data.get('email')
+		except:
+			return Response({'message':'code or email is invalid.\n\
+				Please try again'}, status=status.HTTP_401_UNAUTHORIZED)
 		if email is None or otpcode is None:
 			return Response({'message':'code or email is invalid'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
@@ -110,8 +115,12 @@ class VerifyUserEmail(GenericAPIView):
 class SendRegisterCode(GenericAPIView):
 	serializer_class=TrashSerializer
 	def post(self, request):
-		email=request.data.get('email', default='')
-		user=User.objects.get(email=email, default=None)
+		try:
+			email=request.data.get('email')
+			user=User.objects.get(email=email)
+		except:
+			return Response({'message':'email is invalid.\n\
+				Please try again'}, status=status.HTTP_401_UNAUTHORIZED)
 		if user is None or user.is_verified == True:
 			return Response({'message':'email is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 		send_code_to_user(email)
@@ -141,6 +150,7 @@ class LoginUserView(GenericAPIView):
 					}, status=status.HTTP_202_ACCEPTED)
 				response.set_cookie('access_token', str(user_tokens.get('access')), httponly=True, secure=True, samesite='Strict', max_age=20 * 60, path='/')
 				response.set_cookie('refresh_token', str(user_tokens.get('refresh')), httponly=True, secure=True, samesite='Strict', max_age=24*60*60, path='/refresh/')
+				login(request, user)
 				return response
 			send_code_to_user_login(serializer.validated_data)
 			return Response({

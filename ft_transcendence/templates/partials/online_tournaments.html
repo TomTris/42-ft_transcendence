@@ -300,33 +300,36 @@
         } else {
             actionsDiv.innerHTML = '';
             stopCountdown();
-            notificationPopup.classList.remove('hidden');
-            document.getElementById('popup-title').textContent = 'Tournament is Finished';
-            document.getElementById('')
-            const resultElement = document.getElementById('results');
-            resultElement.classList.remove('hidden');
-
-            const p1 = document.getElementById('player1Link');
-            const p2 = document.getElementById('player2Link');
-            const p3 = document.getElementById('player3Link');
-            const p4 = document.getElementById('player4Link');
-
-            p1.textContent = data.player1.username;
-            p1.href = '/users/' + data.player1.id + '/';
-            p1.setAttribute('data-route' , '/users/' + data.player1.id + '/');
-
-            p2.textContent = data.player2.username;
-            p2.href = '/users/' + data.player2.id + '/';
-            p2.setAttribute('data-route' , '/users/' + data.player2.id + '/');
-
-            p3.textContent = data.player3.username;
-            p3.href = '/users/' + data.player3.id + '/';
-            p3.setAttribute('data-route' , '/users/' + data.player3.id + '/');
-
-            p4.textContent = data.player4.username;
-            p4.href = '/users/' + data.player4.id + '/';
-            p4.setAttribute('data-route' , '/users/' + data.player4.id + '/');
+            if (data.status === 'Finished'){
+                notificationPopup.classList.remove('hidden');
+                document.getElementById('popup-title').textContent = 'Tournament is Finished';
+                document.getElementById('')
+                const resultElement = document.getElementById('results');
+                resultElement.classList.remove('hidden');
+    
+                const p1 = document.getElementById('player1Link');
+                const p2 = document.getElementById('player2Link');
+                const p3 = document.getElementById('player3Link');
+                const p4 = document.getElementById('player4Link');
+    
+                p1.textContent = data.player1.username;
+                p1.href = '/users/' + data.player1.id + '/';
+                p1.setAttribute('data-route' , '/users/' + data.player1.id + '/');
+    
+                p2.textContent = data.player2.username;
+                p2.href = '/users/' + data.player2.id + '/';
+                p2.setAttribute('data-route' , '/users/' + data.player2.id + '/');
+    
+                p3.textContent = data.player3.username;
+                p3.href = '/users/' + data.player3.id + '/';
+                p3.setAttribute('data-route' , '/users/' + data.player3.id + '/');
+    
+                p4.textContent = data.player4.username;
+                p4.href = '/users/' + data.player4.id + '/';
+                p4.setAttribute('data-route' , '/users/' + data.player4.id + '/');
+            }
         }
+
     
         // Handle the timer for Round1_count and Round2_count statuses
         if (data.status === 'Round1_count' || data.status === 'Round2_count') {

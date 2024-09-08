@@ -43,6 +43,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 			user1 = User.objects.get(email=email)
 			if user1.is_verified:
 				raise serializers.ValidationError("Email has been used")
+			user1.email = email
 			user1.first_name = first_name
 			user1.last_name = last_name
 			user1.username = username

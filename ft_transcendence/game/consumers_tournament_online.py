@@ -18,6 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 class OnlineTournamentConsumer(WebsocketConsumer):
 
+    def get_newest_user(self):
+        self.user = User.objects.get(id=self.user.id)
+
     def save_to_crypto(self, game=0):
         from crypto.functions import add_tournament
         if game == 0:
@@ -141,6 +144,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def force_disconect(self, event):
+        self.get_newest_user()
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name,
             self.channel_name
@@ -162,7 +166,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
 
     def kick(self, event):
-
+        self.get_newest_user()
         message = event['message']
         message['status'] = 'Kick'
         if message['player'] == self.get_player():
@@ -185,7 +189,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.close()
 
     def handle_kick(self, player):
-        
+        self.get_newest_user()
         message = {
             'player': player,
         }
@@ -202,6 +206,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
 
     def cancel(self, event):
+        self.get_newest_user()
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name,
             self.channel_name
@@ -251,6 +256,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         self.tournament.delete()
 
     def quit(self, event):
+        self.get_newest_user()
         message = event['message']
         if message['player'] == self.get_player():
             async_to_sync(self.channel_layer.group_discard)(
@@ -458,7 +464,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         self.tournament.save()
 
         m1, m2 = self.notify_round2(finalist1, finalist2)
-        time.sleep(10) #update to 60
+        time.sleep(1) #update to 60
         m1, m2 = self.notify_round2_start(finalist1, finalist2, m1, m2)
         game_state['status'] = "Round2"
         game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
@@ -507,6 +513,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.player3.save()
             self.tournament.player4.save()
             self.delete_all()
+
             Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
@@ -519,9 +526,10 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                 }
             )
             time.sleep(30)
-            self.disconnect_all()
             self.tournament.is_active = False
             self.tournament.save()
+            self.disconnect_all()
+            
         else:
             game3.delete()
             game_state['status'] = 'Cancel'
@@ -688,7 +696,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             m1, m2, m3, m4 = self.notify_round1()
             game_state = self.tournament.get_tournament_state()
 
-            time.sleep(3) #change to 60
+            time.sleep(1) #change to 60
             
             m1, m2, m3, m4 = self.notify_round1_start(m1, m2, m3, m4)
 
@@ -752,6 +760,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
+        self.get_newest_user()
         self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
         if data['type'] == 'kick':
             self.handle_kick(data['player'])

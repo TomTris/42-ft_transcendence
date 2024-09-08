@@ -29,7 +29,8 @@ class InviteConsumer(WebsocketConsumer):
         id = self.user.id
         def checking(id):
             time.sleep(10)
-            if User.objects.get(id=id).online_check == False:
+            self.user = User.objects.get(id=id)
+            if self.user.online_check == False:
                 self.user.is_online = False
                 self.user.save()
         

@@ -39,6 +39,7 @@ services:
       - postgres
       - redis
     volumes:
+      - ./ft_transcendence:/app/
       - token-volume:/vault/token-volume/
       - static_volume:/app/staticfiles
     networks:

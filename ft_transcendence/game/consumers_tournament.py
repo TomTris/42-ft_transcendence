@@ -73,8 +73,8 @@ class TournamentConsumer(BaseConsumer):
                 "games_played": 0,
                 "centered": 0,
                 "playing": 0,
-                "score1":4,
-                "score2":4,
+                "score1":0,
+                "score2":0,
                 "left":0,
                 "won": 0,
                 "finished": 0,
@@ -331,8 +331,8 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['paused'] = 0
                 self.game_state['centered'] = 0
                 self.game_state['won'] = 0
-                self.game_state['score1'] = 4
-                self.game_state['score2'] = 4
+                self.game_state['score1'] = 0
+                self.game_state['score2'] = 0
                 self.game_state['start'] = time.time() + 4
                 self.game_state['time_passed'] = 0
             elif data['type'] == 'finished':

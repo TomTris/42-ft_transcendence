@@ -152,6 +152,7 @@ class ChatConsumer(WebsocketConsumer):
             self.send(text_data=json.dumps(response_data))
 
     def sending_to_four(self, event):
+        self.user = User.objects.get(id=self.user.id)
         id1 = event['id1']
         id2 = event['id2']
         id3 = event['id3']

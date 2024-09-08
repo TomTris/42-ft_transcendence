@@ -189,10 +189,13 @@
             losePic.style.display = 'none';
             wonPic.style.display = 'none';
             timePic.style.display = 'none';
+            let TournamentButton = document.getElementById('go-tournament');
+            TournamentButton.style.display = 'none';
 
-            if (data.is_tournament == 1)
+            console.log(data);
+            if (data.is_tournament == 1 && data.tournament_id != 0)
             {
-                let TournamentButton = document.getElementById('go-tournament');
+                TournamentButton = document.getElementById('go-tournament');
                 TournamentButton.style.display = 'block';
                 TournamentButton.onclick = function() {
                     loadContent("/game/online_tournament/" + data.tournament_id, defaultOption, true);

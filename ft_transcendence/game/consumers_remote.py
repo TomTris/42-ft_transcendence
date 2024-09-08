@@ -47,10 +47,10 @@ class GameConsumer(WebsocketConsumer):
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
                 if self.game_session.is_tournament:
                     if self.user == self.game_session.player1 and game_state['connected2'] == 0 and self.game_session.connected == False:
-                        game_state['start'] = (time.time() + 2)
+                        game_state['start'] = (time.time() + 1)
                         game_state['connected1'] = 1
                     elif self.user == self.game_session.player2 and game_state['connected1'] == 0 and self.game_session.connected == False:
-                        game_state['start'] = (time.time() + 2)
+                        game_state['start'] = (time.time() + 1)
                         game_state['connected1'] = 1
                 else:
                     game_state['start'] = time.time() + 4
@@ -266,9 +266,9 @@ class GameConsumer(WebsocketConsumer):
 
     def delete_messages(self, game_state):
         if game_state['m1'] != -1:
-            Message.objects.get(id=game_state['m1']).delete()
+            Message.objects.filter(id=game_state['m1']).delete()
         if game_state['m2'] != -1:
-            Message.objects.get(id=game_state['m2']).delete()
+            Message.objects.filter(id=game_state['m2']).delete()
         async_to_sync(self.channel_layer.group_send)(
             'chat',
             {
@@ -346,6 +346,7 @@ class GameConsumer(WebsocketConsumer):
     def receive(self, text_data):
         data = json.loads(text_data)
         if data['type'] == 'keydown':
+            # print(data['key'])
             with self.game_state_lock:
                 if data['key'] in ['ArrowUp', 'w', 'W']:
                     self.move_up(self.user == self.game_session.player1)

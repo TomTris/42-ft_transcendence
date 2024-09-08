@@ -78,6 +78,7 @@ class InviteConsumer(WebsocketConsumer):
                             game = GameSession.objects.create(
                                 player1=sender,
                                 player2=send_to,
+                                is_tournament=False
                             )
                             game.init_game_state()
                             channel_layer = get_channel_layer()

@@ -13,7 +13,7 @@ def send_code_to_user(email):
 	Subject="One time passcode for Email verification"
 	
 	otp_code=generateOtp()
-	print(otp_code)
+	# print(otp_code)
 	user=User.objects.get(email=email)
 	email_body=f"Hi {user.first_name} thanks for signing up on our Pingpong\nPlease verify your email with the following one time passcode {otp_code}"
 	from_email=settings.EMAIL_HOST_USER
@@ -27,7 +27,7 @@ def send_code_to_user(email):
 def send_code_to_user_login(email):
 	Subject="One time passcode for Email verification"
 	otp_code=generateOtp()
-	print(otp_code)
+	# print(otp_code)
 	user=User.objects.get(email=email)
 	email_body=f"Hi, Please use this code to login\n{otp_code}"
 	from_email=settings.EMAIL_HOST_USER

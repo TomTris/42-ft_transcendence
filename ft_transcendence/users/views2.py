@@ -37,6 +37,7 @@ class LogoutUserView(APIView):
 			response = render(request, "login.html", status=200)
 			response.delete_cookie('refresh_token', samesite='Strict', path='/refresh/')
 			response.delete_cookie('access_token', samesite='Strict', path='/')
+			logout(request)
 			old_refresh = RefreshToken(token=refresh_token)
 			old_refresh.blacklist()	
 			return response

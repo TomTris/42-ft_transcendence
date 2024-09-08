@@ -19,7 +19,7 @@ def join_game_session(request):
     ).first()
     if game_session is None:
         if user.is_playing:
-            return JsonResponse({'error': 'Game session is full'})
+            return JsonResponse({'error': 'You are playing'})
         game_session = GameSession.objects.filter(player2=None, is_active=True).first()
         if game_session is None:
             game_session = GameSession.objects.create()

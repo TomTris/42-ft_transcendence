@@ -124,9 +124,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'game.middleware.CleanupMiddleware',
+    
     'django.middleware.csrf.CsrfViewMiddleware',
     'users.middleware.CookieToAuthorizationMiddleware',
+    'game.middleware.CleanupMiddleware',
 ]
 
 ROOT_URLCONF = 'ft_transcendence.urls'

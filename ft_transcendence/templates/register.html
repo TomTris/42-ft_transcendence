@@ -166,7 +166,7 @@ async function submitRegistrationForm() {
     }
 }
 
-async function SendAgain() {
+async function sendAgain() {
 	const email = document.getElementById('email').value;
 	await fetch('/register-send_OTP/', {
         method: 'POST',
@@ -202,7 +202,7 @@ async function submitOtpForm() {
             alert('Registration successful!');
             await loadContent('/login/', defaultOption, true);
         } else {
-            alert("Submit failed,", data.message);
+            alert("Submit failed, OTP is wrong", data.message);
         }
     }
     catch (error)
