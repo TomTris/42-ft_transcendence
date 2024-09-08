@@ -1,30 +1,8 @@
-<h1>Tournaments</h1>
-<ul>
-    {% if tournaments %}
-        <li>
-            <div class="tournament-list">
-                {% for tournament in tournaments %}
-                    <div class="tournament-item">
-                        <img src="{{ tournament.owner.avatar }}" alt="{{ tournament.owner.username }}" class="owner-avatar">
-                        <div class="tournament-details">
-                            <h2 class="tournament-name">{{ tournament.name }}</h2>
-                            <span class="info-item"><strong>Owner:</strong> {{ tournament.owner.username }}</span>
-                            <span class="info-item"><strong>Date:</strong> {{ tournament.year }}-{{ tournament.month|floatformat:0 }}-{{ tournament.day }}</span>
-                            <span class="info-item"><strong>Time:</strong> {{ tournament.hour }}:{{ tournament.minutes }}</span>
-                            <span class="info-item"><strong>Status:</strong> {% if tournament.online %} Online {% else %} Offline {% endif %}</span>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </li>
-    {% else %}
-        <p>No tournaments available.</p>
-    {% endif %}
-</ul>
 
 <style>
     h1 {
         font-size: 1.5em;
+        text-align: center;
         margin-bottom: 20px;
     }
     .tournament-list {
@@ -68,4 +46,35 @@
         display: inline-block;
         width: 120px; /* Fixed width for labels to align text */
     }
+    .tournament-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 80px; /* Increased spacing from the top */
+        padding-bottom: 60px; /* Added padding at the bottom for balance */
+    }
 </style>
+<div class='tournament-container'>
+    <ul>
+        <h1>Tournaments Result</h1>
+        {% if tournaments %}
+            <li>
+                <div class="tournament-list">
+                    {% for tournament in tournaments %}
+                        <div class="tournament-item">
+                            <img src="{{ tournament.owner.avatar }}" alt="{{ tournament.owner.username }}" class="owner-avatar">
+                            <div class="tournament-details">
+                                <h2 class="tournament-name">{{ tournament.name }}</h2>
+                                <span class="info-item"><strong>Owner:</strong> {{ tournament.owner.username }}</span>
+                                <span class="info-item"><strong>Date:</strong> {{ tournament.year }}-{{ tournament.month|floatformat:0 }}-{{ tournament.day }}</span>
+                                <span class="info-item"><strong>Time:</strong> {{ tournament.hour }}:{{ tournament.minutes }}</span>
+                                <span class="info-item"><strong>Status:</strong> {% if tournament.online %} Online {% else %} Offline {% endif %}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </li>
+        {% else %}
+            <p>No tournaments available.</p>
+        {% endif %}
+    </ul>
+</div>

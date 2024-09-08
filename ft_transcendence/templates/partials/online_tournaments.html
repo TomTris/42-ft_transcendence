@@ -14,16 +14,29 @@
     .kick-button, #finish-button, #quit-button, #start-button, #redirect-button {
         margin-left: 10px;
         padding: 5px 10px;
+        font-size: 18px;
         color: white;
         border: none;
         cursor: pointer;
     }
     .kick-button {
         background-color: #d9534f;
+        font-size: 15px;
     }
     #finish-button, #start-button {
         margin-top: 20px;
         background-color: #5cb85c;
+        color: white; /* Ensure text is readable on the green background */
+        font-size: 18px; /* Increase font size */
+        padding: 10px 20px; /* Increase button size */
+        border: none; /* Remove default border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth background color transition */
+    }
+    
+    #finish-button:hover, #start-button:hover {
+        background-color: #4cae4c; /* Darker shade of green on hover */
     }
     #quit-button {
         margin-top: 20px;
@@ -75,12 +88,87 @@
     .hidden {
         display: none;
     }
+    
+
+
+    #players {
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        margin: 0 auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .players {
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        margin: 0 auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .player-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .player-item p {
+        font-size: 18px;
+        color: #333;
+        margin: 0;
+    }
+
+    /* Player Avatar */
+    .player-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-left: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .code_container {
+        display: flex;
+        align-items: center;
+    }
+    #code {
+        font-size: 20px;
+        color: red;
+        font-weight: bold;
+        text-align: left; /* Align text to the left */
+        border-left: 4px solid black; /* Frame on the left side */
+        padding-left: 10px; /* Padding between the frame and text */
+        margin-left: 10px; /* Margin between label and code */
+    }
+    .label_code {
+        font-size: 20px; /* Same size for label */
+        font-weight: bold; /* Ensure label is bold */
+    }
+
+    #status {
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+        margin-top: 20px;
+    }
+
 </style>
-<div id="status">Connecting...</div>
-<div id='code'></div>
-<div id="players"></div>
-<div id="actions"></div>
-<div id="timer" class="hidden">60</div> <!-- Timer display -->
+<div class='players'>
+    <div id="status">Connecting...</div>
+    <div class="code_container">
+        <span class="label_code">Code:</span>
+    </div>
+    <div id="code">Your code goes here</div>
+    <div id="players" class='players'></div>
+    <div id="actions"></div>
+    <div id="timer" class="hidden">60</div> <!-- Timer display -->
+</div>
 
 <!-- Pop-up structure -->
 <div id="notification-popup" class="popup hidden">
@@ -128,10 +216,10 @@
     
         // Always display the player list
         playersDiv.innerHTML = `
-            <p>Player 1: ${data.player1 ? data.player1.username : 'Waiting...'}</p>
-            <p>Player 2: ${data.player2 ? data.player2.username : 'Waiting...'} ${data.player === 1 && data.player2 && data.player1.id !== data.player2.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(2)">Kick</button>' : ''}</p>
-            <p>Player 3: ${data.player3 ? data.player3.username : 'Waiting...'} ${data.player === 1 && data.player3 && data.player1.id !== data.player3.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(3)">Kick</button>' : ''}</p>
-            <p>Player 4: ${data.player4 ? data.player4.username : 'Waiting...'} ${data.player === 1 && data.player4 && data.player1.id !== data.player4.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(4)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 1: ${data.player1 ? data.player1.username : 'Waiting...'}</p>
+            <p class="player-item">Player 2: ${data.player2 ? data.player2.username : 'Waiting...'} ${data.player === 1 && data.player2 && data.player1.id !== data.player2.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(2)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 3: ${data.player3 ? data.player3.username : 'Waiting...'} ${data.player === 1 && data.player3 && data.player1.id !== data.player3.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(3)">Kick</button>' : ''}</p>
+            <p class="player-item">Player 4: ${data.player4 ? data.player4.username : 'Waiting...'} ${data.player === 1 && data.player4 && data.player1.id !== data.player4.id && (data.status === 'Waiting' || data.status === 'Confirming') ? '<button class="kick-button" onclick="kickPlayer(4)">Kick</button>' : ''}</p>
         `;
     
         // Only show action buttons when the status is "Waiting" or "Confirming"
