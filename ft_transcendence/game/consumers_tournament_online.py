@@ -22,11 +22,11 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         from crypto.functions import add_tournament
         if game == 0:
             add_tournament(
-                str(self.tournament.player1.id),
-                str(self.tournament.player1.id),
-                str(self.tournament.player2.id),
-                str(self.tournament.player3.id),
-                str(self.tournament.player4.id),
+                str(self.tournament.player1.username),
+                str(self.tournament.player1.username),
+                str(self.tournament.player2.username),
+                str(self.tournament.player3.username),
+                str(self.tournament.player4.username),
                 self.tournament.game1.score1,
                 self.tournament.game1.score2,
                 self.tournament.game2.score1,
@@ -39,11 +39,11 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
         if game == 1:
             add_tournament(
-                str(self.tournament.player1.id),
-                str(self.tournament.player1.id),
-                str(self.tournament.player2.id),
-                str(self.tournament.player3.id),
-                str(self.tournament.player4.id),
+                str(self.tournament.player1.username),
+                str(self.tournament.player1.username),
+                str(self.tournament.player2.username),
+                str(self.tournament.player3.username),
+                str(self.tournament.player4.username),
                 self.tournament.game1.score1,
                 self.tournament.game1.score2,
                 0,
@@ -56,11 +56,11 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
         if game == 2:
             add_tournament(
-                str(self.tournament.player1.id),
-                str(self.tournament.player1.id),
-                str(self.tournament.player2.id),
-                str(self.tournament.player3.id),
-                str(self.tournament.player4.id),
+                str(self.tournament.player1.username),
+                str(self.tournament.player1.username),
+                str(self.tournament.player2.username),
+                str(self.tournament.player3.username),
+                str(self.tournament.player4.username),
                 0,
                 0,
                 self.tournament.game2.score1,

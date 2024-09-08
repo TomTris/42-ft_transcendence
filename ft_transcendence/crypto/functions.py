@@ -47,5 +47,5 @@ def add_tournament(creator, player1, player2, player3, player4, score1_1, score1
     return txn_hash
 
 if __name__ == "__main__":
-    add_tournament('2', 'bro', 'asd', 'sdf', 'gda', 1, 5, 5, 2, 5 ,4)
-    
+    # add_tournament('2', 'bro', 'asd', 'sdf', 'gda', 1, 5, 5, 2, 5 ,4)
+    print(get_tournament()[2])

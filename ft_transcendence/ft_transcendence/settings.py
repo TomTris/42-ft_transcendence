@@ -58,7 +58,7 @@ DEPLOYER_ACCOUNT=secret['deployer_account']
 SECRET_KEY = secret['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG=False
+DEBUG=True
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -179,7 +179,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
+TIME_ZONE = 'Europe/Berlin'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -6,6 +6,7 @@ from .models import width, height, pwidth, pheight, radius, distance
 import random
 from .utils import Player, generate_random_angle, simulate_ball_position
 from chat.models import Message
+from crypto.functions import add_tournament
 
 import json
 from .consumers_offline import BaseConsumer
@@ -22,6 +23,12 @@ class TournamentConsumer(BaseConsumer):
 
     def get_game_state(self):
         return cache.get(self.get_cache_key(), default={})
+
+    def save_to_crypto(self):
+        add_tournament(self.user.username,
+                       self.game_state['player1'], self.game_state['player2'], self.game_state['player3'], self.game_state['player4'],
+                       self.game_state['score1_1'], self.game_state['score1_2'], self.game_state['score2_1'], self.game_state['score2_2'], self.game_state['score3_1'], self.game_state['score3_2'])
+        
 
     def connect(self):
         self.accept()
@@ -349,6 +356,7 @@ class TournamentConsumer(BaseConsumer):
                     )
                 self.user.is_playing = False
                 self.user.save()
+                self.save_to_crypto()
             else:
                 if data['key'] in ['f', 'F']:
                     self.pause()

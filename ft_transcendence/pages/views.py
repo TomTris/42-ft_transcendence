@@ -17,7 +17,7 @@ from chat.models import BlockList
 from .serializers import BlockListSerializer
 import json
 from django.http import JsonResponse
-from .serializers import InviteSerializer
+from .serializers import InviteSerializer, UserSerializer
 
 def get_friend_status(current_user, user):
     if user == current_user:
@@ -69,29 +69,34 @@ def user_view(request, id):
     if not user:
         return render(request, "user_doesnt_exist.html")
     
-    matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user))
+    matches = GameSession.objects.filter(Q(player1=user) | Q(player2=user)).order_by('-id')
     matches_with_ids = []
     for match in matches:
         if match.player1 == user:
             match_data = {
                 'match': match,
-                'player1': user,
-                'player2': match.player2,
+                'enemy': match.player2,
+                'score_user': match.score1,
+                'score_enemy': match.score2,
+                'rank_change':match.rank_change1,
+                'type':"Matchmaking" if match.is_tournament == False else "Tournament"
             }
         else:
             match_data = {
                 'match': match,
-                'player1': match.player1,
-                'player2': user,
+                'enemy': match.player1,
+                'score_user': match.score2,
+                'score_enemy': match.score1,
+                'rank_change':match.rank_change1,
+                'type':"Matchmaking" if match.is_tournament == False else "Tournament"
             }
             
         matches_with_ids.append(match_data)
     if user.total == 0:
         winrate = 0
     else:
-        winrate = "%.2f" % (user.wins / user.total)
+        winrate = "%.2f" % (user.wins / user.total * 100.0)
 
-    print(1)
     friend=get_friend_status(curent_user, user)
     invite = get_invite_status(curent_user, user)
 
@@ -115,6 +120,88 @@ def friends_view(request, id):
     return render(request, 'partials/users.html', {'friends':only_friends})
     # return render(request, "users.html", {'friends':only_friends})
 
+
+def get_pos1(tournament):
+    scores = tournament[4]
+    users = tournament[5]
+    if scores[0] == 0 and scores[1] == 0:
+        if scores[2] > scores[3]:
+            return users[2]
+        else:
+            return users[3]
+    elif scores[2] == 0 and scores[3] == 0:
+        if scores[0] > scores[1]:
+            return users[0]
+        else:
+            return users[1]
+    else:
+        if scores[0] > scores[1]:
+            f1 = 0
+        else:
+            f1 = 1
+        if scores[2] > scores[3]:
+            f2 = 2
+        else:
+            f2 = 3
+        if scores[4] > scores[5]:
+            return users[f1]
+        else:
+            return users[f2]
+        
+def get_pos2(tournament):
+    scores = tournament[4]
+    users = tournament[5]
+    if scores[0] == 0 and scores[1] == 0:
+        if scores[2] < scores[3]:
+            return users[2]
+        else:
+            return users[3]
+    elif scores[2] == 0 and scores[3] == 0:
+        if scores[0] < scores[1]:
+            return users[0]
+        else:
+            return users[1]
+    else:
+        if scores[0] > scores[1]:
+            f1 = 0
+        else:
+            f1 = 1
+        if scores[2] > scores[3]:
+            f2 = 2
+        else:
+            f2 = 3
+        if scores[4] < scores[5]:
+            return users[f1]
+        else:
+            return users[f2]
+        
+def get_pos3_1(tournament):
+    scores = tournament[4]
+    users = tournament[5]
+    if scores[0] == 0 and scores[1] == 0:
+        return users[0]
+    elif scores[2] == 0 and scores[3] == 0:
+        return users[2]
+    else:
+        if scores[0] > scores[1]:
+            return users[1]
+        else:
+            return users[0]
+        
+def get_pos3_2(tournament):
+    scores = tournament[4]
+    users = tournament[5]
+    if scores[0] == 0 and scores[1] == 0:
+        return users[1]
+    elif scores[2] == 0 and scores[3] == 0:
+        return users[3]
+    else:
+        if scores[2] > scores[3]:
+            return users[3]
+        else:
+            return users[2]
+
+
 def modify_data_for_view():
     output = []
     all_tournaments = get_tournament()
@@ -122,7 +209,7 @@ def modify_data_for_view():
     for tournament in all_tournaments:
         userId = tournament[0]
         try:
-            user = User.objects.get(id=userId)
+            user = User.objects.get(username=userId)
             serializer = UserSerializer(user)
             user = serializer.data
 
@@ -153,7 +240,11 @@ def modify_data_for_view():
             'day':day,
             'hour':hour,
             'minutes':minutes,
-            'online':tournament[2]
+            'online':tournament[2],
+            'pos1': get_pos1(tournament),
+            'pos2': get_pos2(tournament),
+            'pos3_1': get_pos3_1(tournament),
+            'pos3_2': get_pos3_2(tournament),
         }
         output.append(data)
     length = len(output)

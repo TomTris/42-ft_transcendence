@@ -24,7 +24,7 @@ def deploy_contract():
 
     try:
         signed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
         print(f'Deploy transaction hash: {w3.to_hex(tx_hash)}')
 
         # Wait for the transaction receipt
