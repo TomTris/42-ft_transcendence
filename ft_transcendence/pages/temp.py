@@ -31,7 +31,6 @@ class InviteConsumer(WebsocketConsumer):
             time.sleep(10)
             if User.objects.get(id=id).online_check == False:
                 self.user.is_online = False
-                print('disconect')
                 self.user.save()
         
         self.periodic_task = threading.Thread(target=checking, daemon=True)

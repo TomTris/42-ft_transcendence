@@ -1,2 +1,0 @@
-from chat.models import BlockList
-BlockList.objects.all().delete()

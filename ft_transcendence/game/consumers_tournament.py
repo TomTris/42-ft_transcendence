@@ -283,14 +283,11 @@ class TournamentConsumer(BaseConsumer):
                     self.game_state['change'] = 0
                     self.send_data()
             time.sleep(0.005)
-        print('out of thread')
 
 
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        print(data)
-        print(data['type'])
         with self.game_state_lock:
             if data['type'] == 'input':
                 self.game_state['in1'] = data['player1']
@@ -299,7 +296,6 @@ class TournamentConsumer(BaseConsumer):
                 self.game_state['in4'] = data['player4']
                 players = [data['player1'], data['player2'], data['player3'], data['player4']]
                 random.shuffle(players)
-                print(players)
                 self.game_state['player1'] = players[0]
                 self.game_state['player2'] = players[1]
                 self.game_state['player3'] = players[2]

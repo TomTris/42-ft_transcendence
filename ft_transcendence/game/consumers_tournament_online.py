@@ -93,7 +93,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
     def delete_message(self):
         game_state = self.tournament.get_tournament_state()
         mess = 'm' + str(self.get_player())
-        print(game_state[mess])
         if game_state[mess] != -1:
             Message.objects.get(id=game_state[mess]).delete()
             game_state[mess] = -1
@@ -203,7 +202,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
 
     def cancel(self, event):
-        print('asdas')
         async_to_sync(self.channel_layer.group_discard)(
             self.group_name,
             self.channel_name
@@ -459,18 +457,13 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
         m1, m2 = self.notify_round2(finalist1, finalist2)
         time.sleep(10) #update to 60
-        print('update')
         m1, m2 = self.notify_round2_start(finalist1, finalist2, m1, m2)
-        print('updated')
         game_state['status'] = "Round2"
         game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
         game_state['final2'] = 3 if self.tournament.game2.score1 > self.tournament.game2.score2 else 4
         game_state['game3_id'] = self.tournament.game3.id
         self.tournament.set_tournament_state(game_state)
-        print('sending')
         self.send_data_to_group()
-        print('send')
-        print(self.tournament)
         res = 0 
         start = time.time()
         while True:
@@ -523,15 +516,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                     'id4': self.tournament.player4.id
                 }
             )
-            print()
-            print()
-            print()
-            print()
-            print(Message.objects.filter(send_to=self.tournament.player1))
-            print(Message.objects.filter(send_to=self.tournament.player2))
-            print(Message.objects.filter(send_to=self.tournament.player3))
-            print(Message.objects.filter(send_to=self.tournament.player4))
-            print(game_state)
             time.sleep(30)
             self.disconnect_all()
             self.tournament.is_active = False
@@ -765,7 +749,6 @@ class OnlineTournamentConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        print(data)
         self.tournament = TournamentSession.objects.filter(id=self.session_id).first()
         if data['type'] == 'kick':
             self.handle_kick(data['player'])

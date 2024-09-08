@@ -21,12 +21,7 @@ def send_code_to_user(email):
 		user_del = OneTimePassword.objects.filter(email=email).first()
 		user_del.delete()
 	OneTimePassword.objects.create(user=user, code=otp_code, email=email, times=0)
-	# send_email=EmailMessage(subject=Subject, body=email_body,
-	# 				from_email=from_email, to=[email])
-	print("sending email to", email)
-	# send_email.send(fail_silently=True)
 	send_mail( Subject, email_body, from_email, [email], False)
-	print("sent email to", email)
 
 
 def send_code_to_user_login(email):
@@ -40,22 +35,11 @@ def send_code_to_user_login(email):
 		user_del = OneTimePasswordLogin.objects.get(email=email)
 		user_del.delete()
 	OneTimePasswordLogin.objects.create(user=user, code=otp_code, email=email, times=0)
-	# send_email=EmailMessage(subject=Subject, body=email_body,
-	# 				from_email=from_email, to=[email])
-	# send_email.send(fail_silently=False)
 	send_mail( Subject, email_body, from_email, [email], False)
-	print("send email to", email, from_email)
 
 
 
 def send_normal_email(data):
-	# email=EmailMessage(
-	# 	subject=data['email_subject'],
-	# 	body=data['email_body'],
-	# 	from_email=settings.DEFAULT_FROM_EMAIL,
-	# 	to=[data['to_email']]
-	# )
-	# email.send(fail_silently=False)
 	subject=data['email_subject']
 	body=data['email_body']
 	from_email=settings.EMAIL_HOST_USER

@@ -25,13 +25,13 @@ def deploy_contract():
     try:
         signed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
         tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
-        print(f'Deploy transaction hash: {w3.to_hex(tx_hash)}')
+        # print(f'Deploy transaction hash: {w3.to_hex(tx_hash)}')
 
         # Wait for the transaction receipt
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=180)
-        print(f"Contract deployed at address: {tx_receipt.contractAddress}")
+        # print(f"Contract deployed at address: {tx_receipt.contractAddress}")
     except Exception as e:
-        print(f'Error deploying contract: {e}')
+        # print(f'Error deploying contract: {e}')
 
 deploy_contract()
 
