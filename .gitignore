@@ -1,2 +1,4 @@
 myenv
 __py*
+*00*_initial.py
+*__init__.py

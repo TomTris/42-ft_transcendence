@@ -55,7 +55,7 @@ DEPLOYER_ACCOUNT=secret['deployer_account']
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-$0x^=vch)m=$7%i7abn6=nuhwe8w!0nl#$ays34#q3f+90-dm='
-SECRET_KEY = secret['SECRET_KEY']
+SECRET_KEY=secret['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=False
@@ -190,6 +190,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

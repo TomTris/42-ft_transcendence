@@ -41,6 +41,7 @@ services:
     volumes:
       - ./ft_transcendence:/app
       - token-volume:/vault/token-volume/
+      - static_volume:/app/staticfiles
     networks:
       - inception_network
 
@@ -53,6 +54,8 @@ services:
       - "443:443"
     networks:
       - inception_network
+    volumes:
+      - static_volume:/app/staticfiles
 
 
 networks:
@@ -62,3 +65,4 @@ networks:
 
 volumes:
   token-volume:
+  static_volume:
