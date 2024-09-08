@@ -35,6 +35,7 @@
                 <img src="/media/game_pictures/lose.png" alt="" id="lose-picture" class="temp-picture">
                 <img src="/media/game_pictures/win.png" id="won-picture" class="temp-picture">
                 <button id="cancel-button" class="unique-cancel-button">Cancel</button>
+                <button id='go-tournament' class="unique-cancel-button">Go To Tournament</button>
                 <img src="/media/game_pictures/swords.jpg" id="swords-icon" class="unique-icon" style="display: none;" alt="Swords Icon">
                 
             </div>
@@ -133,7 +134,7 @@
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
             document.getElementById('player1-elo').textContent = data.player1.elo;
-
+            document.getElementById('go-tournament').style.display = 'none';
             // Show the cancel button and waiting text only when waiting for other player
             cancelButton.style.display = 'block';
             cancelButton.onclick = function() {
@@ -149,7 +150,7 @@
             timePic.style.display = 'none';
             losePic.style.display = 'none';
             wonPic.style.display = 'none';
-
+            document.getElementById('go-tournament').style.display = 'none';
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
             document.getElementById('player1-elo').textContent = data.player1.elo;
@@ -170,7 +171,7 @@
             losePic.style.display = 'none';
             wonPic.style.display = 'none';
             swordsIcon.style.display = 'none';
-
+            document.getElementById('go-tournament').style.display = 'none';
             document.getElementById('player1-avatar').src = data.player1.avatar;
             document.getElementById('player1-username').textContent = data.player1.username;
             document.getElementById('player1-elo').textContent = data.player1.elo;
@@ -189,6 +190,15 @@
             wonPic.style.display = 'none';
             timePic.style.display = 'none';
 
+            if (data.is_tournament == 1)
+            {
+                let TournamentButton = document.getElementById('go-tournament');
+                TournamentButton.style.display = 'none';
+                TournamentButton.onclick = function() {
+                    loadContent("/game/online_tournament/" + tournament_id, defaultOption, true);
+                };
+            
+            }
             let textEnd;
             if (data.current_player == 1){
                 if (data.score1 > data.score2)

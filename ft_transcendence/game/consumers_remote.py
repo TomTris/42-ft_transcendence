@@ -545,6 +545,7 @@ class GameConsumer(WebsocketConsumer):
                 'distance': distance, 
                 'time':self.get_time(),
                 'is_tournament': int(self.game_session.is_tournament),
+                'tournament_id': self.game_session.tournament_id,
                 'alone':1
         }
         self.send(text_data=json.dumps(message))

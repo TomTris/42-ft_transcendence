@@ -578,6 +578,25 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
             self.save_to_crypto(2)
+            self.tournament.player1.is_playing = False
+            self.tournament.player2.is_playing = False
+            self.tournament.player3.is_playing = False
+            self.tournament.player4.is_playing = False
+            self.tournament.player1.save()
+            self.tournament.player2.save()
+            self.tournament.player3.save()
+            self.tournament.player4.save()
+            Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
+            async_to_sync(self.channel_layer.group_send)(
+                'chat',
+                {
+                    'type': 'sending_to_four',
+                    'id1': self.tournament.player1.id,
+                    'id2': self.tournament.player2.id,
+                    'id3': self.tournament.player3.id,
+                    'id4': self.tournament.player4.id
+                }
+            )
             time.sleep(30)
             self.disconnect_all()
             self.tournament.is_active = False
@@ -605,6 +624,25 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
             self.save_to_crypto(1)
+            self.tournament.player1.is_playing = False
+            self.tournament.player2.is_playing = False
+            self.tournament.player3.is_playing = False
+            self.tournament.player4.is_playing = False
+            self.tournament.player1.save()
+            self.tournament.player2.save()
+            self.tournament.player3.save()
+            self.tournament.player4.save()
+            Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
+            async_to_sync(self.channel_layer.group_send)(
+                'chat',
+                {
+                    'type': 'sending_to_four',
+                    'id1': self.tournament.player1.id,
+                    'id2': self.tournament.player2.id,
+                    'id3': self.tournament.player3.id,
+                    'id4': self.tournament.player4.id
+                }
+            )
             time.sleep(30)
             self.disconnect_all()
             self.tournament.is_active = False
@@ -619,6 +657,25 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state['status'] = 'Cancel'
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
+        self.tournament.player1.is_playing = False
+        self.tournament.player2.is_playing = False
+        self.tournament.player3.is_playing = False
+        self.tournament.player4.is_playing = False
+        self.tournament.player1.save()
+        self.tournament.player2.save()
+        self.tournament.player3.save()
+        self.tournament.player4.save()
+        Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
+        async_to_sync(self.channel_layer.group_send)(
+            'chat',
+            {
+                'type': 'sending_to_four',
+                'id1': self.tournament.player1.id,
+                'id2': self.tournament.player2.id,
+                'id3': self.tournament.player3.id,
+                'id4': self.tournament.player4.id
+            }
+        )
         self.tournament.delete()
         time.sleep(30)
         self.disconnect_all()
