@@ -35,9 +35,7 @@ def valid_access_token(request):
             user = User.objects.get(id=user_id)
             checker.authenticate(request)
             request.user = user
-            # print (request.user.is_authenticated)
         except Exception as e:
-            print(e)
             raise Exception("")
     else:
         raise Exception("")
@@ -50,41 +48,21 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
                  '/password_reset-request/']
 
     def process_request(self, request):
-        print()
-        # print(request.COOKIES)
-        # print(request)
-        print(request.path, "with", request.method, "Method")
         if request.method == 'GET':
             if request.headers.get('X-Requested-With') != 'XMLHttpRequest' and not request.path.startswith('/media/'):
                 context = {
                     'method': 'GET',
                     'Location' : '/'
                 }
-                print("New Request")
                 return render(request, 'base.html', context, status=status.HTTP_302_FOUND)
             
             try:
                 valid_access_token(request)
-                print("HTTP_AUTHORIZATION GET set")
-                print()
-                print()
-                print()
-                print()
-                print(request.path)
-                print()
-                print()
-                print()
                 
                 if request.path in self.non_login:
-                    print("redirect to partials/home.html")
-                    print(1)
-                    print(1)
-                    print(1)
                     response = render(request, "partials/home.html")
                     return response
-                print("redirect to", request.path)
             except:
-                print("HTTP_AUTHORIZATION POST unset")
                 request.META.pop('HTTP_AUTHORIZATION', None)
                 if request.path not in self.non_login and not request.path.startswith('/password-reset-confirm/'):
                     return render(request, "login.html")
@@ -92,11 +70,9 @@ class CookieToAuthorizationMiddleware(MiddlewareMixin):
         if request.method == 'POST':
             try:
                 valid_access_token(request)
-                print("HTTP_AUTHORIZATION POST set")
             except:
                 pass
                 request.META.pop('HTTP_AUTHORIZATION', None)
-                print("HTTP_AUTHORIZATION POST not set")
 
 
 

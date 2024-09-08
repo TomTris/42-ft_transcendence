@@ -257,7 +257,6 @@ def tournaments_view(request):
     data = {
         'tournaments' : modify_data_for_view(),
     }
-    print(data)
     # if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
     return render(request, 'partials/tournaments.html', data)
     # return render(request, "tournaments.html", data)
@@ -272,7 +271,6 @@ def block_list_view(request):
 
 def unblock(request):
     data = json.loads(request.body)
-    print(data)
     id = data['block_id']
     BlockList.objects.filter(id=id).delete()
     channel_layer = get_channel_layer()
@@ -325,7 +323,6 @@ def vulnerable_view(request):
 
 @require_POST
 def delete_friend(request, user_id):
-    print('delte')
     sender = request.user
     other =  User.objects.filter(id=user_id).first()
     if other is None:
@@ -416,7 +413,6 @@ def add_invite(request, user_id):
             send_to=send_to,
             invite_type=2
         )
-        print('aa')
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         'invite',
@@ -469,9 +465,7 @@ def play_invite(request, user_id):
     send_to = User.objects.filter(id=user_id).first()
     if send_to is not None:
         game = GameSession.objects.filter(Q(player1=sender, player2=send_to) | Q(player1=send_to, player2=sender), is_active=True).first()
-        print("blablablanla")
         if game:
-            print("blablablanla")
             channel_layer = get_channel_layer()
             link = f'/game/{game.id}/'
             async_to_sync(channel_layer.group_send)(
@@ -510,9 +504,7 @@ class EmptyPath(GenericAPIView):
 
 	def get(self, request):
 		if request.user.is_authenticated:
-			print("Empty path, user authenticated")
 			return render(request, "partials/home.html")
-		print("Empty path, user not authenticated")
 		return render(request, "login.html")
 
 

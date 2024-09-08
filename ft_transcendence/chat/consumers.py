@@ -50,7 +50,6 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data = json.loads(text_data)
-        print(data)
         if data['type'] == 'message':
             is_valid, reciver, content = self.clean_message(data['content'])
             if is_valid:

@@ -81,14 +81,12 @@
 <script>
 
     socket1 = new WebSocket(`wss://${window.location.host}/wss/game/tournament/`);
-    console.log("socket1 is now open", socket1);
     lastStatus = ""; // To track the last status
     lastUpdateMatchMaking = 0;
     init();
 
     socket1.onmessage = function(event) {
         const data = JSON.parse(event.data);
-        console.log(data);
         updateGameCanvas(data);
         // Only update modal when status changes
         if (lastStatus !== data.status) {
