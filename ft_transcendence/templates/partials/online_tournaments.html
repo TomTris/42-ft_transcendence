@@ -249,7 +249,10 @@
             popupTitle.textContent = data.status === 'Kick' ? 'You Were Kicked Out!' : 'Tournament Cancelled';
             popupMessage.textContent = data.status === 'Kick' ? 'Sorry, you have been kicked out of the game.' : 'The tournament has been cancelled.';
             notificationPopup.classList.remove('hidden');
-            socket.close();
+            socket1.onmessage = null;
+            socket1.onerror = null;
+            socket1.close();
+            socket1 = null;
             return;
         }
     

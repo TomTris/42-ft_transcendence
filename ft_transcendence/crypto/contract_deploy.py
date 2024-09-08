@@ -34,5 +34,3 @@ def deploy_contract():
         # print(f'Error deploying contract: {e}')
 
 deploy_contract()
-
-
