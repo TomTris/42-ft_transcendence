@@ -16,17 +16,21 @@ class CleanupMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         user = request.user
+        # print(user)
         if not isinstance(user, AnonymousUser):
             if user.is_playing == True:
-                
-                t = TournamentSession.objects.filter(Q(player1=user, is_active=True) | Q(player2=user, is_active=True) | Q(player3=user, is_active=True) | Q(player4=user, is_active=True)).first()
+                # print(user)
+                # print(user.is_playing)
+                t = TournamentSession.objects.filter(Q(player1=user, finished=False) | Q(player2=user, finished=False) | Q(player3=user, finished=False) | Q(player4=user, finished=False)).first()
                 g = GameSession.objects.filter(Q(player1=user, is_active=True) | Q(player2=user, is_active=True)).first()
                 if t is None and g is None:
                     user.is_playing = False
                     user.save()
-            if user.is_playing == False:
-                Message.objects.filter(sender=None, send_to=user).delete()
-            
+                # print(user.is_playing)
+                # print('11111121212121212')
+            # if user.is_playing == False:
+            #     Message.objects.filter(sender=None, send_to=user).delete()
+        # print('92929292929292922')
         if not self.__class__._initialized:
             self.__class__._initialized = True
             self.cleanup_unfinished_sessions()

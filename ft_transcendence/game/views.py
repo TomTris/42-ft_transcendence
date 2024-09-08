@@ -18,6 +18,12 @@ def join_game_session(request):
         is_active=True
     ).first()
     if game_session is None:
+        t = TournamentSession.objects.filter(Q(player1=user, finished=False) | Q(player2=user, finished=False) | Q(player3=user, finished=False) | Q(player4=user, finished=False)).first()
+        g = GameSession.objects.filter(Q(player1=user, is_active=True) | Q(player2=user, is_active=True)).first()
+        # print(t, g, '111222222222')
+        if t is None and g is None:
+            user.is_playing = False
+            user.save()
         if user.is_playing:
             return JsonResponse({'error': 'You are playing'})
         game_session = GameSession.objects.filter(player2=None, is_active=True).first()

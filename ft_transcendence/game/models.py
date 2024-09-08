@@ -77,8 +77,8 @@ class GameSession(models.Model):
             "paused2": 0,
             "centered": 0,
             "playing": 0,
-            "score1":4,
-            "score2":4,
+            "score1":0,
+            "score2":0,
             "won": 0,
             'online': 0,
             "start": time.time(),
@@ -107,6 +107,7 @@ class TournamentSession(models.Model):
     player3 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament3', null=True, on_delete=models.SET_NULL)
     player4 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tournament4', null=True, on_delete=models.SET_NULL)
     
+    finished = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     code = models.CharField(max_length=10, unique=True)
 

@@ -97,7 +97,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state = self.tournament.get_tournament_state()
         mess = 'm' + str(self.get_player())
         if game_state[mess] != -1:
-            Message.objects.get(id=game_state[mess]).delete()
+            Message.objects.filter(id=game_state[mess]).delete()
             game_state[mess] = -1
             async_to_sync(self.channel_layer.group_send)(
                 'chat',
@@ -226,7 +226,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         for i in range(4):
             mess = 'm' + str(i + 1)
             if game_state[mess] != -1:
-                Message.objects.get(id=game_state[mess]).delete()
+                Message.objects.filter(id=game_state[mess]).delete()
                 if i == 0:
                     id = self.tournament.player1.id
                 elif i == 1:
@@ -428,7 +428,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state['status'] = 'Round1_count'
         game_state['game1_id'] = game1.id
         game_state['game2_id'] = game2.id
-        game_state['start'] = time.time() + 60
+        game_state['start'] = time.time() + 30
 
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
@@ -448,7 +448,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         game_state['finished1'] = 1
         game_state['finished2'] = 1
         game_state['status'] = 'Round2_count'
-        game_state['start'] = time.time() + 60
+        game_state['start'] = time.time() + 30
         self.tournament.set_tournament_state(game_state)
         self.send_data_to_group()
         finalist1 = self.get_finalist(1)
@@ -464,7 +464,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
         self.tournament.save()
 
         m1, m2 = self.notify_round2(finalist1, finalist2)
-        time.sleep(1) #update to 60
+        time.sleep(30) #update to 60
         m1, m2 = self.notify_round2_start(finalist1, finalist2, m1, m2)
         game_state['status'] = "Round2"
         game_state['final1'] = 1 if self.tournament.game1.score1 > self.tournament.game1.score2 else 2
@@ -484,6 +484,14 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             time.sleep(1)
         m1.delete()
         m2.delete()
+        # print('222222222222222222222222222222')
+        # print('222222222222222222222222222222')
+        # print(self.tournament.player1.is_playing)
+        # print(self.tournament.player2.is_playing)
+        # print(self.tournament.player3.is_playing)
+        # print(self.tournament.player4.is_playing)
+        # print('222222222222222222222222222222')
+        # print('222222222222222222222222222222')
 
 
         async_to_sync(self.channel_layer.group_send)(
@@ -494,6 +502,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
                 'id2': finalist2.id,
             }
         )
+        # print('res', res)
         if res == 0:
             
             game_state['status'] = 'Finished'
@@ -504,15 +513,27 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             self.tournament.set_tournament_state(game_state)
             self.send_data_to_group()
             self.save_to_crypto()
+            # print('111111111111111111111')
             self.tournament.player1.is_playing = False
+            # print(self.tournament.player1.is_playing)
             self.tournament.player2.is_playing = False
+            # print(self.tournament.player2.is_playing)
             self.tournament.player3.is_playing = False
+            # print(self.tournament.player3.is_playing)
             self.tournament.player4.is_playing = False
+            # print(self.tournament.player4.is_playing)
+            # print(self.tournament.player1.email)
+            # print(self.tournament.player2.email)
+            # print(self.tournament.player3.email)
+            # print(self.tournament.player4.email)
+            # print('111111111111111111111')
             self.tournament.player1.save()
             self.tournament.player2.save()
             self.tournament.player3.save()
             self.tournament.player4.save()
             self.delete_all()
+            self.tournament.finished = True
+            self.tournament.save()
 
             Message.objects.filter(Q(send_to=self.tournament.player1) | Q(send_to=self.tournament.player2) | Q(send_to=self.tournament.player3) | Q(send_to=self.tournament.player4), sender=None).delete()
             async_to_sync(self.channel_layer.group_send)(
@@ -696,7 +717,7 @@ class OnlineTournamentConsumer(WebsocketConsumer):
             m1, m2, m3, m4 = self.notify_round1()
             game_state = self.tournament.get_tournament_state()
 
-            time.sleep(1) #change to 60
+            time.sleep(30) #change to 60
             
             m1, m2, m3, m4 = self.notify_round1_start(m1, m2, m3, m4)
 

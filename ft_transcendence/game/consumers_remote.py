@@ -47,10 +47,10 @@ class GameConsumer(WebsocketConsumer):
             if game_state['disc1'] == 0 and game_state['disc2'] == 0 and game_state['paused'] == 0:
                 if self.game_session.is_tournament:
                     if self.user == self.game_session.player1 and game_state['connected2'] == 0 and self.game_session.connected == False:
-                        game_state['start'] = (time.time() + 1)
+                        game_state['start'] = (time.time() + 11)
                         game_state['connected1'] = 1
                     elif self.user == self.game_session.player2 and game_state['connected1'] == 0 and self.game_session.connected == False:
-                        game_state['start'] = (time.time() + 1)
+                        game_state['start'] = (time.time() + 11)
                         game_state['connected1'] = 1
                 else:
                     game_state['start'] = time.time() + 4
