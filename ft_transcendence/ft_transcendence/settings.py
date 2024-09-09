@@ -44,6 +44,7 @@ DATABASES = {
 #     }
 # }
 
+
 PRIVATE_KEY=secret['private_key']
 INFURA_URL=secret['infura_url']
 CONTRACT_ADDRESS=secret['contract_address']

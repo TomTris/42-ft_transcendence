@@ -20,4 +20,5 @@ class Command(BaseCommand):
 				subscribed_users = User.objects.filter(is_subscribe=True)
 				for user in subscribed_users:
 					to_email = user.email
-					send_mail(subject, body, from_email, [to_email], fail_silently=False)
+					print(body)
+					# send_mail(subject, body, from_email, [to_email], fail_silently=False)

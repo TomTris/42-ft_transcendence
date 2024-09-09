@@ -310,14 +310,14 @@ def canceling_invite(request):
 
 
 #for test modsecurity
-from django.http import HttpResponse
-from django.db import connection
-def vulnerable_view(request):
-    query_param = request.GET.get('id', '')
-    cursor = connection.cursor()
-    cursor.execute(f"SELECT * FROM users_user")
-    results = cursor.fetchall()
-    return HttpResponse(f"Results: {results}")
+# from django.http import HttpResponse
+# from django.db import connection
+# def vulnerable_view(request):
+#     query_param = request.GET.get('id', '')
+#     cursor = connection.cursor()
+#     cursor.execute(f"SELECT * FROM users_user")
+#     results = cursor.fetchall()
+#     return HttpResponse(f"Results: {results}")
 
 
 

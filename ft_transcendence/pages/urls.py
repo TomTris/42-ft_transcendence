@@ -23,7 +23,7 @@ urlpatterns = [
     path('play_invite/<int:user_id>/', views.play_invite, name="play_invite"),
     path('cancel_invite/<int:user_id>/', views.cancel_invite, name="cancel_invite"),
     #for test modsecurity
-	path('vulnerable/', views.vulnerable_view),
+	# path('vulnerable/', views.vulnerable_view),
     path('', EmptyPath.as_view(), name='empty'),
 	path('home/', EmptyPath.as_view(), name='empty'),
 	path('chat/', Chat.as_view(), name='chat'),
