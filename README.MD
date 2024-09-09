@@ -108,9 +108,6 @@ Feel free to modify the sections as needed!
 ### Image 1
 ![Image 1](https://drive.google.com/uc?export=view&id=10GuKIm1XRqjMBcIf5REIF0ZWugwdJXuF)
 
-### Image 2
-![Image 2](https://drive.google.com/uc?export=view&id=1of8VNZia3aFbZla-dS8lLFG4QoYV6YgF)
-
 ### Image 3
 ![Image 3](https://drive.google.com/uc?export=view&id=1VYc0ZnA2Voz92lBalhOidGVObYmafJTY)
 
@@ -143,3 +140,6 @@ Feel free to modify the sections as needed!
 
 ### Image 13
 ![Image 13](https://drive.google.com/uc?export=view&id=1GMyjPRbqILW1BFjhTvNdb8CA1YdBajf9)
+
+### Image 2
+![Image 2](https://drive.google.com/uc?export=view&id=1of8VNZia3aFbZla-dS8lLFG4QoYV6YgF)
