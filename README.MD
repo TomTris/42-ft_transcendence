@@ -96,9 +96,9 @@ Chat in real-time with other players during your matches.
 📞 Contact
 If you have any questions or feedback, feel free to reach out:
 
-Name: Tom
-Email: quoctrido.jb@gmail.com
-GitHub: https://github.com/TomTris
+Name: Tom.
+Email: quoctrido.jb@gmail.com.
+GitHub: https://github.com/TomTris.
 
 Feel free to modify the sections as needed!
 
