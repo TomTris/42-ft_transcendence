@@ -73,7 +73,7 @@ then, make
 afterwards
 https://localhost:443
 If you are in 42 cluster, you can use your local IP address to connect remotely.
-or, if you are the unique person, who at the moment run my project, you also can access it through: deciding-delicate-raptor.ngrok-free.app. It creates a tunnel linked to our server.
+or, if you are the unique person, who at the moment run my project, you also can access it through: https://deciding-delicate-raptor.ngrok-free.app. It creates a tunnel linked to our server.
 Then, Enjoy
 
 🎮 Gameplay Overview
