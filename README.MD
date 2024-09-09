@@ -1,5 +1,7 @@
 # 🎮 **ft_transcendence**: Multiplayer Pong with AI, Blockchain, and DevOps
 
+SCroll Down down down to have some images!
+
 Welcome to **ft_transcendence**, an innovative take on the classic Pong game. This project includes multiplayer capabilities, AI-driven opponents, blockchain-based score storage, robust security, and docker for DevOps. It's designed to showcase a wide array of full-stack development skills and technologies.
 
 ## 📋 **Table of Contents**
