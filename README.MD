@@ -122,7 +122,7 @@ Feel free to modify the sections as needed!
 ![Image 6](https://drive.google.com/uc?export=view&id=1Z2ktDRcVfVj4vYuzBlmb4zWiT9LJOVVj)
 
 ### Image 6.5
-![Image 6](https://drive.google.com/file/d/1baCl1byk-7PemYoo7JRt9rAbqSsmYJcD/view?usp=drive_link)
+![Image 6.5](https://drive.google.com/uc?export=view&id=1baCl1byk-7PemYoo7JRt9rAbqSsmYJcD)
 
 ### Image 7
 ![Image 7](https://drive.google.com/uc?export=view&id=18ioC2gEws_GgnruxiU2K3f4MQxjisMGU)
